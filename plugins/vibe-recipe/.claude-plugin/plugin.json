@@ -1,0 +1,22 @@
+{
+  "name": "vibe-recipe",
+  "namespace": "vr",
+  "version": "0.1.0",
+  "description": "Vibe coding, with a recipe to follow. Spec-driven workflow with kitchen / recipe / cook / taste / serve skills, seven specialist subagents, and deterministic verification hooks. Stack-agnostic. Compatible with Claude Code natively; adapters for Cursor, Codex, Aider, and Gemini CLI.",
+  "author": {
+    "name": "TBD",
+    "email": "TBD"
+  },
+  "homepage": "https://github.com/<org>/vibe-recipe",
+  "license": "Apache-2.0",
+  "keywords": [
+    "vibe-coding",
+    "spec-driven",
+    "no-code",
+    "agents",
+    "harness",
+    "scaffold",
+    "stack-agnostic",
+    "beginner-friendly"
+  ]
+}
