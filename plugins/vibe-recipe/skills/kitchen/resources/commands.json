@@ -2,6 +2,7 @@
   "setup": null,
   "build": null,
   "test": null,
+  "e2e": null,
   "lint": null,
   "verify": null,
   "dev": null

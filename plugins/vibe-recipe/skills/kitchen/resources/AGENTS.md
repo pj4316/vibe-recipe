@@ -42,6 +42,16 @@
 
 충돌이 있으면 현재 사용자 지시를 우선하되, constitution 또는 product scope와 충돌하는 변경은 진행 전에 확인합니다. 기능 개발은 `recipe/plan`으로 spec을 만든 뒤 `cook/dev`로 진행합니다. `.agent/`, `.hooks/`, command profile, generated agent instructions 같은 harness를 개선하려면 다시 `kitchen/init`을 사용합니다.
 
+## 개발 원칙
+
+- 개발 순서는 `recipe/plan` -> `cook/dev` -> `taste/review`를 기본으로 합니다. architecture 선택이 불명확하면 `forage/research`를 먼저 사용합니다.
+- `cook/dev`는 가능한 한 실패하는 test 또는 executable acceptance check를 먼저 만들고 red -> green -> refactor 순서로 진행합니다.
+- 도메인 규칙은 UI, framework, database, external API에서 분리하고, 외부 I/O는 adapter 뒤에 둡니다.
+- Hexagonal architecture 또는 ports-and-adapters는 domain-heavy, integration-heavy, long-lived service에서 우선 고려하되 작은 script나 prototype에는 과한 layer를 만들지 않습니다.
+- UI/browser workflow는 Given/When/Then scenario로 acceptance를 적고, 필요한 경우 `e2e` command 또는 Playwright MCP로 검증합니다.
+- secret, personal data, schema migration, external contract, dependency 추가는 security, rollback, compatibility 영향을 함께 확인합니다.
+- user-facing failure는 logging, error boundary, retry, loading/error/empty state처럼 관찰 가능하고 복구 가능한 형태로 설계합니다.
+
 ## 스킬별 Harness 연계
 
 모든 스킬은 이 표의 입력 문서를 기준으로 판단하고, 출력 문서 외의 harness를 임의로 갱신하지 않습니다.
@@ -53,11 +63,13 @@
 | `recipe/plan` | `.agent/constitution.md`, `.agent/spec/prd.md`, `.agent/spec/design.md` | `.agent/spec/active/NNNN-*.md` |
 | `cook/dev` | active spec, `.agent/spec/design.md`, `.agent/commands.json` | 코드 변경, task handoff |
 | `fix/debug` | failing context, active spec, `.agent/runbooks/debugging.md`, `.agent/commands.json` | 최소 수정, 원인 기록 |
+| `inspect/audit` | 변경 diff, active spec, `.agent/spec/design.md`, `.agent/commands.json` | targeted audit, risk report |
 | `tidy/refactor` | active spec 또는 tidy 요청, `.agent/spec/design.md`, `.agent/commands.json` | 동작 보존 refactor |
 | `taste/review` | 변경 diff, active spec, handoff, `.agent/commands.json` | review verdict, red-team/security finding |
 | `plate/design-tune` | 실제 UI 코드, `.agent/wiki/design-system.md` | design-system 보강, UI drift 정리 |
 | `wrap/bump` | done/active spec, taste verdict, changelog/version 파일 | version/changelog 준비 |
 | `serve/release` | `.agent/constitution.md`, `.agent/commands.json`, taste verdict, clean tree | release gate 결과, push/deploy 전 정지 |
+| `autopilot/run` | 명시적 사용자 승인, active spec, `.agent/commands.json`, release gate | bounded multi-step execution |
 
 새 기능은 `recipe` 없이 `cook`으로 건너뛰지 않습니다. `cook`, `fix`, `tidy`는 실행한 command와 결과를 handoff 또는 관련 spec에 남깁니다. `taste`, `wrap`, `serve`는 `verify`가 없거나 실패하면 release를 진행하지 않습니다.
 
@@ -126,6 +138,7 @@
 프로젝트 native command는 `.agent/commands.json`에 둡니다.
 
 - debugging 또는 구현 중에는 focused command를 먼저 실행합니다.
+- UI/browser 변경은 `e2e` command가 있으면 실행하고, 없으면 Playwright MCP로 핵심 scenario를 확인한 뒤 결과를 기록합니다.
 - merge/release 전에는 `verify`를 실행합니다.
 - `verify`가 `null`이면 설정될 때까지 release는 blocked입니다.
 

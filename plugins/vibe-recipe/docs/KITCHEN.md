@@ -10,6 +10,7 @@
 - `.agent/` 아래에 제품 문맥, 기술 설계, command profile, memory, spec, runbook seed를 구성합니다.
 - release/deploy/push, auth/payment/data-loss, constitution 변경 같은 위험 작업에 human gate를 둡니다.
 - 첫 health-check spec을 만들어 harness가 실제로 동작하는지 rehearsal할 수 있게 합니다.
+- UI/browser workflow는 `e2e` command 또는 Playwright MCP로 acceptance를 확인할 수 있게 합니다.
 - 초기 구성이 끝나면 “프로젝트 초기 구성이 끝났습니다. 레시피를 작성해볼까요?”라고 안내합니다.
 
 ## 동작 모드
@@ -67,6 +68,7 @@ mode가 애매하면 기존 harness가 있을 때는 `abort`, 없을 때는 `fre
 
 - 작업 시작 시 `.agent/constitution.md`, `.agent/spec/prd.md`, `.agent/spec/design.md`, `.agent/commands.json`, `.agent/memory/gotchas.md`를 먼저 읽습니다.
 - 기능 개발은 `recipe/plan`으로 numbered spec을 만든 뒤 `cook/dev`로 구현합니다.
+- 구현은 red -> green -> refactor를 기본으로 하고, UI/browser 변경은 Given/When/Then scenario와 `e2e` command 또는 Playwright MCP 검증을 남깁니다.
 - harness 자체를 보수하거나 개선할 때는 ad hoc edit이 아니라 `kitchen/init`을 다시 사용합니다.
 - `.agent/constitution.md`와 제품 scope에 충돌하는 변경은 진행 전에 사람에게 확인합니다.
 
@@ -76,6 +78,7 @@ mode가 애매하면 기존 harness가 있을 때는 `abort`, 없을 때는 `fre
 
 - `AGENTS.md`, `.agent/constitution.md`, `.agent/spec/design.md`, `.agent/spec/prd.md`가 생성됩니다.
 - `.agent/commands.json`이 valid JSON이고 stable key를 모두 포함합니다.
+- UI/browser 프로젝트이면 `e2e` command 가능 여부 또는 Playwright MCP manual check 기준이 명확합니다.
 - `.agent/spec/active/0001-health-check.md`가 생성됩니다.
 - `.agent/runbooks/verification.md`, `.agent/runbooks/debugging.md`, `.agent/runbooks/deployment.md`가 생성됩니다.
 - UI/frontend 프로젝트이면 `.agent/wiki/design-system.md`가 생성됩니다.

@@ -67,6 +67,7 @@ description: /vr:kitchen 또는 /vr:init 호출 시 사용합니다. 설치 후 
 - release, deploy, push, payment, auth, data-loss 가능성이 있는 작업은 human gate가 필요합니다.
 - `taste`는 security-auditor와 red-team review를 포함합니다.
 - `.agent/commands.json`의 `verify` command가 release gate입니다.
+- UI/browser workflow는 project `e2e` command 또는 Playwright MCP로 acceptance를 확인합니다.
 - agent는 작업 시작 시 `AGENTS.md`와 `.agent/constitution.md`, `.agent/spec/prd.md`, `.agent/spec/design.md`, `.agent/commands.json`을 읽고 해당 contract를 준수합니다.
 - `.agent/spec/INDEX.md`, handoff index, ADR index는 librarian generated입니다.
 - agent는 관련 없는 사용자 변경을 보호하고 자동 push/deploy를 하지 않습니다.
@@ -388,6 +389,8 @@ repo 감지와 command profile 중심으로 생성합니다.
 - Product context summary.
 - Stack and package manager detection.
 - Architecture inference.
+- Implementation principles: boundary, dependency direction, architecture style fit, TDD/test strategy, operational quality.
+- Development sequence: recipe first, TDD loop, BDD-style e2e scenario for browser workflows.
 - Frontend/backend/data/integration assumptions.
 - `.agent/commands.json` summary.
 - Verification strategy and release block if `verify` is `null`.
@@ -438,7 +441,7 @@ AskQuestion 승인 후 다음을 생성합니다.
 | 제품 답변 + 기본 운영 모델 | `AGENTS.md` | 필수. 기존 파일은 덮어쓰기 전 preview 필요. |
 | 제품 답변 + 기본 운영 모델 | `.agent/constitution.md` | 필수. fresh/reset에서만 생성. 이후 human-only. |
 | 제품 답변 + repo 감지 결과 | `.agent/spec/design.md` | 필수. |
-| `resources/commands.json` + command detection | `.agent/commands.json` | 필수. stable key 유지. |
+| `resources/commands.json` + command detection | `.agent/commands.json` | 필수. stable key 유지. `e2e`는 UI/browser 검증 command입니다. |
 | 제품 답변 | `.agent/spec/prd.md` | create only. |
 | repo 감지 또는 fallback | `.agent/wiki/architecture.md` | create only. |
 | 제품 답변 | `.agent/wiki/domain.md` | create only. |
