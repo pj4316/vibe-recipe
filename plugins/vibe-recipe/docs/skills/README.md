@@ -19,6 +19,7 @@ Subagent는 `plugins/vibe-recipe/agents/`에 있으며 top-level skill이 필요
 | `FIX.md` | `fix` | 실패 재현, root cause 분류, regression coverage, escalation |
 | `FORAGE.md` | `forage` | 기술 선택 조사, option 비교, proposed ADR |
 | `GRILL.md` | `grill` | 의도 정렬 인터뷰, Alignment Brief, kitchen/recipe 연계 |
+| `INSPECT.md` | `inspect` | read-only audit, release readiness, risk finding |
 | `KITCHEN.md` | `kitchen` | 초기 project harness 구성, 생성 파일, mode, 완료 기준 |
 | `RECIPE.md` | `recipe` | Alignment Brief 기반 spec 작성, domain 용어집, ADR 후보 |
 | `TASTE.md` | `taste` | review orchestration, verdict, loop recommendation |
