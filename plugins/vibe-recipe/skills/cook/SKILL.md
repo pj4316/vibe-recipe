@@ -7,7 +7,7 @@ description: Approved 또는 In Progress recipe 전체를 task 단위 TDD 실행
 
 승인된 recipe를 코드로 완성할 때 사용합니다. 메인 에이전트는 지휘자 역할을 하며, task 하나의 실제 구현은 `task-runner` agent에 맡기고 결과를 받아 통합합니다.
 
-`cook`은 scope를 정하지 않습니다. scope는 `recipe`에서 승인된 spec을 기준으로 하며, 구현 중 scope 변경이 필요하면 멈춰서 `recipe`로 되돌립니다.
+`cook`은 사용자가 호출할 수 있는 top-level orchestrator skill입니다. scope는 `recipe`에서 승인된 spec을 기준으로 하며, `task-runner`는 subagent이고 recipe 전체 책임과 다음 loop 판단은 부모 `cook`이 유지합니다.
 
 ## 시작 조건
 
