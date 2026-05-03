@@ -22,6 +22,7 @@ Subagent는 `plugins/vibe-recipe/agents/`에 있으며 top-level skill이 필요
 | `INSPECT.md` | `inspect` | read-only audit, release readiness, risk finding |
 | `KITCHEN.md` | `kitchen` | 초기 project harness 구성, 생성 파일, mode, 완료 기준 |
 | `PEEK.md` | `peek` | read-only status, active spec, next skill routing |
+| `PLATE.md` | `plate` | UI inventory, design-system drift, token policy |
 | `RECIPE.md` | `recipe` | Alignment Brief 기반 spec 작성, domain 용어집, ADR 후보 |
 | `TASTE.md` | `taste` | review orchestration, verdict, loop recommendation |
 | `TIDY.md` | `tidy` | 동작 보존 refactor, 동등성 검증, architecture boundary |
