@@ -13,7 +13,7 @@ description: cook, fix, tidy 이후 recipe acceptance, task handoff, diff, verif
 - `taste`는 reviewer, tester, security-auditor, red-team subagent를 조율합니다.
 - subagent는 finding을 반환하고, verdict와 loop recommendation은 `taste`가 합성합니다.
 - 다음 skill을 실제 실행하는 것은 parent agent 또는 opt-in된 `autopilot`입니다.
-- `taste`와 review subagent는 제품 코드를 수정하지 않습니다. 허용되는 쓰기는 `.agent/spec/handoffs/NNNN-taste.md` report뿐입니다.
+- `taste`와 review subagent는 제품 코드를 수정하지 않습니다. 허용되는 쓰기는 현재 spec 번호에 해당하는 `.agent/spec/handoffs/NNNN-taste.md` report뿐입니다.
 
 ## 시작 조건
 
@@ -33,7 +33,7 @@ description: cook, fix, tidy 이후 recipe acceptance, task handoff, diff, verif
 - raw file이나 raw diff는 blocker 판단에 꼭 필요한 짧은 범위만 읽고, 합성 후 report에는 file/line, command, handoff path 같은 evidence reference로 남깁니다.
 - subagent 결과는 severity, affected behavior, evidence reference, recommended next skill 중심으로 compact하게 받습니다.
 - 반복되는 red-team/security pattern은 긴 설명을 메인 컨텍스트에 유지하지 말고 `librarian`이 `.agent/memory/red-team-findings.md`에 정리하도록 recommendation에 남깁니다.
-- `taste` 완료 후 메인 응답은 verdict, blocker, coverage gap, next loop만 요약하고 상세 원자료는 `.agent/spec/handoffs/NNNN-taste.md`를 가리킵니다.
+- `taste` 완료 후 메인 응답은 verdict, blocker, coverage gap, next loop만 요약하고 상세 원자료는 현재 spec의 `.agent/spec/handoffs/NNNN-taste.md`를 가리킵니다.
 
 ## Verdict
 
@@ -82,7 +82,7 @@ Forbidden writes: product code, tests, generated artifacts, spec edits
 
 ## 출력 계약
 
-`taste`는 review report를 `.agent/spec/handoffs/NNNN-taste.md`에 남깁니다. 이 파일은 `peek`, `wrap`, `serve`가 최신 verdict를 재사용할 수 있는 source입니다.
+`taste`는 review report를 현재 spec 번호에 맞는 `.agent/spec/handoffs/NNNN-taste.md`에 남깁니다. 이 파일은 `peek`, `wrap`, `serve`가 같은 spec의 최신 verdict를 재사용할 수 있는 source입니다.
 
 제품 코드, test, generated artifact, active spec 본문은 수정하지 않습니다. spec 자체가 틀렸다면 report에 `recipe` escalation을 남깁니다.
 

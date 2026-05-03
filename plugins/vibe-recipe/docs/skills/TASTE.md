@@ -11,7 +11,7 @@
 - `tester`, `reviewer`, `security-auditor`, `red-team` 결과를 합성합니다.
 - merge blocker와 follow-up concern을 구분합니다.
 - 다음 loop를 `cook`, `fix`, `recipe`, `tidy`, `wrap`, `serve` 중 하나로 명확히 추천합니다.
-- review report를 `.agent/spec/handoffs/NNNN-taste.md`에 남겨 `peek`, `wrap`, `serve`가 최신 verdict를 재사용할 수 있게 합니다.
+- review report를 현재 spec 번호에 맞는 `.agent/spec/handoffs/NNNN-taste.md`에 남겨 `peek`, `wrap`, `serve`가 같은 spec의 최신 verdict를 재사용할 수 있게 합니다.
 
 ## 시작 조건
 
@@ -31,7 +31,7 @@
 - raw file이나 raw diff는 blocker 판단에 꼭 필요한 짧은 범위만 읽고, 합성 후 report에는 file/line, command, handoff path 같은 evidence reference로 남깁니다.
 - subagent 결과는 severity, affected behavior, evidence reference, recommended next skill 중심으로 compact하게 받습니다.
 - 반복되는 red-team/security pattern은 긴 설명을 메인 컨텍스트에 유지하지 말고 `librarian`이 `.agent/memory/red-team-findings.md`에 정리하도록 recommendation에 남깁니다.
-- `taste` 완료 후 메인 응답은 verdict, blocker, coverage gap, next loop만 요약하고 상세 원자료는 `.agent/spec/handoffs/NNNN-taste.md`를 가리킵니다.
+- `taste` 완료 후 메인 응답은 verdict, blocker, coverage gap, next loop만 요약하고 상세 원자료는 현재 spec의 `.agent/spec/handoffs/NNNN-taste.md`를 가리킵니다.
 
 ## Verdict 기준
 
@@ -61,7 +61,7 @@ verdict 우선순위는 `BLOCK` > `REQUEST_CHANGES` > `APPROVE`입니다. projec
 | `security-auditor` | auth, secret, injection, dependency, data-loss 위험 검토 |
 | `red-team` | abuse, replay, race, boundary, timezone/locale 위험 검토 |
 
-모든 subagent는 read-only입니다. 수정은 `taste`가 아니라 후속 `cook`, `fix`, `tidy`에서 수행합니다. `taste` 자체도 제품 코드, test, generated artifact, active spec 본문을 수정하지 않으며, 허용되는 쓰기는 `.agent/spec/handoffs/NNNN-taste.md` report뿐입니다.
+모든 subagent는 read-only입니다. 수정은 `taste`가 아니라 후속 `cook`, `fix`, `tidy`에서 수행합니다. `taste` 자체도 제품 코드, test, generated artifact, active spec 본문을 수정하지 않으며, 허용되는 쓰기는 현재 spec 번호에 해당하는 `.agent/spec/handoffs/NNNN-taste.md` report뿐입니다.
 
 각 subagent에는 동일한 입력 패킷을 넘깁니다.
 
@@ -86,7 +86,7 @@ Forbidden writes: product code, tests, generated artifacts, spec edits
 - coverage gap
 - loop recommendation
 
-report 저장 위치는 `.agent/spec/handoffs/NNNN-taste.md`입니다. spec 자체가 틀렸다면 active spec을 고치지 말고 report에서 `recipe` escalation을 남깁니다.
+report 저장 위치는 현재 spec 번호에 해당하는 `.agent/spec/handoffs/NNNN-taste.md`입니다. spec 자체가 틀렸다면 active spec을 고치지 말고 report에서 `recipe` escalation을 남깁니다.
 
 ## Loop Recommendation 매핑
 
