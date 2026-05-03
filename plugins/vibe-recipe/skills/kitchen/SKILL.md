@@ -9,6 +9,8 @@ description: /vr:kitchen 또는 /vr:init 호출 시 사용합니다. 설치 후 
 
 `kitchen` 완료 후 target repo는 사용자가 harness를 크게 만지지 않아도 바로 `recipe/plan`으로 spec을 만들고 `cook/dev`로 구현할 수 있어야 합니다. 이후 `.agent/`, `.hooks/`, command profile, generated agent instructions 같은 주방기구를 보수하거나 개선하고 싶을 때도 `kitchen`을 다시 사용합니다.
 
+`grill/align`은 권장 preflight입니다. 사용자가 같은 대화에서 `Alignment Brief`를 만든 뒤 `kitchen`을 실행하면, `kitchen`은 그 brief를 제품 답변의 초안으로 사용합니다. `Alignment Brief`가 없어도 빠른 `/vr:kitchen` 흐름은 그대로 진행합니다.
+
 초기 구성이 끝나면 사용자에게 “프로젝트 초기 구성이 끝났습니다. 레시피를 작성해볼까요?”라고 안내하고, 다음 단계로 `recipe/plan`에서 첫 기능 spec을 만든 뒤 `cook/dev`로 구현하는 흐름을 제안합니다.
 
 필수 생성 문서:
@@ -29,6 +31,7 @@ description: /vr:kitchen 또는 /vr:init 호출 시 사용합니다. 설치 후 
 - `resources/constitution.md`
 - `resources/design.md`
 - `resources/design-system.md`
+- `resources/domain.md`
 - `resources/commands.json`
 - `resources/health-check.md`
 - `resources/runbook-verification.md`
@@ -46,8 +49,21 @@ description: /vr:kitchen 또는 /vr:init 호출 시 사용합니다. 설치 후 
 - 첫 버전에서 꼭 동작해야 하는 것은 무엇인가.
 - 지금 만들지 않을 것은 무엇인가.
 - 성공했다고 볼 기준은 무엇인가.
-- 제품 안에서 중요한 용어, 역할, 상태는 무엇인가.
+- 제품 안에서 중요한 용어, 역할, 상태는 무엇인가. 이 답변은 유비쿼터스 용어집의 seed가 됩니다.
 - UI가 있다면 원하는 느낌은 무엇인가.
+
+같은 대화에 `Alignment Brief`가 있으면 아래처럼 질문 초안에 반영합니다.
+
+| Alignment Brief | Kitchen field |
+| --- | --- |
+| `Goal` | `product_pitch` |
+| `Audience` | `primary_user` |
+| `MVP` | `mvp_capabilities` |
+| `Non-goals` | `anti_scope` |
+| `Success criteria` | `success_metric` |
+| `Domain terms` | `.agent/wiki/domain.md` seed |
+| `Assumptions` | dangerous assumptions와 `.agent/spec/design.md` assumption |
+| UI 관련 답변 | UI 질문 seed. 세부 design system은 `plate`에서 정리 |
 
 다음은 사용자에게 묻지 않습니다. 모두 vibe-recipe 기본값으로 적용합니다.
 
@@ -113,8 +129,10 @@ default_if_unknown:
 규칙:
 
 - 질문은 제품 정의, MVP, 도메인, UI 취향에 한정합니다.
+- 질문은 한 번에 하나씩 묻고, 각 질문에는 추천 답변과 추천 이유를 함께 제시합니다.
 - 모든 객관식 질문은 `unknown_option`을 포함합니다.
 - 자유 입력이 필요한 질문은 짧은 예시를 제공합니다.
+- 같은 대화의 `Alignment Brief`로 답을 추정할 수 있으면 그 값을 추천 답변으로 제시하고, 사용자가 고칠 기회를 줍니다.
 - phase가 끝날 때마다 “이 답변으로 제품 문맥이 어디에 반영되는지”만 요약합니다.
 - 운영 원칙을 사용자가 고르게 하지 않습니다.
 
@@ -261,9 +279,9 @@ default_if_unknown:
   reason: 첫 버전에서는 end-to-end 동작이 가장 중요한 성공 기준입니다.
 ```
 
-## Phase 3 - 도메인 언어
+## Phase 3 - 유비쿼터스 도메인 언어
 
-목표: agent가 제품 용어를 임의로 해석하지 않게 합니다.
+목표: agent가 제품 용어를 임의로 해석하지 않고, 사용자·spec·코드 설명이 같은 용어로 소통하게 합니다.
 
 ```yaml
 id: domain_terms
@@ -280,7 +298,7 @@ writes_to:
   - .agent/spec/prd.md
 default_if_unknown:
   choice: 아직 없음
-  reason: 불명확한 용어를 agent가 지어내지 않도록 비워두고 발견 시 추가합니다.
+  reason: 불명확한 용어를 agent가 지어내지 않도록 비워두고, 첫 recipe에서 발견 시 유비쿼터스 용어집에 추가합니다.
 ```
 
 ```yaml
@@ -358,6 +376,7 @@ Preview에는 다음이 포함되어야 합니다.
 
 - 제품 요약: pitch, primary user, MVP, anti-scope, success metric.
 - domain 요약: 용어, 역할, 상태, dangerous assumptions.
+- 유비쿼터스 용어집 요약: `.agent/wiki/domain.md`에 들어갈 핵심 용어와 아직 비워둘 항목.
 - 기술 요약: 감지된 stack, architecture 추론, command profile.
 - vibe-recipe 기본 운영 원칙: spec-first, human gate, security+red-team review, constitution human-only, librarian generated indexes.
 - AGENTS.md 구조: Project Directory Map, Recipe Routing, Gotchas, Required Before Release 포함 여부.
@@ -395,6 +414,19 @@ repo 감지와 command profile 중심으로 생성합니다.
 - `.agent/commands.json` summary.
 - Verification strategy and release block if `verify` is `null`.
 - Known product constraints from MVP/anti-scope.
+
+### `.agent/wiki/domain.md`
+
+프로젝트의 유비쿼터스 용어집으로 생성합니다.
+
+반드시 포함:
+
+- 용어집 원칙: 사용자, spec, 코드 설명, test에서 같은 개념은 같은 이름으로 부름.
+- 핵심 용어: term, definition, usage example, 피해야 할 표현.
+- 역할: actor, 설명, 권한 또는 제한.
+- 상태: state, 뜻, 전이 규칙.
+- 비즈니스 규칙과 위험한 오해.
+- 갱신 규칙: 새 용어는 `recipe/plan`에서 확인하고, 정리는 `librarian`이 수행.
 
 ### `AGENTS.md`
 
@@ -444,7 +476,7 @@ AskQuestion 승인 후 다음을 생성합니다.
 | `resources/commands.json` + command detection | `.agent/commands.json` | 필수. stable key 유지. `e2e`는 UI/browser 검증 command입니다. |
 | 제품 답변 | `.agent/spec/prd.md` | create only. |
 | repo 감지 또는 fallback | `.agent/wiki/architecture.md` | create only. |
-| 제품 답변 | `.agent/wiki/domain.md` | create only. |
+| `resources/domain.md` + 제품 답변 | `.agent/wiki/domain.md` | create only. 유비쿼터스 용어집 source of truth. |
 | UI 답변 또는 fallback | `.agent/wiki/design-system.md` | frontend/UI 프로젝트일 때만 create only. UI가 아니면 생성하지 않음. |
 | fallback | `.agent/memory/gotchas.md` | create only. AGENTS.md에는 요약만 둠. |
 | `resources/health-check.md` | `.agent/spec/active/0001-health-check.md` | create only. |
@@ -462,6 +494,7 @@ Core document source:
 - `AGENTS.md`는 `resources/AGENTS.md`를 기반으로 생성합니다.
 - `.agent/constitution.md`는 `resources/constitution.md`를 기반으로 생성합니다.
 - `.agent/spec/design.md`는 `resources/design.md`를 기반으로 생성합니다.
+- `.agent/wiki/domain.md`는 `resources/domain.md`를 기반으로 생성합니다.
 - `.agent/wiki/design-system.md`는 frontend/UI 프로젝트일 때 `resources/design-system.md`를 기반으로 생성합니다.
 - `.agent/commands.json`, health-check spec, runbook seed는 depth 1 `resources/` 파일을 기반으로 target path에 생성합니다.
 
@@ -474,6 +507,7 @@ Core document source:
 - `.agent/spec/design.md`가 생성됨.
 - `.agent/commands.json`이 valid JSON이고 stable key를 모두 포함함.
 - `.agent/spec/prd.md`가 제품 답변을 반영함.
+- `.agent/wiki/domain.md`가 유비쿼터스 용어집으로 생성됨.
 - frontend/UI 프로젝트이면 `.agent/wiki/design-system.md`가 생성됨.
 - `.agent/memory/gotchas.md`가 생성됨.
 - `.agent/spec/active/0001-health-check.md`가 생성됨.

@@ -4,10 +4,13 @@
 
 초기화가 끝나면 target project는 별도 harness 작업 없이 바로 `recipe/plan`으로 첫 spec을 만들고 `cook/dev`로 구현을 시작할 수 있어야 합니다.
 
+`grill/align`은 권장 preflight입니다. 같은 대화에 `Alignment Brief`가 있으면 `kitchen`은 이를 제품 답변 초안으로 사용합니다. `Alignment Brief`가 없어도 빠른 `/vr:kitchen` 초기화 흐름은 그대로 진행합니다.
+
 ## 목표
 
 - target project 루트에 에이전트가 매 세션 읽을 `AGENTS.md`를 생성합니다.
 - `.agent/` 아래에 제품 문맥, 기술 설계, command profile, memory, spec, runbook seed를 구성합니다.
+- `.agent/wiki/domain.md`에 유비쿼터스 용어집을 만들어 사용자, spec, 코드 설명, review가 같은 도메인 언어로 소통하게 합니다.
 - release/deploy/push, auth/payment/data-loss, constitution 변경 같은 위험 작업에 human gate를 둡니다.
 - 첫 health-check spec을 만들어 harness가 실제로 동작하는지 rehearsal할 수 있게 합니다.
 - UI/browser workflow는 `e2e` command 또는 Playwright MCP로 acceptance를 확인할 수 있게 합니다.
@@ -38,6 +41,8 @@ mode가 애매하면 기존 harness가 있을 때는 `abort`, 없을 때는 `fre
 - 중요한 용어, 역할, 상태, 오해하면 안 되는 규칙이 있는가.
 - UI가 있다면 어떤 느낌과 밀도를 원하는가.
 
+질문은 한 번에 하나씩 진행하고, 각 질문에는 추천 답변과 추천 이유를 함께 제시합니다. `Alignment Brief`가 있으면 `Goal`, `Audience`, `MVP`, `Non-goals`, `Success criteria`, `Domain terms`, `Assumptions`를 각각 product pitch, primary user, MVP, anti-scope, success metric, domain seed, dangerous assumptions 초안으로 매핑합니다.
+
 다음은 사용자에게 묻지 않고 기본값으로 적용합니다.
 
 - spec-first를 사용할지 여부.
@@ -53,6 +58,7 @@ mode가 애매하면 기존 harness가 있을 때는 `abort`, 없을 때는 `fre
 | `resources/AGENTS.md` | `AGENTS.md` | 에이전트 운영 계약과 `.agent` 준수 규칙 |
 | `resources/constitution.md` | `.agent/constitution.md` | 초기화 이후 human-only인 프로젝트 헌장 |
 | `resources/design.md` | `.agent/spec/design.md` | 저장소 감지 결과와 기술 설계 seed |
+| `resources/domain.md` | `.agent/wiki/domain.md` | 유비쿼터스 용어집 seed |
 | `resources/design-system.md` | `.agent/wiki/design-system.md` | UI 프로젝트일 때만 생성하는 design system seed |
 | `resources/commands.json` | `.agent/commands.json` | stable command profile |
 | `resources/health-check.md` | `.agent/spec/active/0001-health-check.md` | harness rehearsal용 첫 spec |
@@ -67,6 +73,7 @@ mode가 애매하면 기존 harness가 있을 때는 `abort`, 없을 때는 `fre
 생성된 `AGENTS.md`는 에이전트에게 다음을 요구합니다.
 
 - 작업 시작 시 `.agent/constitution.md`, `.agent/spec/prd.md`, `.agent/spec/design.md`, `.agent/commands.json`, `.agent/memory/gotchas.md`를 먼저 읽습니다.
+- 사용자 질문, spec, handoff, review, 코드 설명은 `.agent/wiki/domain.md`의 용어를 기준으로 맞춥니다.
 - 기능 개발은 `recipe/plan`으로 numbered spec을 만든 뒤 `cook/dev`로 구현합니다.
 - 구현은 red -> green -> refactor를 기본으로 하고, UI/browser 변경은 Given/When/Then scenario와 `e2e` command 또는 Playwright MCP 검증을 남깁니다.
 - harness 자체를 보수하거나 개선할 때는 ad hoc edit이 아니라 `kitchen/init`을 다시 사용합니다.
@@ -77,6 +84,7 @@ mode가 애매하면 기존 harness가 있을 때는 `abort`, 없을 때는 `fre
 `kitchen`은 다음이 만족되면 완료로 봅니다.
 
 - `AGENTS.md`, `.agent/constitution.md`, `.agent/spec/design.md`, `.agent/spec/prd.md`가 생성됩니다.
+- `.agent/wiki/domain.md`가 유비쿼터스 용어집으로 생성됩니다.
 - `.agent/commands.json`이 valid JSON이고 stable key를 모두 포함합니다.
 - UI/browser 프로젝트이면 `e2e` command 가능 여부 또는 Playwright MCP manual check 기준이 명확합니다.
 - `.agent/spec/active/0001-health-check.md`가 생성됩니다.

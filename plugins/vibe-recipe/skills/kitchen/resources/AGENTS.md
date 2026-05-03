@@ -37,10 +37,28 @@
 - `.agent/constitution.md`: 초기화 이후 human-only입니다. 에이전트가 임의로 수정하지 않습니다.
 - `.agent/spec/prd.md`: 제품 scope, MVP, anti-scope의 기준입니다.
 - `.agent/spec/design.md`: repo 구조, architecture 추론, verification strategy의 기준입니다.
+- `.agent/wiki/domain.md`: 유비쿼터스 용어집이며 제품 용어, 역할, 상태, 비즈니스 규칙의 기준입니다.
 - `.agent/commands.json`: native command profile이며 `verify`가 release gate입니다.
 - `.agent/memory/gotchas.md`: 반복 실수를 피하기 위한 누적 주의사항입니다.
 
 충돌이 있으면 현재 사용자 지시를 우선하되, constitution 또는 product scope와 충돌하는 변경은 진행 전에 확인합니다. 기능 개발은 `recipe/plan`으로 spec을 만든 뒤 `cook/dev`로 진행합니다. `.agent/`, `.hooks/`, command profile, generated agent instructions 같은 harness를 개선하려면 다시 `kitchen/init`을 사용합니다.
+
+## 질문과 모호성
+
+- 사용자 요청, 요구사항, 구현 의도에 모호함이 있으면 추측하지 말고 질문합니다.
+- 파일 위치, 구조, 명령, 기존 구현처럼 저장소에서 확인 가능한 사실은 먼저 탐색합니다.
+- 탐색 뒤에도 제품 의도, scope, 용어, acceptance criteria, architecture 방향이 불명확하면 진행 전에 질문합니다.
+- 질문은 `.agent/wiki/domain.md`, `.agent/spec/prd.md`, `.agent/spec/design.md`와 충돌하는 지점을 구체적으로 짚습니다.
+
+## 유비쿼터스 용어집
+
+`.agent/wiki/domain.md`를 제품 소통의 공통 언어로 사용합니다.
+
+- 사용자 질문, spec, handoff, review, 코드 설명에서는 용어집의 표현을 우선합니다.
+- 같은 개념을 여러 이름으로 부르지 않습니다.
+- 새 용어, 역할, 상태, 비즈니스 규칙이 생기면 `recipe/plan`에서 확인하고 용어집에 반영합니다.
+- 구현 중 용어 충돌을 발견하면 임의로 이름을 정하지 말고 handoff에 남긴 뒤 `recipe` 또는 `librarian` 정리로 넘깁니다.
+- code identifier는 기존 저장소 관례를 따르되, 설명성 문서와 사용자 커뮤니케이션은 용어집 기준으로 맞춥니다.
 
 ## 개발 원칙
 
@@ -48,6 +66,8 @@
 - `cook/dev`는 가능한 한 실패하는 test 또는 executable acceptance check를 먼저 만들고 red -> green -> refactor 순서로 진행합니다.
 - 도메인 규칙은 UI, framework, database, external API에서 분리하고, 외부 I/O는 adapter 뒤에 둡니다.
 - Hexagonal architecture 또는 ports-and-adapters는 domain-heavy, integration-heavy, long-lived service에서 우선 고려하되 작은 script나 prototype에는 과한 layer를 만들지 않습니다.
+- deep module을 선호하고 shallow module을 지양합니다. 작은 public interface가 의미 있는 내부 복잡도와 policy를 감추는 구조를 우선합니다.
+- 단순 wrapper, 책임 없는 pass-through layer, 호출부보다 내부 복잡도를 숨기지 못하는 module은 만들지 않습니다.
 - UI/browser workflow는 Given/When/Then scenario로 acceptance를 적고, 필요한 경우 `e2e` command 또는 Playwright MCP로 검증합니다.
 - secret, personal data, schema migration, external contract, dependency 추가는 security, rollback, compatibility 영향을 함께 확인합니다.
 - user-facing failure는 logging, error boundary, retry, loading/error/empty state처럼 관찰 가능하고 복구 가능한 형태로 설계합니다.
@@ -60,11 +80,11 @@
 | --- | --- | --- |
 | `peek/status` | `AGENTS.md`, `.agent/commands.json`, `.agent/spec/`, git 상태 | 읽기 전용 상태 요약 |
 | `forage/research` | `.agent/spec/prd.md`, `.agent/spec/design.md`, `.agent/wiki/decisions/` | proposed ADR, option 비교 |
-| `recipe/plan` | `.agent/constitution.md`, `.agent/spec/prd.md`, `.agent/spec/design.md` | `.agent/spec/active/NNNN-*.md` |
+| `recipe/plan` | `.agent/constitution.md`, `.agent/spec/prd.md`, `.agent/spec/design.md`, `.agent/wiki/domain.md` | `.agent/spec/active/NNNN-*.md`, domain 용어 보강 |
 | `cook/dev` | active spec, `.agent/spec/design.md`, `.agent/commands.json` | 코드 변경, task handoff |
 | `fix/debug` | failing context, active spec, `.agent/runbooks/debugging.md`, `.agent/commands.json` | 최소 수정, 원인 기록 |
 | `inspect/audit` | 변경 diff, active spec, `.agent/spec/design.md`, `.agent/commands.json` | targeted audit, risk report |
-| `tidy/refactor` | active spec 또는 tidy 요청, `.agent/spec/design.md`, `.agent/commands.json` | 동작 보존 refactor |
+| `tidy/refactor` | active spec 또는 tidy 요청, `.agent/spec/design.md`, `.agent/commands.json` | 동작 보존 refactor, improve codebase architecture |
 | `taste/review` | 변경 diff, active spec, handoff, `.agent/commands.json` | review verdict, red-team/security finding |
 | `plate/design-tune` | 실제 UI 코드, `.agent/wiki/design-system.md` | design-system 보강, UI drift 정리 |
 | `wrap/bump` | done/active spec, taste verdict, changelog/version 파일 | version/changelog 준비 |
@@ -98,7 +118,7 @@
 | `.agent/spec/abandoned/` | 취소되고 배운 점을 남긴 spec |
 | `.agent/spec/handoffs/` | 구현, 테스트, review handoff |
 | `.agent/wiki/architecture.md` | 시스템 architecture 메모 |
-| `.agent/wiki/domain.md` | 도메인 용어, 역할, 상태, 비즈니스 규칙 |
+| `.agent/wiki/domain.md` | 유비쿼터스 용어집, 역할, 상태, 비즈니스 규칙 |
 | `.agent/wiki/design-system.md` | UI가 있을 때만 쓰는 design system |
 | `.agent/wiki/decisions/` | ADR과 기술 결정 |
 | `.agent/memory/MEMORY.md` | librarian이 크기를 관리하는 짧은 rolling memory |
@@ -115,7 +135,7 @@
 | 새 기능, 제품 동작, scope 변경 | `recipe` |
 | library/vendor/API/접근 방식이 불명확함 | `forage` 후 `recipe` |
 | bug, failure, regression, 원인 불명 | `fix` |
-| 동작을 보존하는 구조 개선 | `tidy` |
+| 동작을 보존하는 구조 개선, improve codebase architecture | `tidy` |
 | UI token, component pattern, visual drift | `plate` |
 | version과 changelog 준비 | `wrap` |
 | release gate, tag, push/deploy checkpoint | `serve` |
@@ -127,6 +147,7 @@
 | `.agent/constitution.md` | kitchen 이후 human-only |
 | `.agent/spec/prd.md` | scope 변경은 `recipe`가 담당 |
 | `.agent/spec/design.md` | kitchen, forage, recipe, tidy |
+| `.agent/wiki/domain.md` | kitchen이 seed 생성, 용어 변경은 `recipe`, 정리는 `librarian` |
 | `.agent/wiki/design-system.md` | `plate`가 재생성하고 다른 흐름은 관찰만 추가 |
 | `.agent/wiki/decisions/*.md` | 승인된 ADR은 append-only |
 | `.agent/spec/INDEX.md` | librarian generated |

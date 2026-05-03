@@ -51,12 +51,16 @@
 ## 구현 원칙
 
 - 도메인 규칙이 있는 제품은 UI, framework, database, external API로부터 domain/application logic을 분리합니다.
-- Hexagonal architecture 또는 ports-and-adapters 구조는 domain-heavy, integration-heavy, long-lived service에서 우선 고려합니다.
+- Hexagonal architecture 또는 ports-and-adapters 구조는 domain-heavy, integration-heavy, long-lived service에서 우선 고려하되, deep module boundary를 만들 때만 적용합니다.
 - 작은 script, 정적 site, 단순 prototype에는 과한 layer를 만들지 않고 기존 repo 구조 안에서 boundary만 명확히 둡니다.
 - business rule은 framework callback이나 UI component 안에 숨기지 않고 test 가능한 module로 분리합니다.
 - 외부 I/O는 adapter 뒤에 두고, core logic은 fake 또는 stub으로 검증 가능해야 합니다.
 - dependency direction은 entry point -> application -> domain으로 흐르게 하고, domain이 infrastructure를 직접 import하지 않게 합니다.
 - cross-cutting concern은 logging, configuration, error handling, auth boundary를 명시하고 흩어지게 두지 않습니다.
+- deep module을 선호합니다. deep module은 작은 public interface 뒤에 중요한 내부 복잡도, policy, invariant를 숨깁니다.
+- shallow module을 지양합니다. shallow module은 단순 wrapper, 책임 없는 pass-through layer, 호출부보다 내부 복잡도를 줄이지 못하는 module입니다.
+- architecture 개선은 얕은 계층을 늘리는 방식이 아니라, 응집도 높은 deep module과 명확한 boundary를 만드는 방향으로 수행합니다.
+- Hexagonal/ports-and-adapters 적용이 adapter 이름만 늘리고 policy를 숨기지 못한다면 적용하지 않습니다.
 
 ## 개발 순서
 
@@ -101,7 +105,8 @@
 - 핵심 entity: {{core_entities}}
 - 중요한 state: {{important_states}}
 - 위험한 assumption: {{dangerous_assumptions}}
-- Domain source of truth: `.agent/wiki/domain.md`
+- Ubiquitous language source of truth: `.agent/wiki/domain.md`
+- Spec, handoff, review, 사용자 커뮤니케이션은 `.agent/wiki/domain.md`의 용어를 우선 사용합니다.
 
 ## Command Profile
 
