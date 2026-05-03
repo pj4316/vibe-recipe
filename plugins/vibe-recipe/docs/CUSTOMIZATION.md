@@ -20,7 +20,7 @@ If a stack changes, update the command values and keep the keys stable. Skills a
 
 ## Hooks
 
-Hooks are conservative defaults. They block destructive command patterns, protected file writes, direct commits to main, commit messages without Conventional Commit shape, and missing spec footers.
+Hooks are conservative defaults. They block destructive command patterns, protected file writes, direct commits to main, commit messages without Conventional Commit shape, and missing spec footers. `.env.example` is treated as a safe scaffold file; real `.env` files still require an explicit override.
 
 Set `VIBE_RECIPE_ALLOW_PROTECTED_WRITE=1` only for intentional maintenance operations.
 

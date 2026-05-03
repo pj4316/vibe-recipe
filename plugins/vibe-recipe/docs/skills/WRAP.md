@@ -1,6 +1,6 @@
 # Wrap 동작 문서
 
-`wrap`은 `taste`가 `APPROVE`한 변경을 release branch로 포장하는 release-prep skill입니다. version manifest와 `CHANGELOG.md`를 갱신하고 `chore(release): X.Y.Z` commit을 만들지만, tag, push, deploy는 하지 않습니다.
+`wrap`은 `taste`가 `APPROVE`한 변경을 release branch로 포장하는 release-prep skill입니다. version manifest와 `CHANGELOG.md`를 갱신하고 `chore(release): X.Y.Z` commit을 만들지만, tag, push, deploy는 하지 않습니다. commit message에는 관련 spec을 가리키는 `Refs:` footer를 포함합니다.
 
 ## 목표
 
@@ -13,7 +13,7 @@
 
 ## 시작 조건
 
-- 최신 `.agent/spec/handoffs/NNNN-taste.md`가 있고 verdict가 `APPROVE`입니다.
+- 현재 release 대상 spec의 `.agent/spec/handoffs/NNNN-taste.md`가 있고 verdict가 `APPROVE`입니다.
 - BLOCK 또는 REQUEST_CHANGES taste report가 pending이면 시작하지 않습니다.
 - `git status --short`를 확인해 unrelated dirty change를 release commit에서 제외합니다.
 - 마지막 release tag 또는 현재 manifest version을 기준 version으로 확인합니다.
@@ -51,7 +51,7 @@
 5. Preview: target version, 포함 commit, changelog section, 갱신 파일, 제외 dirty file을 보여주고 override 기회를 줍니다.
 6. Update: version manifest와 `CHANGELOG.md`만 갱신합니다.
 7. Verify: `.agent/commands.json`의 `verify`를 실행합니다.
-8. Commit: `chore(release): X.Y.Z` commit을 만들고 `serve`를 추천합니다.
+8. Commit: `chore(release): X.Y.Z` 제목과 `Refs: .agent/spec/...` footer를 함께 써서 commit을 만들고 `serve`를 추천합니다.
 
 ## 쓰기 범위
 
@@ -59,6 +59,7 @@
 - 조건부 허용: 프로젝트가 이미 쓰는 release note 파일.
 - 금지: product code, spec scope, generated agent instructions, tag, deploy script 실행, remote push.
 - unrelated dirty file이 있으면 release commit에 포함하지 않습니다. 분리할 수 없으면 blocked로 멈춥니다.
+- release prep commit은 Conventional Commits 형식과 `Refs: .agent/spec/...` footer를 모두 만족해야 합니다.
 
 ## Handoff 필수 항목
 

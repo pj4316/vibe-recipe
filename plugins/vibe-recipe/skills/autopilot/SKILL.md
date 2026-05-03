@@ -26,12 +26,17 @@ plugins/vibe-recipe/scripts/autopilot-run.sh --repo . --status
 ```
 
 - 기본 tool은 `codex`이고 `--tool claude`를 선택할 수 있습니다.
+- 기본 bounded loop budget은 `--max-followups 3`, `--max-same-recommendation-retries 2`, `--max-taste-loops 3`입니다.
 - 각 iteration은 fresh CLI instance를 실행합니다.
+- `--max-iterations`는 task, `taste`, follow-up, `wrap`을 포함한 전체 fresh-agent 실행 횟수 상한입니다.
 - Codex 기본 호출은 `codex exec --cd <repo> --sandbox workspace-write`입니다.
 - 상태 파일은 `.agent/autopilot/state.json`, append-only log는 `.agent/autopilot/progress.md`입니다.
 - runner는 첫 unchecked `Task N` 하나만 fresh agent에 맡깁니다.
 - fresh agent가 `<autopilot>DONE</autopilot>`을 반환하면 runner가 `- [x] Task N`으로 표시하고 task commit을 만듭니다.
+- fresh agent가 성공 신호를 냈는데 task handoff, follow-up handoff, taste report 같은 coordination artifact가 빠졌다면 runner가 progress log에 남기고 최소 artifact를 self-heal 생성합니다.
 - 모든 task가 완료되면 runner가 fresh `taste` iteration을 실행합니다.
+- `taste`가 `REQUEST_CHANGES`를 반환하면 runner가 taste report의 loop recommendation을 읽어 bounded `cook`/`fix` follow-up을 반복합니다.
+- 같은 recommendation이 연속으로 반복되거나 같은 `REQUEST_CHANGES` fingerprint가 blocker 감소 없이 반복되면 runner가 더 돌리지 않고 중단합니다.
 - `taste APPROVE`이면 `<promise>COMPLETE</promise>`로 종료합니다.
 - `--stop-point wrap`을 명시한 경우에만 `wrap`까지 진행합니다.
 
@@ -71,6 +76,7 @@ Checkpoint commits: yes / no
 - `.agent/autopilot/state.json`은 현재 run metadata만 저장합니다.
 - `.agent/autopilot/progress.md`는 iteration별 append-only progress log입니다.
 - task별 근거는 `.agent/spec/handoffs/NNNN-task<N>.md`, cook summary, taste report입니다.
+- handoff나 report가 누락되면 runner가 self-heal artifact를 생성하고 그 사실을 progress log에 남깁니다.
 - fresh agent transcript, 긴 diff, 긴 test log는 progress log에 붙이지 않고 evidence path만 남깁니다.
 
 ## 흐름
@@ -81,7 +87,7 @@ Checkpoint commits: yes / no
 4. Approval gate: spec이 `Approved`가 아니면 여기서 멈추고 사용자 승인을 요청합니다.
 5. Execute: 승인된 spec을 `cook`으로 task 단위 구현합니다.
 6. Review: 구현 후 `taste`를 실행하고 verdict를 확인합니다.
-7. Loop: `REQUEST_CHANGES`는 budget 안에서 `cook` 또는 `fix`로 한 번씩만 재시도합니다. `BLOCK`은 즉시 중단합니다.
+7. Loop: `REQUEST_CHANGES`는 taste report의 loop recommendation을 따라 bounded `cook` 또는 `fix` follow-up을 반복합니다. 기본값은 follow-up 최대 3회, 같은 recommendation 최대 2회, `taste` loop 최대 3회입니다. 같은 finding이 반복되고 blocker가 줄지 않으면 중단합니다. `BLOCK`은 즉시 중단합니다.
 8. Stop: 기본적으로 `taste` report에서 멈춥니다. 사용자가 release-prep opt-in을 한 경우에만 `wrap`까지 진행합니다.
 
 ## Context hygiene
@@ -95,7 +101,7 @@ Checkpoint commits: yes / no
 ## Checkpoint와 Git
 
 - checkpoint commit은 사용자가 opt-in했고 phase 산출물이 self-contained일 때만 만듭니다.
-- task commit은 `autopilot: complete Task N` 형식을 사용하고 active spec을 `Refs:` footer로 남깁니다.
+- task commit은 `chore(autopilot): complete Task N` 형식을 사용하고 active spec을 `Refs:` footer로 남깁니다.
 - checkpoint commit은 runner 외부에서 별도 opt-in된 경우에만 `autopilot: checkpoint <phase>` 형식을 사용합니다.
 - release prep commit은 `wrap`의 `chore(release): X.Y.Z` 계약을 따릅니다.
 - 자동 push는 절대 하지 않습니다.
