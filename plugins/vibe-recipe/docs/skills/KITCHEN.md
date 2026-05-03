@@ -1,6 +1,14 @@
 # Kitchen 동작 문서
 
-`kitchen`은 vibe-recipe를 target project에 처음 적용할 때 실행하는 초기화 skill입니다. 사용자는 제품에 대한 질문에만 답하고, spec-first workflow, 문서 권한, human gate, review/release gate 같은 harness 규칙은 vibe-recipe 기본값으로 적용합니다.
+`kitchen`은 vibe-recipe orchestration harness를 target project에 설치하거나 기존 서비스에 도입할 때 실행하는 초기화 skill입니다. 사용자는 제품에 대한 질문에만 답하고, spec-first workflow, 문서 권한, human gate, review/release gate 같은 harness 규칙은 vibe-recipe 기본값으로 적용합니다.
+
+orchestration harness는 `AGENTS.md`, hooks, `.agent/`로 구성됩니다.
+
+- `AGENTS.md`: skill 라우팅, 역할 경계, parent/orchestrator agent 책임, human gate를 정의합니다.
+- hooks: constitution 수정, push/deploy/release, secret, release gate처럼 결정적으로 검사 가능한 안전장치를 강제합니다.
+- `.agent/`: spec, command profile, runbook, domain language, memory, handoff를 저장합니다.
+
+`.agent/commands.json`은 각 skill이나 기능을 정의하는 파일이 아닙니다. target project의 native command profile이며 `cook`, `taste`, `serve`가 어떤 test/build/e2e/verify/dev 명령을 실행할지 판단하는 기준입니다.
 
 초기화가 끝나면 target project는 별도 harness 작업 없이 바로 `recipe/plan`으로 첫 spec을 만들고 `cook/dev`로 구현을 시작할 수 있어야 합니다.
 
@@ -20,14 +28,27 @@
 
 | Mode | Trigger | 동작 |
 | --- | --- | --- |
-| `fresh` | `.agent/constitution.md`가 없음 | 제품 중심 질문을 실행하고 기본 scaffold를 생성합니다. |
+| `fresh` | `.agent/constitution.md`가 없고 새 프로젝트 성격이 강함 | 제품 중심 질문을 실행하고 기본 scaffold를 생성합니다. |
+| `adopt` | 기존 서비스에 처음 vibe-recipe를 도입하려는 요청 | repo 구조, 기존 문서, command, agent 지침을 감지해 비침투적 harness를 생성합니다. |
 | `abort` | `.agent/constitution.md`가 있고 별도 요청이 없음 | 현재 harness 요약만 보여주고 파일을 쓰지 않습니다. |
 | `heal` | 누락 파일 복구 요청 | 빠진 scaffold만 복구하고 기존 사용자 파일은 덮어쓰지 않습니다. |
 | `patch <file>` | 특정 생성 파일 갱신 요청 | 지정한 파일만 제품 정보 또는 운영 모델 기준으로 재생성합니다. |
 | `harness` | `.agent`, hooks, command profile, 생성 지침 개선 요청 | 제품 scope는 유지하고 주방기구만 점검/개선합니다. |
 | `reset` | 명시적 reset 요청 | clean tree, backup, double confirm 후 fresh를 다시 실행합니다. |
 
-mode가 애매하면 기존 harness가 있을 때는 `abort`, 없을 때는 `fresh`로 처리합니다.
+mode가 애매하면 기존 harness가 있을 때는 `abort`로 처리합니다. harness가 없고 기존 서비스 흔적이 강하면 `adopt`, 빈 repo 또는 새 제품 요청이면 `fresh`로 처리합니다.
+
+## 기존 서비스 도입
+
+`adopt` 모드는 이미 운영 중인 서비스에 vibe-recipe를 입힙니다.
+
+- 기존 README, docs, ADR, runbook, CI workflow를 읽습니다.
+- package scripts, Makefile, test/build/lint/e2e command를 `.agent/commands.json` stable key로 매핑합니다.
+- 기존 architecture와 module boundary를 `.agent/spec/design.md` seed로 요약합니다.
+- 기존 제품 용어를 `.agent/wiki/domain.md` 초안으로 추출합니다.
+- 기존 `AGENTS.md`, `CLAUDE.md`, copilot 지침이 있으면 보존하고 충돌 없이 vibe-recipe routing을 추가합니다.
+- hooks는 non-destructive guardrail부터 설치하고, 차단성 hook은 preview와 승인 후 활성화합니다.
+- 확신할 수 없는 항목은 추측하지 않고 `Adoption Questions`로 남깁니다.
 
 ## 질문 범위
 

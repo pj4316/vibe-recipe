@@ -22,10 +22,10 @@
 2. `peek/status`: 현재 spec, git 상태, review, command, release readiness를 읽기 전용으로 확인합니다.
 3. `forage/research`: 접근 방식이 불명확할 때 option을 비교하고 ADR 초안을 작성합니다.
 4. `recipe/plan`: 제품 요청을 번호가 붙은 spec으로 바꿉니다.
-5. `cook/dev`: 승인된 spec task를 하나씩 구현합니다.
+5. `cook/dev`: 승인된 recipe 전체 구현을 지휘하고 task-runner 결과를 통합합니다.
 6. `fix/debug`: 실패를 진단하고 코드를 고치거나 spec 변경으로 escalation합니다.
 7. `tidy/refactor`: 동작 변경 없이 구조를 개선합니다.
-8. `taste/review`: regression, coverage, code review, security, red-team review를 실행합니다.
+8. `taste/review`: 구현 결과를 recipe 기준으로 검수하고 APPROVE / REQUEST_CHANGES / BLOCK verdict를 냅니다.
 9. `plate/design-tune`: 실제 UI가 생긴 뒤 design-system drift를 정리합니다.
 10. `wrap/bump`: version과 changelog를 준비합니다.
 11. `serve/release`: release gate를 실행하고 push/deploy 승인 전 멈춥니다.
@@ -43,12 +43,31 @@
 
 충돌이 있으면 현재 사용자 지시를 우선하되, constitution 또는 product scope와 충돌하는 변경은 진행 전에 확인합니다. 기능 개발은 `recipe/plan`으로 spec을 만든 뒤 `cook/dev`로 진행합니다. `.agent/`, `.hooks/`, command profile, generated agent instructions 같은 harness를 개선하려면 다시 `kitchen/init`을 사용합니다.
 
+## Orchestration Harness
+
+- `AGENTS.md`는 skill 라우팅, 역할 경계, parent/orchestrator agent 책임, human gate를 정의합니다.
+- hooks는 constitution 수정, push/deploy/release, secret, release gate처럼 결정적으로 검사 가능한 안전장치를 강제합니다.
+- `.agent/`는 spec, command profile, runbook, domain language, memory, handoff를 저장합니다.
+- `.agent/commands.json`은 스킬 정의 파일이 아니라 이 프로젝트의 native command profile입니다.
+
 ## 질문과 모호성
 
 - 사용자 요청, 요구사항, 구현 의도에 모호함이 있으면 추측하지 말고 질문합니다.
 - 파일 위치, 구조, 명령, 기존 구현처럼 저장소에서 확인 가능한 사실은 먼저 탐색합니다.
 - 탐색 뒤에도 제품 의도, scope, 용어, acceptance criteria, architecture 방향이 불명확하면 진행 전에 질문합니다.
+- 구현 전 가정, 해석, 성공 기준, 검증 방법을 짧게 명시합니다.
+- 여러 해석이 가능하면 선택지를 제시하고 조용히 결정하지 않습니다.
+- 더 단순한 접근이 있거나 요청 범위가 과해 보이면 tradeoff를 말합니다.
 - 질문은 `.agent/wiki/domain.md`, `.agent/spec/prd.md`, `.agent/spec/design.md`와 충돌하는 지점을 구체적으로 짚습니다.
+
+## 작업 실행 원칙
+
+- 요청받지 않은 기능, 추상화, 설정 가능성은 추가하지 않습니다.
+- 변경은 승인된 spec task 또는 사용자 요청에 직접 연결되는 범위로 제한합니다.
+- 관련 없는 refactor, formatting, comment 정리, dead-code 삭제는 하지 않고 필요하면 보고만 합니다.
+- 기존 스타일을 따르고, 내 변경으로 생긴 unused import, 변수, 함수만 정리합니다.
+- bugfix는 재현 가능한 실패를 먼저 확인하고, refactor는 전후 동작 보존 검증을 남깁니다.
+- diff가 요청보다 커졌다면 단순화할 수 있는지 다시 봅니다.
 
 ## 유비쿼터스 용어집
 
@@ -64,6 +83,7 @@
 
 - 개발 순서는 `recipe/plan` -> `cook/dev` -> `taste/review`를 기본으로 합니다. architecture 선택이 불명확하면 `forage/research`를 먼저 사용합니다.
 - `cook/dev`는 가능한 한 실패하는 test 또는 executable acceptance check를 먼저 만들고 red -> green -> refactor 순서로 진행합니다.
+- multi-step 작업은 각 단계의 성공 기준과 verify 방법을 남깁니다.
 - 도메인 규칙은 UI, framework, database, external API에서 분리하고, 외부 I/O는 adapter 뒤에 둡니다.
 - Hexagonal architecture 또는 ports-and-adapters는 domain-heavy, integration-heavy, long-lived service에서 우선 고려하되 작은 script나 prototype에는 과한 layer를 만들지 않습니다.
 - deep module을 선호하고 shallow module을 지양합니다. 작은 public interface가 의미 있는 내부 복잡도와 policy를 감추는 구조를 우선합니다.
@@ -81,11 +101,11 @@
 | `peek/status` | `AGENTS.md`, `.agent/commands.json`, `.agent/spec/`, git 상태 | 읽기 전용 상태 요약 |
 | `forage/research` | `.agent/spec/prd.md`, `.agent/spec/design.md`, `.agent/wiki/decisions/` | proposed ADR, option 비교 |
 | `recipe/plan` | `.agent/constitution.md`, `.agent/spec/prd.md`, `.agent/spec/design.md`, `.agent/wiki/domain.md` | `.agent/spec/active/NNNN-*.md`, domain 용어 보강 |
-| `cook/dev` | active spec, `.agent/spec/design.md`, `.agent/commands.json` | 코드 변경, task handoff |
+| `cook/dev` | active spec, `.agent/spec/design.md`, `.agent/commands.json` | cook summary, task-runner handoff, acceptance matrix |
 | `fix/debug` | failing context, active spec, `.agent/runbooks/debugging.md`, `.agent/commands.json` | 최소 수정, 원인 기록 |
 | `inspect/audit` | 변경 diff, active spec, `.agent/spec/design.md`, `.agent/commands.json` | targeted audit, risk report |
 | `tidy/refactor` | active spec 또는 tidy 요청, `.agent/spec/design.md`, `.agent/commands.json` | 동작 보존 refactor, improve codebase architecture |
-| `taste/review` | 변경 diff, active spec, handoff, `.agent/commands.json` | review verdict, red-team/security finding |
+| `taste/review` | 변경 diff, active spec, cook summary, handoff, `.agent/commands.json` | review verdict, loop recommendation, red-team/security finding |
 | `plate/design-tune` | 실제 UI 코드, `.agent/wiki/design-system.md` | design-system 보강, UI drift 정리 |
 | `wrap/bump` | done/active spec, taste verdict, changelog/version 파일 | version/changelog 준비 |
 | `serve/release` | `.agent/constitution.md`, `.agent/commands.json`, taste verdict, clean tree | release gate 결과, push/deploy 전 정지 |
@@ -156,7 +176,7 @@
 
 ## Command 계약
 
-프로젝트 native command는 `.agent/commands.json`에 둡니다.
+프로젝트 native command는 `.agent/commands.json`에 둡니다. 이 파일은 skill 목록이나 workflow 정의가 아니라 실행 가능한 command profile입니다.
 
 - debugging 또는 구현 중에는 focused command를 먼저 실행합니다.
 - UI/browser 변경은 `e2e` command가 있으면 실행하고, 없으면 Playwright MCP로 핵심 scenario를 확인한 뒤 결과를 기록합니다.
