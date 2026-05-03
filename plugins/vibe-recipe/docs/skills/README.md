@@ -20,5 +20,6 @@ Subagent는 `plugins/vibe-recipe/agents/`에 있으며 top-level skill이 필요
 | `RECIPE.md` | `recipe` | Alignment Brief 기반 spec 작성, domain 용어집, ADR 후보 |
 | `TASTE.md` | `taste` | review orchestration, verdict, loop recommendation |
 | `WRAP.md` | `wrap` | SemVer 판정, version/changelog 준비, release prep commit |
+| `SERVE.md` | `serve` | release gate, local annotated tag, push/deploy human gate |
 
 새 스킬을 검증해 커밋할 때는 해당 스킬의 동작 문서를 이 디렉터리에 추가합니다.
