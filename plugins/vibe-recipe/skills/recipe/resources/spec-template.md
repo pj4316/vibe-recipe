@@ -47,6 +47,16 @@ Status: Draft
 - Permission: {{permission_rule_or_none}}
 - Data safety: {{data_safety_rule_or_none}}
 
+## Red-team 시나리오
+
+- Misuse/abuse: {{misuse_abuse_scenario_or_none}}
+- Duplicate/replay: {{duplicate_replay_scenario_or_none}}
+- Partial failure: {{partial_failure_scenario_or_none}}
+- Permission bypass: {{permission_bypass_scenario_or_none}}
+- Data loss/rollback: {{data_loss_rollback_scenario_or_none}}
+- Boundary cases: {{boundary_cases_or_none}}
+- Classification: {{spec_change_code_fix_follow_up_or_not_applicable}}
+
 ## Human Gate
 
 - Required: {{human_gate_required_yes_or_no}}
@@ -59,6 +69,21 @@ Status: Draft
 - Data updated: {{updated_data_or_none}}
 - Data deleted: {{deleted_data_or_none}}
 - External API: {{external_api_or_none}}
+
+## Domain 업데이트
+
+- Source: `.agent/wiki/domain.md`
+- New terms: {{new_terms_or_none}}
+- Updated terms: {{updated_terms_or_none}}
+- Roles/states: {{roles_states_or_none}}
+- Dangerous assumption: {{dangerous_assumption_or_none}}
+- Conflict resolved: {{domain_conflict_or_none}}
+
+## 결정 기록
+
+- ADR required: {{adr_required_yes_or_no}}
+- Proposed ADR: {{proposed_adr_path_or_none}}
+- Reason: {{hard_to_reverse_surprising_tradeoff_or_none}}
 
 ## 작업 목록
 
