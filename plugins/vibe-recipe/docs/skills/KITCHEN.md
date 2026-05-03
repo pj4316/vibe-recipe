@@ -109,6 +109,7 @@ mode가 애매하면 기존 harness가 있을 때는 `abort`로 처리합니다.
 - `.agent/commands.json`이 valid JSON이고 stable key를 모두 포함합니다.
 - UI/browser 프로젝트이면 `e2e` command 가능 여부 또는 Playwright MCP manual check 기준이 명확합니다.
 - `.agent/spec/active/0001-health-check.md`가 생성됩니다.
+- `.agent/autopilot/state.json`과 `.agent/autopilot/progress.md`가 생성됩니다.
 - `.agent/runbooks/verification.md`, `.agent/runbooks/debugging.md`, `.agent/runbooks/deployment.md`가 생성됩니다.
 - UI/frontend 프로젝트이면 `.agent/wiki/design-system.md`가 생성됩니다.
 - 생성/skip한 파일 목록과 command profile을 사용자에게 보고합니다.

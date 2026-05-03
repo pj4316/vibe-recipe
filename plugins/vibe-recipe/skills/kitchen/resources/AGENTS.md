@@ -137,6 +137,7 @@
 | `.agent/spec/archived/` | review 이후 보관한 오래된 spec |
 | `.agent/spec/abandoned/` | 취소되고 배운 점을 남긴 spec |
 | `.agent/spec/handoffs/` | 구현, 테스트, review handoff |
+| `.agent/autopilot/` | Ralph식 fresh iteration state와 append-only progress |
 | `.agent/wiki/architecture.md` | 시스템 architecture 메모 |
 | `.agent/wiki/domain.md` | 유비쿼터스 용어집, 역할, 상태, 비즈니스 규칙 |
 | `.agent/wiki/design-system.md` | UI가 있을 때만 쓰는 design system |
