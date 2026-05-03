@@ -1,0 +1,26 @@
+{
+  "hooks": {
+    "preToolUse": "./pre-tool-use.sh",
+    "postToolUse": "./post-tool-use.sh",
+    "preCommit": "./pre-commit.sh",
+    "commitMsg": "./commit-msg.sh",
+    "subagentStop": "./subagent-stop.sh",
+    "sessionEnd": "./session-end.sh"
+  },
+  "policy": {
+    "protectedFiles": [
+      ".env",
+      ".env.*",
+      ".git/**",
+      ".agent/constitution.md",
+      ".agent/spec/INDEX.md"
+    ],
+    "dangerousPatterns": [
+      "rm -rf /",
+      "git reset --hard",
+      "git push --force",
+      "DROP DATABASE",
+      "chmod -R 777"
+    ]
+  }
+}

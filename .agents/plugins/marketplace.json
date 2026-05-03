@@ -1,0 +1,20 @@
+{
+  "name": "vibe-recipe-marketplace",
+  "interface": {
+    "displayName": "Vibe Recipe"
+  },
+  "plugins": [
+    {
+      "name": "vibe-recipe",
+      "source": {
+        "source": "local",
+        "path": "./plugins/vibe-recipe"
+      },
+      "policy": {
+        "installation": "AVAILABLE",
+        "authentication": "ON_INSTALL"
+      },
+      "category": "Productivity"
+    }
+  ]
+}

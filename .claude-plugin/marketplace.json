@@ -1,0 +1,17 @@
+{
+  "name": "vibe-recipe-marketplace",
+  "metadata": {
+    "description": "Claude Code marketplace catalog for the vibe-recipe plugin."
+  },
+  "owner": {
+    "name": "Vibe Recipe"
+  },
+  "plugins": [
+    {
+      "name": "vibe-recipe",
+      "description": "Spec-driven agent workflow with recipes, reviews, and release gates.",
+      "source": "./plugins/vibe-recipe",
+      "category": "productivity"
+    }
+  ]
+}

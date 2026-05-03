@@ -1,0 +1,44 @@
+{
+  "name": "vibe-recipe",
+  "version": "0.1.0",
+  "description": "Vibe coding, with a recipe to follow. Spec-driven workflow with cooking-metaphor skills, specialist subagents, deterministic hooks, and stack-agnostic templates.",
+  "author": {
+    "name": "TBD",
+    "email": "TBD",
+    "url": "https://github.com/<org>"
+  },
+  "homepage": "https://github.com/<org>/vibe-recipe",
+  "repository": "https://github.com/<org>/vibe-recipe",
+  "license": "Apache-2.0",
+  "keywords": [
+    "vibe-coding",
+    "spec-driven",
+    "agents",
+    "scaffold",
+    "stack-agnostic",
+    "beginner-friendly"
+  ],
+  "skills": "./skills/",
+  "hooks": "./hooks/hooks.json",
+  "interface": {
+    "displayName": "Vibe Recipe",
+    "shortDescription": "Spec-driven agent workflow with recipes, reviews, and release gates.",
+    "longDescription": "Vibe Recipe helps agents and non-developers follow a structured path from project setup through specs, implementation, verification, and release. It includes 11 skills, eight specialist subagents, deterministic hooks, project templates, and adapter scripts.",
+    "developerName": "TBD",
+    "category": "Productivity",
+    "capabilities": [
+      "Interactive",
+      "Write",
+      "Review"
+    ],
+    "websiteURL": "https://github.com/<org>/vibe-recipe",
+    "privacyPolicyURL": "https://github.com/<org>/vibe-recipe",
+    "termsOfServiceURL": "https://github.com/<org>/vibe-recipe",
+    "defaultPrompt": [
+      "Use kitchen to set up this project.",
+      "Write a recipe for my next feature.",
+      "Taste the current changes before merge."
+    ],
+    "brandColor": "#E85D04"
+  }
+}
