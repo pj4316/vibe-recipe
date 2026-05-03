@@ -30,7 +30,7 @@ description: /vr:peek 또는 /vr:status 호출 시 사용합니다. active spec,
 | `git status --short --branch` | branch, dirty tree, staged/unstaged/untracked |
 | `git log --oneline -5` | 최근 작업 맥락 |
 | `.agent/spec/active/` | active spec, status, next task |
-| `.agent/spec/handoffs/` | 최신 cook/fix/taste/inspect report |
+| `.agent/spec/handoffs/` | 최신 cook/fix/taste report |
 | `.agent/commands.json` | focused/test/e2e/verify command 존재 여부 |
 | `.agent/autopilot/state.json` | opt-in run, stop point, budget |
 | `CHANGELOG.md`, version manifest, tags | release 준비 신호 |
@@ -42,7 +42,7 @@ description: /vr:peek 또는 /vr:status 호출 시 사용합니다. active spec,
 | 상태 | 의미 |
 | --- | --- |
 | `ready` | 다음 skill을 바로 실행할 수 있습니다. |
-| `needs-plan` | active approved spec이 없어 `recipe` 또는 `grill`이 필요합니다. |
+| `needs-plan` | active approved spec이 없어 `recipe`가 필요합니다. |
 | `needs-work` | approved/in-progress spec의 task가 남아 `cook`이 필요합니다. |
 | `needs-review` | 변경이 있고 최신 `taste`가 없거나 오래됐습니다. |
 | `blocked` | failing review, missing verify, dirty release state, human gate 미승인이 있습니다. |
@@ -52,7 +52,7 @@ description: /vr:peek 또는 /vr:status 호출 시 사용합니다. active spec,
 
 | 조건 | 추천 skill |
 | --- | --- |
-| 제품 의도나 scope가 불명확함 | `grill` |
+| 제품 의도나 scope가 불명확함 | `recipe`에서 alignment 질문 |
 | active spec이 없거나 draft 작성이 필요함 | `recipe` |
 | 기술 선택이 blocking함 | `forage` |
 | approved task가 남아 있음 | `cook` |

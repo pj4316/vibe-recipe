@@ -12,7 +12,7 @@ orchestration harness는 `AGENTS.md`, hooks, `.agent/`로 구성됩니다.
 
 초기화가 끝나면 target project는 별도 harness 작업 없이 바로 `recipe/plan`으로 첫 spec을 만들고 `cook/dev`로 구현을 시작할 수 있어야 합니다.
 
-`grill/align`은 권장 preflight입니다. 같은 대화에 `Alignment Brief`가 있으면 `kitchen`은 이를 제품 답변 초안으로 사용합니다. `Alignment Brief`가 없어도 빠른 `/vr:kitchen` 초기화 흐름은 그대로 진행합니다.
+같은 대화에 제품 brief나 이전 alignment 메모가 있으면 `kitchen`은 이를 제품 답변 초안으로 사용합니다. 별도 brief가 없어도 빠른 `/vr:kitchen` 초기화 흐름은 그대로 진행합니다.
 
 ## 목표
 

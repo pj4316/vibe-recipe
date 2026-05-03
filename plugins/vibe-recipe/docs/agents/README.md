@@ -11,7 +11,7 @@
 | `implementor` | `fix`, `tidy`, `cook` 보조 | 승인된 spec의 task 하나를 가장 작은 완결 behavior slice로 구현하고 handoff를 남깁니다. |
 | `tester` | `cook`, `taste` | acceptance criteria를 test/manual check로 증명하고 `test`, `e2e`, `verify`, Playwright MCP 필요 여부를 판단합니다. |
 | `reviewer` | `taste` | 구현 diff가 승인된 spec, acceptance criteria, 로컬 관례, 유지보수 기준에 맞는지 검토합니다. |
-| `security-auditor` | `taste`, `inspect` | auth, secret, injection, unsafe IO, dependency, data-loss 같은 보안 위험을 점검합니다. |
+| `security-auditor` | `taste`, `fix` | auth, secret, injection, unsafe IO, dependency, data-loss 같은 보안 위험을 점검합니다. |
 | `red-team` | `taste` | business logic, edge case, implicit assumption, abuse scenario를 공격적으로 검토합니다. |
 | `librarian` | session end, 정리 단계 | spec index, handoff index, memory, red-team finding, summary를 정리합니다. |
 

@@ -30,7 +30,7 @@
 - payment, auth, permission, account lifecycle 변경.
 - 파괴적 데이터 변경 또는 data-loss 위험.
 - MVP, anti-scope, success metric을 바꾸는 제품 scope 변경.
-- BLOCKER, critical audit finding, failed release gate 우회.
+- BLOCKER, critical security/review finding, failed release gate 우회.
 
 ## 안전 규칙
 
@@ -53,7 +53,7 @@
 - `.agent/spec/design.md`는 기술 설계의 source of truth입니다.
 - `.agent/spec/prd.md`는 제품 scope를 소유합니다.
 - `.agent/wiki/domain.md`는 도메인 용어와 비즈니스 규칙을 소유합니다.
-- `.agent/wiki/design-system.md`는 UI 프로젝트에만 존재하며 `plate`가 다듬습니다.
+- `.agent/wiki/design-system.md`는 UI 프로젝트에만 존재하며 정책 변경은 `recipe`, 동작 보존 migration은 `tidy`가 다룹니다.
 - 생성된 index는 librarian이 관리합니다.
 
 ## 적용된 추천 기본값

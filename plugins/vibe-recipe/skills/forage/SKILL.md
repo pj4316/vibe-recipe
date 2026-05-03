@@ -30,7 +30,7 @@ Out of scope:
 Decision owner: human / team / default recommendation
 ```
 
-결정 질문이 둘 이상이면 가장 blocking한 질문 하나만 먼저 다룹니다. 제품 scope 자체가 불명확하면 `grill` 또는 `recipe`로 되돌립니다.
+결정 질문이 둘 이상이면 가장 blocking한 질문 하나만 먼저 다룹니다. 제품 scope 자체가 불명확하면 `recipe`에서 제품 질문으로 먼저 정렬합니다.
 
 ## Evidence 기준
 
@@ -103,7 +103,7 @@ Owner: human approval required
 
 | 상황 | 다음 skill |
 | --- | --- |
-| 제품 goal, audience, success criteria가 불명확함 | `grill` |
+| 제품 goal, audience, success criteria가 불명확함 | `recipe` alignment 질문 |
 | 기능 scope와 acceptance를 spec으로 써야 함 | `recipe` |
 | 이미 승인된 spec 구현 중 발견한 세부 선택임 | `cook`에서 bounded spike 또는 `recipe` 보강 |
 | 선택 후 코드 변경이 필요함 | `recipe` 승인 후 `cook` |

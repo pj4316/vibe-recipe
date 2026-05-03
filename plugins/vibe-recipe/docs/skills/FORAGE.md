@@ -18,7 +18,7 @@
 | 조건 | 처리 |
 | --- | --- |
 | 기술 선택 질문이 명확함 | 바로 option 비교 진행 |
-| 제품 goal이 불명확함 | `grill` 또는 `recipe`로 라우팅 |
+| 제품 goal이 불명확함 | `recipe`에서 제품 질문으로 먼저 정렬 |
 | 기존 accepted ADR이 있음 | 결정을 다시 열지 않고 compatibility 확인 |
 | 외부 API/pricing/security 정보가 필요함 | primary source로 현재 사실 확인 |
 | vendor signup/purchase가 필요함 | 실행하지 않고 human gate로 기록 |
@@ -82,7 +82,7 @@
 
 ## Loop Recommendation
 
-- 제품 목표와 성공 기준이 불명확하면 `grill`로 보냅니다.
+- 제품 목표와 성공 기준이 불명확하면 `recipe`에서 alignment 질문을 먼저 진행합니다.
 - 기능 scope와 acceptance를 확정해야 하면 `recipe`로 보냅니다.
 - 구현 중 작은 spike가 필요하면 `cook`의 bounded task로 넘깁니다.
 - 선택이 승인되고 spec 작성이 가능하면 `recipe`로 돌아갑니다.

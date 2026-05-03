@@ -28,8 +28,6 @@ Developer alias:
 | `fix` | `debug` | Diagnose failures and repair code or escalate spec issues. |
 | `tidy` | `refactor` | Improve structure while preserving behavior. |
 | `taste` | `review` | Run regression, coverage, review, security, and red-team checks. |
-| `inspect` | `audit` | Periodic hygiene audit for dependencies, dead code, and stale specs. |
-| `plate` | `design-tune` | Refine UI tokens and design-system drift after first screens. |
 | `wrap` | `bump` | Decide SemVer and generate changelog/version changes. |
 | `serve` | `release` | Run release gates, tag, and stop before human-approved push. |
 | `autopilot` | `autopilot` | Opt-in automated forage -> recipe -> cook -> taste loop. |

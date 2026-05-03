@@ -1,7 +1,7 @@
 # 디자인 시스템 템플릿
 
 > Kitchen 리소스입니다. frontend/UI 프로젝트에만 생성합니다.
-> 실제 UI가 처음 만들어진 뒤 `/vr:plate`로 실제 사용 패턴을 반영해 이 seed를 다듬습니다.
+> 실제 UI가 처음 만들어진 뒤 design-system 정책 변경은 `/vr:recipe`로 spec을 만들고, 동작 보존 token/component migration은 `/vr:tidy`로 처리합니다.
 
 ## 제품 UI 의도
 
@@ -95,17 +95,15 @@ ad hoc value보다 token을 먼저 사용합니다.
 - 명확한 확인 없이 destructive action을 숨기지 않습니다.
 - text가 control 밖으로 넘치거나 인접 content와 겹치게 두지 않습니다.
 
-## Plate 후속 지침
+## Design-system 후속 지침
 
-UI 화면이 하나 또는 두 개 생긴 뒤 `/vr:plate`를 실행합니다.
-
-`plate`는 다음을 수행해야 합니다.
+UI 화면이 하나 또는 두 개 생긴 뒤 실제 사용 패턴을 기준으로 이 seed를 다듬습니다.
 
 1. 실제 color, spacing, typography, radius, primitive를 inventory로 정리합니다.
 2. 구현과 이 seed를 비교합니다.
-3. 반복되는 값을 token으로 통합합니다.
-4. 수락된 primitive와 anti-pattern을 기록합니다.
-5. code migration이 필요하면 `tidy`를 제안합니다.
+3. 새 token, primitive, anti-pattern 정책이 필요하면 `/vr:recipe`로 spec을 만듭니다.
+4. 수락된 정책은 승인된 spec을 통해 기록합니다.
+5. code migration이 동작 보존이면 `/vr:tidy`로 처리합니다.
 
 ## Best-practice 근거
 

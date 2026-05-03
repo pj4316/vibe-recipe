@@ -1,6 +1,6 @@
 # Recipe 동작 문서
 
-`recipe`는 자연어 요청이나 `grill/align`의 `Alignment Brief`를 구현 가능한 numbered spec으로 바꾸는 planning skill입니다. 코드를 구현하지 않고, 제품 행동, scope, 수락 기준, task, 검증 계획, domain 용어, 결정 기록을 확정합니다.
+`recipe`는 자연어 요청을 구현 가능한 numbered spec으로 바꾸는 planning skill입니다. 코드를 구현하지 않고, 제품 행동, scope, 수락 기준, task, 검증 계획, domain 용어, 결정 기록을 확정합니다.
 
 ## 목표
 

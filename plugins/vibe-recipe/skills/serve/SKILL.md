@@ -25,7 +25,7 @@ description: /vr:serve 또는 /vr:release 호출 시 사용합니다. release ga
 - 예상치 못한 open active spec이 없습니다.
 - project verify command가 green입니다. verify command가 없으면 release를 blocked로 처리합니다.
 - BLOCK 또는 REQUEST_CHANGES taste report가 pending 상태가 아닙니다.
-- critical audit finding이 없습니다.
+- critical security/review finding이 없습니다.
 - `CHANGELOG.md`에 target version이 있습니다.
 - working tree가 clean입니다.
 - tag `vX.Y.Z`가 이미 있으면 같은 commit을 가리키는지 확인합니다. 다른 commit이면 blocked입니다.

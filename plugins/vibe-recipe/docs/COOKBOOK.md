@@ -69,15 +69,9 @@ Use:
 
 `fix` may escalate back to `recipe` when the spec is wrong.
 
-## Design Loop
+## Design-System Loop
 
-After the first one or two UI screens:
-
-```text
-/vr:plate
-```
-
-`plate` measures drift between actual UI code and `design-system.md`.
+Use `recipe` for design-system policy changes and `tidy` for behavior-preserving UI token or component migrations.
 
 ## Release Loop
 

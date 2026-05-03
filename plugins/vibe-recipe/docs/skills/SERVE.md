@@ -18,7 +18,7 @@
 - 예상치 못한 open active spec이 없습니다.
 - project `verify` command가 green입니다. `verify`가 `null`이면 release는 blocked입니다.
 - BLOCK 또는 REQUEST_CHANGES taste report가 pending 상태가 아닙니다.
-- critical audit finding이 없습니다.
+- critical security/review finding이 없습니다.
 - working tree가 clean입니다.
 - tag `vX.Y.Z`가 이미 있으면 같은 commit을 가리키는지 확인합니다. 다른 commit이면 blocked입니다.
 

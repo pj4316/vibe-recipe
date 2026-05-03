@@ -26,7 +26,6 @@
 6. `fix/debug`: 실패를 진단하고 코드를 고치거나 spec 변경으로 escalation합니다.
 7. `tidy/refactor`: 동작 변경 없이 구조를 개선합니다.
 8. `taste/review`: 구현 결과를 recipe 기준으로 검수하고 APPROVE / REQUEST_CHANGES / BLOCK verdict를 냅니다.
-9. `plate/design-tune`: 실제 UI가 생긴 뒤 design-system drift를 정리합니다.
 10. `wrap/bump`: version과 changelog를 준비합니다.
 11. `serve/release`: release gate를 실행하고 push/deploy 승인 전 멈춥니다.
 
@@ -103,10 +102,8 @@
 | `recipe/plan` | `.agent/constitution.md`, `.agent/spec/prd.md`, `.agent/spec/design.md`, `.agent/wiki/domain.md` | `.agent/spec/active/NNNN-*.md`, domain 용어 보강 |
 | `cook/dev` | active spec, `.agent/spec/design.md`, `.agent/commands.json` | cook summary, task-runner handoff, acceptance matrix |
 | `fix/debug` | failing context, active spec, `.agent/runbooks/debugging.md`, `.agent/commands.json` | 최소 수정, 원인 기록 |
-| `inspect/audit` | 변경 diff, active spec, `.agent/spec/design.md`, `.agent/commands.json` | targeted audit, risk report |
 | `tidy/refactor` | active spec 또는 tidy 요청, `.agent/spec/design.md`, `.agent/commands.json` | 동작 보존 refactor, improve codebase architecture |
 | `taste/review` | 변경 diff, active spec, cook summary, handoff, `.agent/commands.json` | review verdict, loop recommendation, red-team/security finding |
-| `plate/design-tune` | 실제 UI 코드, `.agent/wiki/design-system.md` | design-system 보강, UI drift 정리 |
 | `wrap/bump` | done/active spec, taste verdict, changelog/version 파일 | version/changelog 준비 |
 | `serve/release` | `.agent/constitution.md`, `.agent/commands.json`, taste verdict, clean tree | release gate 결과, push/deploy 전 정지 |
 | `autopilot/run` | 명시적 사용자 승인, active spec, `.agent/commands.json`, release gate | bounded multi-step execution |
@@ -157,7 +154,7 @@
 | library/vendor/API/접근 방식이 불명확함 | `forage` 후 `recipe` |
 | bug, failure, regression, 원인 불명 | `fix` |
 | 동작을 보존하는 구조 개선, improve codebase architecture | `tidy` |
-| UI token, component pattern, visual drift | `plate` |
+| UI token, component pattern, visual drift | `recipe`로 정책 spec 작성, 동작 보존 migration은 `tidy` |
 | version과 changelog 준비 | `wrap` |
 | release gate, tag, push/deploy checkpoint | `serve` |
 
@@ -169,7 +166,7 @@
 | `.agent/spec/prd.md` | scope 변경은 `recipe`가 담당 |
 | `.agent/spec/design.md` | kitchen, forage, recipe, tidy |
 | `.agent/wiki/domain.md` | kitchen이 seed 생성, 용어 변경은 `recipe`, 정리는 `librarian` |
-| `.agent/wiki/design-system.md` | `plate`가 재생성하고 다른 흐름은 관찰만 추가 |
+| `.agent/wiki/design-system.md` | 정책 변경은 `recipe`, 동작 보존 migration은 `tidy` |
 | `.agent/wiki/decisions/*.md` | 승인된 ADR은 append-only |
 | `.agent/spec/INDEX.md` | librarian generated |
 | `.agent/spec/handoffs/INDEX.md` | librarian generated |
@@ -208,7 +205,7 @@
 - active spec이 해결되었거나 명시적으로 deferred 상태입니다.
 - project `verify` command가 green입니다.
 - 최신 `taste` verdict가 APPROVE입니다.
-- BLOCKER 또는 critical audit finding이 남아 있지 않습니다.
+- BLOCKER 또는 critical security/review finding이 남아 있지 않습니다.
 - version과 changelog가 `wrap`으로 준비되었습니다.
 - working tree가 clean입니다.
 - push/deploy 전 사람 승인이 있습니다.

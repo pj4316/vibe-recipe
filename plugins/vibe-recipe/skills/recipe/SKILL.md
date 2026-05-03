@@ -13,7 +13,7 @@ description: /vr:recipe 또는 /vr:plan 호출 시 사용합니다. 비개발자
 
 - `resources/question-bank.md`: 요구사항을 세분화할 때 쓰는 비개발자 친화 질문 은행입니다. 답이 부족하거나 기능 유형별 drill-down이 필요할 때 읽습니다.
 - `resources/spec-template.md`: `.agent/spec/active/NNNN-<slug>.md` 생성 시 사용하는 고정 템플릿입니다. spec 파일을 만들 때 읽습니다.
-- 같은 대화의 `Alignment Brief`: `grill/align`이 만든 의도 정렬 결과입니다. 있으면 사용자 요구, 목표, 제외 범위, 성공 기준, domain term 초안으로 사용합니다.
+- 같은 대화의 제품 brief나 이전 alignment 메모: 있으면 사용자 요구, 목표, 제외 범위, 성공 기준, domain term 초안으로 사용합니다.
 
 ## Routing
 
@@ -25,7 +25,7 @@ description: /vr:recipe 또는 /vr:plan 호출 시 사용합니다. 비개발자
 | 접근 방식, library, vendor, API 선택이 불명확함 | `forage`로 ADR 초안 작성 후 `recipe` |
 | 장애, bug, failing test, 원인 불명 | `fix`로 root cause 분석 |
 | 동작 변경 없는 구조 개선 | `tidy`로 refactor spec 또는 작업 |
-| UI token, component pattern, visual drift 정리 | `plate`로 design-system refine |
+| UI token, component pattern, visual drift 정리 | `recipe`로 design-system 정책 spec 작성, 코드 이관은 `tidy` |
 | version, changelog, release 준비 | `wrap` |
 | release gate, tag, push/deploy 전 점검 | `serve` |
 
@@ -58,7 +58,7 @@ description: /vr:recipe 또는 /vr:plan 호출 시 사용합니다. 비개발자
 
 ## Alignment Brief 반영
 
-`grill/align` 결과가 같은 대화에 있으면 아래처럼 반영합니다.
+같은 대화에 제품 brief나 이전 alignment 메모가 있으면 아래처럼 반영합니다.
 
 | Alignment Brief | Recipe 반영 위치 |
 | --- | --- |
@@ -72,13 +72,13 @@ description: /vr:recipe 또는 /vr:plan 호출 시 사용합니다. 비개발자
 | `AI interpretation` | spec `요약`, open question, scope boundary |
 | `Recommended next skill` | routing 확인. 기술 선택이면 `forage`, 구현 가능하면 `cook` 준비 |
 
-`Alignment Brief`는 사용자가 승인한 의도 정렬 결과지만, spec approval을 대체하지 않습니다. `recipe`는 brief를 draft 입력으로 사용하고, 구현을 막는 빈칸이나 위험한 scope는 다시 확인합니다.
+Alignment 메모는 사용자가 승인한 의도 정렬 결과일 수 있지만, spec approval을 대체하지 않습니다. `recipe`는 brief를 draft 입력으로 사용하고, 구현을 막는 빈칸이나 위험한 scope는 다시 확인합니다.
 
 brief가 현재 `.agent/constitution.md`, `.agent/spec/prd.md`, `.agent/spec/design.md`, `.agent/wiki/domain.md`와 충돌하거나 오래된 전제에 기대면 그대로 반영하지 않습니다. 충돌은 spec의 `위험과 가정` 또는 `열린 질문`에 남기고, 제품 의도가 필요한 부분만 사용자에게 확인합니다.
 
 ## Domain 문서 갱신
 
-`recipe`는 `grill-with-docs`식 용어 정리를 `vibe-recipe`의 `.agent` 구조에 맞춰 수행합니다.
+`recipe`는 용어와 결정 정리를 `vibe-recipe`의 `.agent` 구조에 맞춰 수행합니다.
 
 - `CONTEXT.md`를 만들지 않습니다. source of truth는 `.agent/wiki/domain.md`입니다.
 - 사용자-facing 용어와 내부 운영 용어가 충돌하면 즉시 짚고 canonical term을 고릅니다.
