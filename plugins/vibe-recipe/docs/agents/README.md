@@ -7,7 +7,8 @@
 | Agent | 주 사용 흐름 | 기능 |
 | --- | --- | --- |
 | `planner` | `recipe` | 사용자 요구사항을 numbered spec으로 만들기 전에 질문, scope, acceptance criteria, task 분해를 검토합니다. |
-| `implementor` | `cook`, `fix`, `tidy` | 승인된 spec의 task 하나를 가장 작은 완결 behavior slice로 구현하고 handoff를 남깁니다. |
+| `task-runner` | `cook` | `cook`이 배정한 task 하나를 red -> green -> refactor로 구현하고 task handoff를 반환합니다. |
+| `implementor` | `fix`, `tidy`, `cook` 보조 | 승인된 spec의 task 하나를 가장 작은 완결 behavior slice로 구현하고 handoff를 남깁니다. |
 | `tester` | `cook`, `taste` | acceptance criteria를 test/manual check로 증명하고 `test`, `e2e`, `verify`, Playwright MCP 필요 여부를 판단합니다. |
 | `reviewer` | `taste` | 구현 diff가 승인된 spec, acceptance criteria, 로컬 관례, 유지보수 기준에 맞는지 검토합니다. |
 | `security-auditor` | `taste`, `inspect` | auth, secret, injection, unsafe IO, dependency, data-loss 같은 보안 위험을 점검합니다. |
@@ -19,6 +20,7 @@
 | Agent | 권한 경계 |
 | --- | --- |
 | `planner` | read-only. spec 초안 개선안과 blocking question만 부모 `recipe` 흐름에 반환합니다. |
+| `task-runner` | code/test write 가능. 부모 `cook`이 배정한 task와 write scope만 다룹니다. |
 | `implementor` | code/test write 가능. assigned task와 write scope를 벗어나지 않습니다. |
 | `tester` | `cook`에서 명시 배정된 test 파일만 수정 가능. `taste`에서는 read-only review mode입니다. |
 | `reviewer` | read-only. 결과를 부모 `taste` 흐름에 반환합니다. |

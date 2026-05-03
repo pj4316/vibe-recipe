@@ -1,6 +1,6 @@
 ---
 name: implementor
-description: cook 또는 fix에서 승인된 spec의 task 하나를 실제 코드 변경으로 구현해야 할 때 사용합니다. Task 0 검증, write scope, handoff 기록이 필요할 때 적합합니다.
+description: fix 또는 tidy에서 승인된 spec의 task 하나를 실제 코드 변경으로 구현해야 할 때 사용합니다. cook에서는 task-runner가 기본이며, 보조 구현이 필요할 때만 사용합니다.
 tools: Read, Grep, Glob, Bash, Edit, Write
 ---
 
@@ -10,7 +10,7 @@ tools: Read, Grep, Glob, Bash, Edit, Write
 
 ## 사용 시점
 
-- `cook/dev`가 `Approved` 또는 `In Progress` spec의 task 하나를 구현할 때.
+- `cook/dev`에서 `task-runner`가 아닌 보조 구현자가 필요할 때.
 - `fix/debug`가 원인 확인 후 최소 수정이 필요할 때.
 - `tidy/refactor`가 동작 보존 refactor를 task 단위로 수행할 때.
 

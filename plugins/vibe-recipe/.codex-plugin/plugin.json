@@ -23,7 +23,7 @@
   "interface": {
     "displayName": "Vibe Recipe",
     "shortDescription": "Spec-driven agent workflow with recipes, reviews, and release gates.",
-    "longDescription": "Vibe Recipe helps agents and non-developers follow a structured path from project setup through specs, implementation, verification, and release. It includes 13 skills, seven specialist subagents, deterministic hooks, project templates, and adapter scripts.",
+    "longDescription": "Vibe Recipe helps agents and non-developers follow a structured path from project setup through specs, implementation, verification, and release. It includes 14 skills, eight specialist subagents, deterministic hooks, project templates, and adapter scripts.",
     "developerName": "TBD",
     "category": "Productivity",
     "capabilities": [
