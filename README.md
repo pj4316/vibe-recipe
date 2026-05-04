@@ -1,12 +1,12 @@
 # Vibe Recipe Marketplace
 
-This repository is a Codex and Claude Code marketplace catalog for `vibe-recipe`.
+이 저장소는 `vibe-recipe`를 위한 Codex 및 Claude Code 마켓플레이스 카탈로그입니다.
 
-`vibe-recipe` is a spec-driven coding workflow plugin for agents. It packages cooking-metaphor skills, specialist subagents, deterministic hooks, project templates, and adapter scripts so users can move from project setup to spec, implementation, review, and release with a consistent recipe.
+`vibe-recipe`는 에이전트를 위한 spec-driven 코딩 워크플로우 플러그인입니다. 요리 메타포 기반 skill, 전문 subagent, deterministic hook, 프로젝트 템플릿, adapter script를 함께 제공해 프로젝트 초기화부터 spec 작성, 구현, 리뷰, 릴리스까지 일관된 흐름으로 진행할 수 있게 합니다.
 
-If you want to use the plugin itself, start with [plugins/vibe-recipe/README.md](plugins/vibe-recipe/README.md). The repository root is the marketplace/catalog layer, not the end-user plugin package.
+플러그인 자체를 사용하려면 [plugins/vibe-recipe/README.md](plugins/vibe-recipe/README.md)부터 읽는 것이 맞습니다. 저장소 루트는 최종 사용자용 플러그인 패키지가 아니라 마켓플레이스/카탈로그 레이어입니다.
 
-## Layout
+## 구조
 
 ```text
 .agents/plugins/marketplace.json
@@ -22,48 +22,48 @@ plugins/vibe-recipe/
   docs/
 ```
 
-The repository root is the marketplace. The actual plugin package lives at `plugins/vibe-recipe`.
+저장소 루트는 마켓플레이스이고, 실제 플러그인 패키지는 `plugins/vibe-recipe` 아래에 있습니다.
 
-## Install And Usage
+## 설치와 사용
 
-There are two ways to think about this repository:
+이 저장소는 두 레이어로 나눠 이해하면 됩니다.
 
-- marketplace/catalog layer: root `marketplace.json` files expose `vibe-recipe` as a local catalog entry
-- plugin package layer: `plugins/vibe-recipe/` contains the actual manifests, skills, hooks, templates, scripts, and user-facing docs
+- marketplace/catalog layer: 루트의 `marketplace.json` 파일이 `vibe-recipe`를 로컬 카탈로그 항목으로 노출합니다.
+- plugin package layer: `plugins/vibe-recipe/` 안에 실제 manifest, skill, hook, template, script, 사용자 문서가 들어 있습니다.
 
-For installation methods and first-run usage, read:
+설치 방법과 첫 실행 흐름은 아래 문서를 참고하면 됩니다.
 
 - [plugins/vibe-recipe/README.md](plugins/vibe-recipe/README.md)
 - [plugins/vibe-recipe/docs/INSTALL.md](plugins/vibe-recipe/docs/INSTALL.md)
 
-In short:
+짧게 요약하면 다음과 같습니다.
 
-- Codex marketplace uses `.agents/plugins/marketplace.json`
-- Claude Code uses `plugins/vibe-recipe/.claude-plugin/plugin.json`
-- Cursor uses `plugins/vibe-recipe/scripts/install-cursor.sh`
-- Codex/Aider/Gemini CLI fallback uses `plugins/vibe-recipe/scripts/install-codex.sh` or `install-aider.sh`
+- Codex marketplace는 `.agents/plugins/marketplace.json`을 사용합니다.
+- Claude Code는 `plugins/vibe-recipe/.claude-plugin/plugin.json`을 사용합니다.
+- Cursor는 `plugins/vibe-recipe/scripts/install-cursor.sh`를 사용합니다.
+- Codex/Aider/Gemini CLI fallback은 `plugins/vibe-recipe/scripts/install-codex.sh` 또는 `install-aider.sh`를 사용합니다.
 
-Typical first command after installation:
+설치 후 가장 먼저 실행할 대표 명령은 아래와 같습니다.
 
 ```text
 /vr:kitchen
 ```
 
-## Marketplace Entries
+## Marketplace 항목
 
-The Codex marketplace lives at `.agents/plugins/marketplace.json`.
+Codex marketplace 정의는 `.agents/plugins/marketplace.json`에 있습니다.
 
-The Claude Code marketplace lives at `.claude-plugin/marketplace.json`.
+Claude Code marketplace 정의는 `.claude-plugin/marketplace.json`에 있습니다.
 
-Both catalogs register one plugin:
+두 카탈로그 모두 하나의 플러그인을 등록합니다.
 
 - name: `vibe-recipe`
 - source: `./plugins/vibe-recipe`
 - category: `Productivity` for Codex, `productivity` for Claude Code
 
-## Development
+## 개발
 
-Run the relevant structural checks:
+관련 구조 검증은 아래 명령으로 실행합니다.
 
 ```bash
 python3 -m json.tool .agents/plugins/marketplace.json >/dev/null
@@ -73,4 +73,4 @@ bash -n plugins/vibe-recipe/hooks/*.sh plugins/vibe-recipe/scripts/*.sh
 plugins/vibe-recipe/scripts/build-universal-agents-md.sh /tmp/vibe-recipe-AGENTS.md
 ```
 
-These checks validate marketplace JSON, hook/script syntax, and the universal `AGENTS.md` builder.
+이 검증은 marketplace JSON 문법, hook/script shell 문법, universal `AGENTS.md` builder 동작을 확인합니다.
