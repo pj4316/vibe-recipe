@@ -1,0 +1,22 @@
+# library-package architecture preset
+
+- default architecture stance: Hexagonal architecture + TDD
+- architecture priority: `.agent/spec/design.md`를 핵심 source of truth로 두고 구현 전에 먼저 읽음
+- building block naming tone:
+  - public API
+  - core module
+  - adapter/bridge
+  - test harness
+- runtime scenario style:
+  - consumer call site에서 public API로 진입하는 시나리오 우선
+  - happy path, misuse/invalid input, integration compatibility path를 분리
+- deployment / operational emphasis:
+  - package boundary
+  - versioning and compatibility surface
+  - optional peer/runtime dependency notes
+- boundary stance:
+  - public API를 작게 유지하고 내부 복잡도는 deep module로 감춤
+  - framework-specific bridge가 있으면 core와 분리
+- default warning:
+  - export surface를 내부 구조와 1:1로 노출하지 않음
+  - convenience overload가 domain/API clarity를 깨지 않게 함

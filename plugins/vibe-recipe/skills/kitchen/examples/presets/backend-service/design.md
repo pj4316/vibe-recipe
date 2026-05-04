@@ -1,0 +1,23 @@
+# backend-service architecture preset
+
+- default architecture stance: Hexagonal architecture + TDD
+- architecture priority: `.agent/spec/design.md`를 핵심 source of truth로 두고 구현 전에 먼저 읽음
+- building block naming tone:
+  - entry point
+  - application/use case
+  - domain/policy
+  - persistence adapter
+  - external integration adapter
+- runtime scenario style:
+  - request -> use case -> domain -> persistence/integration 순서의 outside-in 시나리오 우선
+  - happy path, validation failure, downstream failure를 분리해서 적음
+- deployment / operational emphasis:
+  - runtime service boundary
+  - data store and migration path
+  - secret/config and observability surface
+- boundary stance:
+  - ports-and-adapters를 기본 boundary로 사용
+  - transport DTO, ORM entity, domain model을 가능한 한 분리
+- default warning:
+  - controller/service/repository naming만으로 architecture를 끝냈다고 보지 않음
+  - infra detail이 domain/application core로 새는 것을 허용하지 않음

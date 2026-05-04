@@ -1,0 +1,23 @@
+# cli-tool architecture preset
+
+- default architecture stance: Hexagonal architecture + TDD
+- architecture priority: `.agent/spec/design.md`를 핵심 source of truth로 두고 구현 전에 먼저 읽음
+- building block naming tone:
+  - command entry
+  - argument parsing
+  - application workflow
+  - filesystem/process/network adapter
+  - formatter/output
+- runtime scenario style:
+  - command invocation을 entry로 두고 성공/usage error/side-effect failure 시나리오를 분리
+  - dry-run, destructive path, output verification을 명시
+- deployment / operational emphasis:
+  - local runtime assumptions
+  - file/process permission boundary
+  - reproducible command verification
+- boundary stance:
+  - CLI parser와 business workflow를 분리
+  - filesystem, shell, network, clock 같은 side effect는 adapter 뒤로 둠
+- default warning:
+  - 작은 CLI라도 main 함수에 policy와 IO를 섞어 넣지 않음
+  - human-facing output formatting과 core decision logic을 분리

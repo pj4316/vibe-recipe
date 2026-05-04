@@ -36,9 +36,11 @@
 - `.agent/constitution.md`: 초기화 이후 human-only입니다. 에이전트가 임의로 수정하지 않습니다.
 - `.agent/spec/prd.md`: 제품 scope, MVP, anti-scope의 기준입니다.
 - `.agent/spec/design.md`: repo 구조, architecture 추론, verification strategy의 기준입니다.
+- `.agent/spec/design.md`는 구현 전에 가장 먼저 읽는 architecture source of truth입니다. 기본 원칙으로 Hexagonal architecture와 TDD를 우선합니다.
 - `.agent/wiki/domain.md`: 유비쿼터스 용어집이며 제품 용어, 역할, 상태, 비즈니스 규칙의 기준입니다.
 - `.agent/commands.json`: native command profile이며 `verify`가 release gate입니다.
 - `.agent/memory/gotchas.md`: 반복 실수를 피하기 위한 누적 주의사항입니다.
+- `kitchen`이 생성한 design/domain 문서에는 type-based preset 기본값이 포함될 수 있으며, 사용자 명시 입력이 그것보다 우선합니다.
 
 충돌이 있으면 현재 사용자 지시를 우선하되, constitution 또는 product scope와 충돌하는 변경은 진행 전에 확인합니다. 기능 개발은 `recipe/plan`으로 spec을 만든 뒤 `cook/dev`로 진행합니다. `.agent/`, `.hooks/`, command profile, generated agent instructions 같은 harness를 개선하려면 다시 `kitchen/init`을 사용합니다.
 
@@ -84,7 +86,7 @@
 - `cook/dev`는 가능한 한 실패하는 test 또는 executable acceptance check를 먼저 만들고 red -> green -> refactor 순서로 진행합니다.
 - multi-step 작업은 각 단계의 성공 기준과 verify 방법을 남깁니다.
 - 도메인 규칙은 UI, framework, database, external API에서 분리하고, 외부 I/O는 adapter 뒤에 둡니다.
-- Hexagonal architecture 또는 ports-and-adapters는 domain-heavy, integration-heavy, long-lived service에서 우선 고려하되 작은 script나 prototype에는 과한 layer를 만들지 않습니다.
+- Hexagonal architecture 또는 ports-and-adapters는 기본 선호 아키텍처입니다. 작은 script나 prototype에서도 boundary를 설명하는 기본 사고방식으로 사용하되, 과한 layer 수는 만들지 않습니다.
 - deep module을 선호하고 shallow module을 지양합니다. 작은 public interface가 의미 있는 내부 복잡도와 policy를 감추는 구조를 우선합니다.
 - 단순 wrapper, 책임 없는 pass-through layer, 호출부보다 내부 복잡도를 숨기지 못하는 module은 만들지 않습니다.
 - UI/browser workflow는 Given/When/Then scenario로 acceptance를 적고, 필요한 경우 `e2e` command 또는 Playwright MCP로 검증합니다.
@@ -135,7 +137,7 @@
 | `.agent/spec/abandoned/` | 취소되고 배운 점을 남긴 spec |
 | `.agent/spec/handoffs/` | 구현, 테스트, review handoff |
 | `.agent/autopilot/` | Ralph식 fresh iteration state와 append-only progress |
-| `.agent/wiki/architecture.md` | 시스템 architecture 메모 |
+| `.agent/spec/design.md` | 시스템 architecture와 verification 전략의 source of truth |
 | `.agent/wiki/domain.md` | 유비쿼터스 용어집, 역할, 상태, 비즈니스 규칙 |
 | `.agent/wiki/design-system.md` | UI가 있을 때만 쓰는 design system |
 | `.agent/wiki/decisions/` | ADR과 기술 결정 |

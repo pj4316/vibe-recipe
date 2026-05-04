@@ -5,6 +5,35 @@ script_dir="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 plugin_dir="$(cd "$script_dir/.." && pwd)"
 out="${1:-AGENTS.md}"
 
+append_kitchen_examples() {
+  local examples_dir="$plugin_dir/skills/kitchen/examples"
+  local example
+  local preset_type
+  local packet_name
+
+  [ -d "$examples_dir" ] || return 0
+
+  printf '\n## Kitchen Preset References\n\n'
+  cat <<'EOF'
+These preset/theme references are embedded here so fallback installations remain self-contained.
+Use them as the authoring source when slash commands are unavailable. Generated target-project
+documents should keep the selected preset/theme name and injected values, not these plugin paths.
+EOF
+  printf '\n'
+
+  while IFS= read -r example; do
+    preset_type="$(basename "$(dirname "$example")")"
+    packet_name="$(basename "$example" .md)"
+    if [[ "$packet_name" == "$preset_type" ]]; then
+      printf '\n<!-- kitchen-preset: %s -->\n\n' "$packet_name"
+    else
+      printf '\n<!-- kitchen-preset: %s / %s -->\n\n' "$preset_type" "$packet_name"
+    fi
+    cat "$example"
+    printf '\n'
+  done < <(find "$examples_dir" -type f | sort)
+}
+
 {
   printf '# vibe-recipe Universal Agent Instructions\n\n'
   printf 'Use these instructions when slash commands are unavailable. Natural language examples: "use kitchen", "use recipe", "taste the changes".\n\n'
@@ -28,9 +57,13 @@ Respect existing project instructions, user changes, and dirty working trees. Re
 EOF
   printf '\n\n## Skills\n\n'
   for skill in "$plugin_dir"/skills/*/SKILL.md; do
-    printf '\n<!-- %s -->\n\n' "$(basename "$(dirname "$skill")")"
+    local_skill="$(basename "$(dirname "$skill")")"
+    printf '\n<!-- %s -->\n\n' "$local_skill"
     cat "$skill"
     printf '\n'
+    if [[ "$local_skill" == "kitchen" ]]; then
+      append_kitchen_examples
+    fi
   done
   printf '\n## Subagents\n\n'
   for agent in "$plugin_dir"/agents/*.md; do

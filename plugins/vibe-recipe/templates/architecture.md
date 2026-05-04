@@ -1,15 +1,5 @@
-# Architecture Wiki
+# Legacy Architecture Note
 
-Status: Seed
+`kitchen/init` now uses `.agent/spec/design.md` as the architecture source of truth.
 
-## System Overview
-
-Not defined yet. Summarize the detected stack and runtime shape after kitchen adoption.
-
-## Boundaries
-
-Not defined yet. Record module, service, data, and integration boundaries as they become clear.
-
-## Operational Notes
-
-Not defined yet. Record setup, verification, deployment, and recurring operational gotchas.
+If this file exists in an older setup, replace it with a pointer to `.agent/spec/design.md` instead of maintaining two parallel architecture docs.

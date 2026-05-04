@@ -1,0 +1,23 @@
+# web-app architecture preset
+
+- default architecture stance: Hexagonal architecture + TDD
+- architecture priority: `.agent/spec/design.md`를 핵심 source of truth로 두고 변경 전에 먼저 읽음
+- building block naming tone:
+  - app shell
+  - feature/workflow
+  - domain or application service
+  - adapter / integration
+  - presentation
+- runtime scenario style:
+  - 사용자 workflow를 browser 또는 UI entry에서 시작하는 outside-in 시나리오 우선
+  - happy path, validation failure, async integration path를 기본 축으로 둠
+- deployment / operational emphasis:
+  - frontend build/deploy surface
+  - API boundary
+  - observability for user-facing failure
+- boundary stance:
+  - UI, framework, remote IO와 domain/application policy를 분리
+  - state-heavy workflow는 adapter 뒤로 밀고 core policy를 test 가능하게 유지
+- default warning:
+  - marketing hero 구조를 app shell보다 우선하지 않음
+  - component tree를 architecture 설명으로 오해하지 않음
