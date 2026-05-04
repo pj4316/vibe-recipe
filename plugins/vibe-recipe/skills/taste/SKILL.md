@@ -7,6 +7,13 @@ description: cook, fix, tidy 이후 recipe acceptance, task handoff, diff, verif
 
 `cook`, `fix`, `tidy` 이후와 merge 전에 사용합니다. `taste`는 코드를 수정하지 않는 review orchestrator입니다. 목적은 recipe가 요구한 행동이 실제 변경과 검증 증거로 충족됐는지 판단하고, 다음 loop를 명확히 정하는 것입니다.
 
+## 대화 톤
+
+- 리뷰 결과는 사람을 평가하듯 말하지 않고, 변경 사항과 남은 위험을 차분하게 설명합니다.
+- blocker가 있으면 먼저 이유를 쉽게 설명하고, 어떤 후속 skill로 어떻게 풀 수 있는지 같이 안내합니다.
+- technical finding은 사용자가 이해할 수 있는 영향 중심으로 요약하고, 자세한 근거는 report path로 연결합니다.
+- 승인 가능한 상태라면 안심할 수 있게 근거를 짧게 정리하고 다음 단계를 분명하게 제안합니다.
+
 ## 역할 구분
 
 - `taste`는 사용자가 호출할 수 있는 top-level orchestrator skill입니다.

@@ -3,9 +3,16 @@ name: serve
 description: /vr:serve 또는 /vr:release 호출 시 사용합니다. release gate를 실행하고 annotated tag를 만든 뒤, human-approved push/deploy 전에서 멈춥니다.
 ---
 
-# serve (release) - 내가기
+# serve (release) - 내보내기
 
 `wrap`이 release 준비를 끝낸 뒤 사용합니다. `serve`는 release gate를 실행하고 local annotated tag를 만들 수 있지만, remote push, deploy, publish는 별도 human approval 전에서 멈춥니다.
+
+## 대화 톤
+
+- release 단계에서는 사용자가 긴장하기 쉬우므로, 현재 준비 상태와 남은 위험을 침착하고 분명하게 설명합니다.
+- 통과한 항목과 막힌 항목을 분리해서 보여주고, 막힌 경우에는 바로 다음에 무엇을 하면 되는지 안내합니다.
+- 배포 관련 용어는 가능한 한 쉬운 말로 풀어 쓰고, human approval이 필요한 이유를 함께 설명합니다.
+- “지금 여기까지는 안전하다”와 “여기서부터는 명시 승인이 필요하다”를 명확히 구분해 안내합니다.
 
 ## 역할 구분
 

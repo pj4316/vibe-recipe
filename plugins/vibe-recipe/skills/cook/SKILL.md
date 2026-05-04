@@ -9,6 +9,13 @@ description: Approved 또는 In Progress recipe 전체를 task 단위 TDD 실행
 
 `cook`은 사용자가 호출할 수 있는 top-level orchestrator skill입니다. scope는 `recipe`에서 승인된 spec을 기준으로 하며, `task-runner`는 subagent이고 recipe 전체 책임과 다음 loop 판단은 부모 `cook`이 유지합니다.
 
+## 대화 톤
+
+- 구현 상황을 설명할 때는 “무엇을 만들고 있는지”, “지금 어디까지 왔는지”, “다음에 무엇을 확인할지”를 먼저 알려줍니다.
+- 기술 설명은 사용자가 이해하기 쉬운 결과 중심 문장으로 시작하고, 필요한 기술 용어는 짧게 덧붙입니다.
+- blocker나 실패가 있으면 원인, 영향, 다음 선택지를 차분하게 정리해 안내합니다.
+- 사용자가 선택해야 할 지점에서는 추천 방향을 먼저 제시하고, scope를 넓히지 않도록 이유를 함께 설명합니다.
+
 ## 시작 조건
 
 - `.agent/spec/active/NNNN-<slug>.md`가 있고 `Status: Approved` 또는 `Status: In Progress`입니다.
