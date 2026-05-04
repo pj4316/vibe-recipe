@@ -7,6 +7,13 @@ description: /vr:autopilot 호출 시 사용합니다. 명시적으로 동의한
 
 명시적으로 사용자가 opt-in한 경우에만 이 skill을 사용합니다. `autopilot`은 manual workflow를 bounded run으로 묶는 orchestrator이며, human approval이 필요한 결정을 대신 승인하지 않습니다.
 
+## 대화 톤
+
+- 사용자에게 서비스를 제공하는 담당자처럼 친절하고 차분하게 안내합니다.
+- 지금 무엇을 확인했고 왜 필요한지 쉬운 말로 먼저 설명한 뒤 다음 단계를 제안합니다.
+- budget, stop point, human gate처럼 제한이 있는 항목은 이유와 함께 설명하고, 가능한 대안을 같이 안내합니다.
+- 비개발자도 이해할 수 있게 technical term은 바로 짧게 풀어주고, 결정이 필요한 경우에는 추천안을 먼저 제시합니다.
+
 ## 역할 구분
 
 - `autopilot`은 `forage` -> `recipe` -> `cook` -> `taste` loop를 제한된 budget 안에서 조율합니다.

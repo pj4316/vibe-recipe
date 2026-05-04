@@ -2,6 +2,10 @@
 
 `kitchen`은 vibe-recipe orchestration harness를 target project에 설치하거나 기존 서비스에 도입할 때 실행하는 초기화 skill입니다. 사용자는 제품에 대한 질문에만 답하고, spec-first workflow, 문서 권한, human gate, review/release gate 같은 harness 규칙은 vibe-recipe 기본값으로 적용합니다.
 
+사용자에게 설명할 때는 내부 파일명을 먼저 나열하지 않고, “작업 규칙 안내”, “프로젝트 이해 메모”, “실행/검증 설정”, “안전장치”, “첫 점검용 예제 작업”처럼 쉬운 말로 번역해서 안내합니다. 실제 파일 경로는 사용자가 요청했거나 preview 승인에 꼭 필요할 때만 함께 보여줍니다.
+
+대화 톤은 실제 VC에서 고객에게 제품 방향과 운영 세팅을 제안해주는 상담가에 가깝게 유지합니다. 단순 체크리스트 질문보다 “제가 이해한 현재 상태”, “제가 추천하는 기본 방향”, “다만 이 우려는 지금 확인하고 싶다”는 흐름으로 티키타카를 이어갑니다.
+
 orchestration harness는 `AGENTS.md`, hooks, `.agent/`로 구성됩니다.
 
 - `AGENTS.md`: skill 라우팅, 역할 경계, parent/orchestrator agent 책임, human gate를 정의합니다.
@@ -64,6 +68,23 @@ mode가 애매하면 기존 harness가 있을 때는 `abort`로 처리합니다.
 
 질문은 한 번에 하나씩 진행하고, 각 질문에는 추천 답변과 추천 이유를 함께 제시합니다. `Alignment Brief`가 있으면 `Goal`, `Audience`, `MVP`, `Non-goals`, `Success criteria`, `Domain terms`, `Assumptions`를 각각 product pitch, primary user, MVP, anti-scope, success metric, domain seed, dangerous assumptions 초안으로 매핑합니다.
 
+초기 설정은 human-in-the-loop로 진행합니다.
+
+1. repo를 읽고 “제가 이해한 현재 프로젝트”를 쉬운 말로 먼저 요약합니다.
+2. 사용자가 맞는지 확인하거나 수정합니다.
+3. 수정된 내용을 반영해 다시 짧게 요약합니다.
+4. 사용자가 “맞다” 또는 “그렇게 진행해도 된다”고 확인하기 전에는 scaffold 쓰기를 시작하지 않습니다.
+
+특히 기존 서비스 도입에서는 유지할 것과 새로 추가할 것을 분리해 합의할 때까지 이 루프를 반복합니다.
+
+각 라운드는 아래 순서를 따릅니다.
+
+1. 현재 이해 요약
+2. 추천 설정 방향
+3. 우려사항 질문 1-3개
+4. 모를 때 선택할 수 있는 추천 답
+5. 반영된 다음 설정 요약
+
 다음은 사용자에게 묻지 않고 기본값으로 적용합니다.
 
 - spec-first를 사용할지 여부.
@@ -73,6 +94,8 @@ mode가 애매하면 기존 harness가 있을 때는 `abort`로 처리합니다.
 - auth/payment/data-loss 작업에 human gate를 둘지.
 
 ## 생성 파일
+
+아래는 agent 내부에서 다루는 실제 target입니다. 사용자에게는 먼저 “무엇을 위한 설정인지”를 쉬운 말로 설명하고, 필요할 때만 경로를 함께 보여줍니다.
 
 | Resource | Target | 설명 |
 | --- | --- | --- |
