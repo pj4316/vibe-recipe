@@ -22,7 +22,7 @@
 | `.agent/spec/handoffs/` | 최신 cook/fix/taste report |
 | `.agent/commands.json` | focused/test/e2e/verify command 존재 여부 |
 | `.agent/autopilot/state.json` | opt-in run, stop point, budget |
-| `CHANGELOG.md`, version manifest, tags | release 준비 신호 |
+| project changelog source, version source, tags | release 준비 신호. public manifest가 없으면 `.agent/release-manifest.json`, release notes file이 없으면 bootstrap `CHANGELOG.md`까지 확인 |
 
 파일이 없으면 실패로 처리하지 않고 `Missing`으로 표시합니다.
 

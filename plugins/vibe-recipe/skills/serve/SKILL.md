@@ -27,21 +27,21 @@ description: /vr:serve 호출 시 사용합니다. release gate를 실행하고 
 
 모두 통과해야 합니다.
 
-- 최신 `wrap` summary가 있고 target version이 manifest와 `CHANGELOG.md`에 일치합니다.
+- 최신 `wrap` summary가 있고 target version이 version source와 project changelog source에 일치합니다. mirror public manifests set이면 모든 manifest가 target version과 일치해야 합니다.
 - 최신 `taste` verdict가 `APPROVE`입니다.
 - 예상치 못한 open active spec이 없습니다.
 - project verify command가 green입니다. verify command가 없으면 release를 blocked로 처리합니다.
 - BLOCK 또는 REQUEST_CHANGES taste report가 pending 상태가 아닙니다.
 - critical security/review finding이 없습니다.
-- `CHANGELOG.md`에 target version이 있습니다.
+- project changelog source에 target version이 있습니다.
 - working tree가 clean입니다.
 - tag `vX.Y.Z`가 이미 있으면 같은 commit을 가리키는지 확인합니다. 다른 commit이면 blocked입니다.
 
 ## 입력
 
 - `wrap` summary 또는 release prep commit.
-- target version과 version manifest.
-- `CHANGELOG.md` target version section.
+- target version과 version source. public manifest가 없으면 `.agent/release-manifest.json` bootstrap source를 읽을 수 있습니다. repo가 mirror public manifests를 함께 유지하면 그 set 전체를 확인합니다.
+- project changelog source target version section. project-specific release notes file이 없으면 bootstrap `CHANGELOG.md`.
 - 최신 `taste` report.
 - `.agent/commands.json`의 `verify` command.
 - `.agent/constitution.md`의 human gate 정책.
@@ -49,9 +49,9 @@ description: /vr:serve 호출 시 사용합니다. release gate를 실행하고 
 
 ## 흐름
 
-1. Preflight: wrap summary, taste verdict, manifest, changelog, clean tree, existing tag를 확인합니다.
+1. Preflight: wrap summary, taste verdict, version source, project changelog source, clean tree, existing tag를 확인합니다.
 2. Gate: `.agent/commands.json`의 `verify`를 실행하고 실패하면 `BLOCK`으로 멈춥니다.
-3. Version check: manifest version, changelog heading, tag name이 모두 `X.Y.Z`로 일치하는지 확인합니다.
+3. Version check: version source, project changelog source heading, tag name이 모두 `X.Y.Z`로 일치하는지 확인합니다. mirror public manifests set이면 모든 manifest version을 검사합니다.
 4. Tag: local annotated tag `vX.Y.Z`를 생성합니다. tag message에는 changelog 요약과 wrap summary path를 포함합니다.
 5. Optional hook: `.hooks/release.sh`가 있으면 별도 명시 승인을 받은 경우에만 실행합니다.
 6. Summary: release gate summary를 최종 응답에 남깁니다. repo 파일에 release memory를 쓰지 않습니다.
@@ -104,6 +104,8 @@ Status: tagged / blocked
 ## Next
 - Command to run after approval:
 - Blocked reason:
+- Why this gate exists:
+- How to unblock:
 ```
 
 ## Hard rule

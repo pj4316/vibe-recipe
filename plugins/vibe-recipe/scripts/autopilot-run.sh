@@ -622,7 +622,11 @@ build_wrap_prompt() {
 You are a fresh vibe-recipe release-prep iteration.
 
 Use the wrap/bump contract.
-Read $spec_rel, $taste_report_rel, release commit range, version manifest, CHANGELOG.md if present, and .agent/commands.json.
+Read AGENTS.md, $spec_rel, $taste_report_rel, release commit range, and .agent/commands.json.
+Resolve exact release files before editing:
+- Version source: use one public manifest path if the repo already has one; if the repo intentionally keeps mirrored public manifests in sync, treat that mirrored set as the version source; otherwise use '.agent/release-manifest.json'.
+- Changelog source: use the repo's existing release notes file if one already exists; otherwise use 'CHANGELOG.md' at the repo root.
+- Choose one canonical changelog source. For versioning, either choose one canonical source or one mirrored manifest set, cite the exact path or paths in the wrap summary, and do not update unrelated competing files.
 Prepare version/changelog only if taste verdict is APPROVE and verify is configured.
 Do not tag, push, deploy, publish, or run serve.
 

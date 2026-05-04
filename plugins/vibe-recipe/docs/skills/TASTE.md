@@ -12,6 +12,7 @@
 - merge blocker와 follow-up concern을 구분합니다.
 - 다음 loop를 `cook`, `fix`, `recipe`, `tidy`, `wrap`, `serve` 중 하나로 명확히 추천합니다.
 - review report를 현재 spec 번호에 맞는 `.agent/spec/handoffs/NNNN-taste.md`에 남겨 `peek`, `wrap`, `serve`가 같은 spec의 최신 verdict를 재사용할 수 있게 합니다.
+- blocked 또는 request_changes면 reason만이 아니라 why/how-to-unblock도 함께 남깁니다.
 
 ## 시작 조건
 
@@ -85,6 +86,7 @@ Forbidden writes: product code, tests, generated artifacts, spec edits
 - BLOCKER, CONCERN, SUGGESTION
 - coverage gap
 - loop recommendation
+- blocked 또는 request_changes인 경우 why this gate exists, how to unblock
 
 report 저장 위치는 현재 spec 번호에 해당하는 `.agent/spec/handoffs/NNNN-taste.md`입니다. spec 자체가 틀렸다면 active spec을 고치지 말고 report에서 `recipe` escalation을 남깁니다.
 
