@@ -1,6 +1,6 @@
 ---
 name: wrap
-description: /vr:wrap 또는 /vr:bump 호출 시 사용합니다. SemVer를 결정하고 version manifest와 changelog를 갱신하되 deploy는 하지 않습니다.
+description: /vr:wrap 호출 시 사용합니다. SemVer를 결정하고 version manifest와 changelog를 갱신하되 deploy는 하지 않습니다.
 ---
 
 # wrap (bump) - 포장하기

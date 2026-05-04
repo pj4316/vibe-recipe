@@ -1,6 +1,6 @@
 ---
 name: cook
-description: Approved 또는 In Progress recipe 전체를 task 단위 TDD 실행으로 지휘하고, task-runner 결과를 통합해 taste/review까지 이어지게 합니다. /vr:cook 또는 /vr:dev 호출, recipe 전체 구현, task orchestration, acceptance matrix, TDD review loop가 필요할 때 사용합니다.
+description: Approved 또는 In Progress recipe 전체를 task 단위 TDD 실행으로 지휘하고, task-runner 결과를 통합해 taste/review까지 이어지게 합니다. /vr:cook 호출, recipe 전체 구현, task orchestration, acceptance matrix, TDD review loop가 필요할 때 사용합니다.
 ---
 
 # cook (dev) - 요리하기

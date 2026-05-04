@@ -1,6 +1,6 @@
 ---
 name: peek
-description: /vr:peek 또는 /vr:status 호출 시 사용합니다. active spec, git 상태, pending review, release readiness, autopilot mode를 read-only로 요약합니다.
+description: /vr:peek 호출 시 사용합니다. active spec, git 상태, pending review, release readiness, autopilot mode를 read-only로 요약합니다.
 ---
 
 # peek (status) - 지금 상태 보기
@@ -19,7 +19,7 @@ description: /vr:peek 또는 /vr:status 호출 시 사용합니다. active spec,
 
 ## 시작 조건
 
-- 사용자가 `/vr:peek`, `/vr:status`, “현재 상태”, “다음에 뭐 하지”처럼 상태 확인을 요청했습니다.
+- 사용자가 `/vr:peek`, “현재 상태”, “다음에 뭐 하지”처럼 상태 확인을 요청했습니다.
 - 작업을 시작하기 전에 active spec, dirty tree, pending review, release readiness를 빠르게 확인해야 합니다.
 - autopilot run 전후로 현재 task, stop point, budget, blocker를 확인해야 합니다.
 

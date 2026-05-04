@@ -49,12 +49,6 @@ Typical first command after installation:
 /vr:kitchen
 ```
 
-Developer alias:
-
-```text
-/vr:init
-```
-
 ## Marketplace Entries
 
 The Codex marketplace lives at `.agents/plugins/marketplace.json`.

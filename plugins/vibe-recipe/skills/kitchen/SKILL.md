@@ -1,6 +1,6 @@
 ---
 name: kitchen
-description: /vr:kitchen 또는 /vr:init 호출 시 사용합니다. 새 프로젝트 또는 기존 서비스에 vibe-recipe orchestration harness를 설치/도입/복구합니다. AGENTS.md, hooks, .agent, command profile을 구성해 recipe -> cook -> taste workflow가 재현 가능하게 동작해야 할 때 사용합니다.
+description: /vr:kitchen 호출 시 사용합니다. 새 프로젝트 또는 기존 서비스에 vibe-recipe orchestration harness를 설치/도입/복구합니다. AGENTS.md, hooks, .agent, command profile을 구성해 recipe -> cook -> taste workflow가 재현 가능하게 동작해야 할 때 사용합니다.
 ---
 
 # kitchen (init) - 주방 차리기

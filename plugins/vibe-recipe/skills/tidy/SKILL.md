@@ -1,6 +1,6 @@
 ---
 name: tidy
-description: /vr:tidy 또는 /vr:refactor 호출 시 사용합니다. 동작 변경 없이 구조를 개선하고 test로 동등성을 증명합니다. improve codebase architecture 요청은 shallow module을 줄이고 deep module boundary를 만드는 작업으로 처리합니다.
+description: /vr:tidy 호출 시 사용합니다. 동작 변경 없이 구조를 개선하고 test로 동등성을 증명합니다. improve codebase architecture 요청은 shallow module을 줄이고 deep module boundary를 만드는 작업으로 처리합니다.
 ---
 
 # tidy (refactor) - 정리정돈

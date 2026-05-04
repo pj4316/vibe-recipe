@@ -1,6 +1,6 @@
 # Cook 동작 문서
 
-`cook`은 승인된 numbered spec 전체를 실제 코드 변경으로 구현하는 지휘 skill입니다. 사용자는 `/vr:cook` 또는 개발자 alias `/vr:dev`로 호출할 수 있습니다.
+`cook`은 승인된 numbered spec 전체를 실제 코드 변경으로 구현하는 지휘 skill입니다. 사용자는 `/vr:cook`으로 호출할 수 있습니다.
 
 `cook`의 책임은 scope 결정이 아니라 구현 지휘입니다. 제품 의도, acceptance criteria, task breakdown은 `recipe/plan`에서 이미 승인되어 있어야 합니다. 메인 에이전트는 recipe 전체를 관리하고, task 하나의 실제 실행은 `task-runner` agent에 맡긴 뒤 결과를 받아 통합합니다.
 

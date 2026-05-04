@@ -1,6 +1,6 @@
 # Tidy 동작 문서
 
-`tidy`는 동작 변경 없이 구조를 개선하는 refactor skill입니다. 사용자는 `/vr:tidy` 또는 개발자 alias `/vr:refactor`로 호출할 수 있습니다.
+`tidy`는 동작 변경 없이 구조를 개선하는 refactor skill입니다. 사용자는 `/vr:tidy`로 호출할 수 있습니다.
 
 `tidy`는 feature 추가나 acceptance 변경을 하지 않습니다. 기존 behavior를 보존한다는 증거를 남기고, shallow module이나 흩어진 policy를 더 깊고 응집도 높은 module로 정리합니다.
 

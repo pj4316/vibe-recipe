@@ -76,12 +76,6 @@ After installation, initialize the project harness with:
 /vr:kitchen
 ```
 
-Developer alias:
-
-```text
-/vr:init
-```
-
 `kitchen` inspects the repo, asks product-facing setup questions, and prepares the project harness such as `AGENTS.md`, `.agent/`, command profiles, runbooks, and the first health-check spec.
 
 ## Typical Usage
@@ -92,12 +86,6 @@ Developer alias:
 /vr:recipe
 ```
 
-Developer alias:
-
-```text
-/vr:plan
-```
-
 Use this when you want a numbered spec before implementation.
 
 ### Implement an approved spec
@@ -106,24 +94,12 @@ Use this when you want a numbered spec before implementation.
 /vr:cook
 ```
 
-Developer alias:
-
-```text
-/vr:dev
-```
-
 Use this after `recipe` is approved.
 
 ### Review the result
 
 ```text
 /vr:taste
-```
-
-Developer alias:
-
-```text
-/vr:review
 ```
 
 Use this before merge or after a fix/refactor loop.
@@ -188,19 +164,19 @@ plugins/vibe-recipe/scripts/autopilot-run.sh --repo . --dry-run --once
 
 ## Skill Lineup
 
-| Cooking | Developer alias | Purpose |
-| --- | --- | --- |
-| `kitchen` | `init` | Bootstrap a project with `.agent/`, `AGENTS.md`, hooks, templates, and first health-check spec. |
-| `peek` | `status` | Read-only snapshot of specs, git context, reviews, and autopilot mode. |
-| `forage` | `research` | Compare options and draft ADRs before planning. |
-| `recipe` | `plan` | Turn a request into a numbered feature spec. |
-| `cook` | `dev` | Implement one approved task at a time. |
-| `fix` | `debug` | Diagnose failures and repair code or escalate spec issues. |
-| `tidy` | `refactor` | Improve structure while preserving behavior. |
-| `taste` | `review` | Run regression, coverage, review, security, and red-team checks. |
-| `wrap` | `bump` | Decide SemVer and generate changelog/version changes. |
-| `serve` | `release` | Run release gates, tag, and stop before human-approved push. |
-| `autopilot` | `autopilot` | Opt-in automated forage -> recipe -> cook -> taste loop. |
+| Skill | Purpose |
+| --- | --- |
+| `kitchen` | Bootstrap a project with `.agent/`, `AGENTS.md`, hooks, templates, and first health-check spec. |
+| `peek` | Read-only snapshot of specs, git context, reviews, and autopilot mode. |
+| `forage` | Compare options and draft ADRs before planning. |
+| `recipe` | Turn a request into a numbered feature spec. |
+| `cook` | Implement one approved task at a time. |
+| `fix` | Diagnose failures and repair code or escalate spec issues. |
+| `tidy` | Improve structure while preserving behavior. |
+| `taste` | Run regression, coverage, review, security, and red-team checks. |
+| `wrap` | Decide SemVer and generate changelog/version changes. |
+| `serve` | Run release gates, tag, and stop before human-approved push. |
+| `autopilot` | Opt-in automated forage -> recipe -> cook -> taste loop. |
 
 ## Docs
 
