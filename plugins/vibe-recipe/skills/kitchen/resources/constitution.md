@@ -60,6 +60,9 @@
 
 사용자가 “잘 모르겠어요”를 선택해 적용한 기본값은 kitchen이 기록해야 합니다.
 
+- 선택된 preset 이름과 선택 이유를 포함합니다.
+- architecture shape, UI reference/density/mode, domain tone처럼 preset이 직접 채운 핵심 기본값을 함께 기록합니다.
+
 | 결정 | 기본값 | 이유 |
 | --- | --- | --- |
 | {{decision}} | {{default}} | {{reason}} |

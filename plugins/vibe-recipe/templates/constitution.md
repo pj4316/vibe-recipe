@@ -42,3 +42,5 @@ Status: Fallback Skeleton
 ## Recommended Defaults Applied
 
 - `kitchen`이 제품 질문에서 “잘 모르겠어요” 답변을 받은 경우, 적용한 기본값과 이유를 여기에 기록합니다.
+- 선택된 preset 이름과 선택 이유도 함께 기록합니다.
+- architecture shape, UI reference/density/mode, domain tone처럼 preset이 채운 핵심 기본값을 남깁니다.
