@@ -4,6 +4,8 @@ This repository is a Codex and Claude Code marketplace catalog for `vibe-recipe`
 
 `vibe-recipe` is a spec-driven coding workflow plugin for agents. It packages cooking-metaphor skills, specialist subagents, deterministic hooks, project templates, and adapter scripts so users can move from project setup to spec, implementation, review, and release with a consistent recipe.
 
+If you want to use the plugin itself, start with [plugins/vibe-recipe/README.md](plugins/vibe-recipe/README.md). The repository root is the marketplace/catalog layer, not the end-user plugin package.
+
 ## Layout
 
 ```text
@@ -21,6 +23,37 @@ plugins/vibe-recipe/
 ```
 
 The repository root is the marketplace. The actual plugin package lives at `plugins/vibe-recipe`.
+
+## Install And Usage
+
+There are two ways to think about this repository:
+
+- marketplace/catalog layer: root `marketplace.json` files expose `vibe-recipe` as a local catalog entry
+- plugin package layer: `plugins/vibe-recipe/` contains the actual manifests, skills, hooks, templates, scripts, and user-facing docs
+
+For installation methods and first-run usage, read:
+
+- [plugins/vibe-recipe/README.md](plugins/vibe-recipe/README.md)
+- [plugins/vibe-recipe/docs/INSTALL.md](plugins/vibe-recipe/docs/INSTALL.md)
+
+In short:
+
+- Codex marketplace uses `.agents/plugins/marketplace.json`
+- Claude Code uses `plugins/vibe-recipe/.claude-plugin/plugin.json`
+- Cursor uses `plugins/vibe-recipe/scripts/install-cursor.sh`
+- Codex/Aider/Gemini CLI fallback uses `plugins/vibe-recipe/scripts/install-codex.sh` or `install-aider.sh`
+
+Typical first command after installation:
+
+```text
+/vr:kitchen
+```
+
+Developer alias:
+
+```text
+/vr:init
+```
 
 ## Marketplace Entries
 
