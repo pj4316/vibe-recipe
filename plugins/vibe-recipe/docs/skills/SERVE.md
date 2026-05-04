@@ -5,15 +5,16 @@
 ## 목표
 
 - `wrap` summary와 latest `taste` `APPROVE` verdict를 확인합니다.
-- manifest version, `CHANGELOG.md` target heading, tag name이 같은 version인지 검증합니다.
+- version source, project changelog source target heading, tag name이 같은 version인지 검증합니다. mirror public manifests set이면 모든 manifest를 함께 확인합니다.
 - `.agent/commands.json`의 `verify`를 release gate로 실행합니다.
 - clean HEAD에 local annotated tag `vX.Y.Z`를 만듭니다.
 - repo 파일은 수정하지 않고 release gate summary만 최종 응답에 남깁니다.
 - push/deploy/publish 전에 필요한 승인과 command를 명확히 남깁니다.
+- blocked면 reason만이 아니라 why/how-to-unblock까지 같이 남깁니다.
 
 ## Pre-flight gate
 
-- 최신 `wrap` summary가 있고 target version이 manifest와 `CHANGELOG.md`에 일치합니다.
+- 최신 `wrap` summary가 있고 target version이 version source와 project changelog source에 일치합니다. mirror public manifests set이면 모든 manifest가 target version과 일치해야 합니다.
 - 최신 `taste` verdict가 `APPROVE`입니다.
 - 예상치 못한 open active spec이 없습니다.
 - project `verify` command가 green입니다. `verify`가 `null`이면 release는 blocked입니다.
@@ -24,9 +25,9 @@
 
 ## Flow
 
-1. Preflight: wrap summary, taste verdict, manifest, changelog, clean tree, existing tag를 확인합니다.
+1. Preflight: wrap summary, taste verdict, version source, project changelog source, clean tree, existing tag를 확인합니다.
 2. Gate: `.agent/commands.json`의 `verify`를 실행하고 실패하면 `BLOCK`으로 멈춥니다.
-3. Version check: manifest version, changelog heading, tag name이 모두 `X.Y.Z`로 일치하는지 확인합니다.
+3. Version check: version source, project changelog source heading, tag name이 모두 `X.Y.Z`로 일치하는지 확인합니다. mirror public manifests set이면 모든 manifest version을 검사합니다.
 4. Tag: local annotated tag `vX.Y.Z`를 생성합니다.
 5. Optional hook: `.hooks/release.sh`가 있으면 별도 명시 승인을 받은 경우에만 실행합니다.
 6. Summary: release gate summary를 최종 응답에 남깁니다. repo 파일에 release memory를 쓰지 않습니다.
@@ -51,11 +52,11 @@
 ## Release gate summary 필수 항목
 
 - wrap summary path와 taste report path
-- target version, manifest, changelog heading
+- target version, manifest, project changelog source heading
 - `verify`, clean tree, existing tag 결과
 - 생성하거나 확인한 tag와 commit
 - push/deploy/publish 승인 필요 항목
-- blocked reason 또는 approval 후 실행할 command
+- blocked reason, why this gate exists, how to unblock, 또는 approval 후 실행할 command
 - tag 생성 이후 작업 트리가 여전히 clean인지 여부
 
 ## 검증 포인트

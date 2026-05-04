@@ -121,6 +121,12 @@ Evidence refs:
 ## Coverage Gap
 ## Loop Recommendation
 `cook`, `fix`, `recipe`, `tidy`, `wrap`, `serve` 중 다음 경로와 이유를 제안합니다.
+
+blocked 또는 request_changes면 report와 최종 응답에 아래를 함께 남깁니다.
+
+- `Blocked reason` 또는 `Change needed`
+- `Why this gate exists`
+- `How to unblock`
 ```
 
 ## Loop Recommendation 매핑

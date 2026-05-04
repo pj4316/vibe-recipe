@@ -13,7 +13,7 @@ orchestration harness는 세 층입니다.
 - hooks: constitution 수정, push/deploy/release, secret, release gate처럼 결정적으로 검사 가능한 안전장치.
 - `.agent/`: spec, command profile, runbook, domain language, memory, handoff.
 
-`.agent/commands.json`은 스킬 정의 파일이 아닙니다. target project의 native command profile이며 `cook`, `taste`, `serve`가 어떤 setup/build/test/e2e/lint/verify/dev 명령을 실행할지 판단하는 기준입니다.
+`.agent/commands.json`은 스킬 정의 파일이 아닙니다. target project의 native command profile이며 `cook`, `taste`, `serve`가 어떤 setup/build/test/e2e/lint/verify/dev 명령을 실행할지 판단하는 기준입니다. release 계열 skill이 source 부재 때문에 바로 막히지 않도록 `kitchen`은 bootstrap changelog와 version source도 함께 준비합니다.
 
 ## 대화 톤
 
@@ -64,6 +64,8 @@ orchestration harness는 세 층입니다.
 - `resources/design-system.md`
 - `resources/domain.md`
 - `resources/commands.json`
+- `resources/release-manifest.json`
+- `resources/CHANGELOG.md`
 - `resources/health-check.md`
 - `resources/runbook-verification.md`
 - `resources/runbook-debugging.md`
@@ -230,6 +232,7 @@ preview도 대화형으로 진행합니다.
 | `.agent/spec/prd.md` | 제품 답변 기반 create only. |
 | `.agent/spec/design.md` | repo 감지와 command profile 기반의 arc42 + C4 hybrid architecture seed. preset defaults와 Mermaid skeleton 포함. |
 | `.agent/commands.json` | stable key 유지: setup/build/test/e2e/lint/verify/dev. |
+| `.agent/release-manifest.json` | real product manifest가 아직 없을 때 쓰는 `0.0.0` bootstrap version source. 이후 public manifest로 교체 또는 retire. |
 | `.agent/wiki/domain.md` | 유비쿼터스 용어집 source of truth. preset의 glossary depth와 tone을 출발점으로 삼습니다. |
 | `.agent/wiki/design-system.md` | `web-app` 또는 명시적 UI 프로젝트일 때만 생성. backend/cli/library preset에는 기본 포함하지 않습니다. |
 | `.agent/spec/active/0001-health-check.md` | harness rehearsal용 create only. |
@@ -238,6 +241,7 @@ preview도 대화형으로 진행합니다.
 | `.agent/memory/*`, indexes | create only. librarian이 이후 관리. |
 | `.hooks/*` | create only. 차단성 hook은 승인 후 활성화. |
 | `CLAUDE.md` | `AGENTS.md` symlink 우선, 실패 시 generated copy. |
+| project release notes source | 기존 release notes file을 우선하고, 없을 때만 kitchen이 bootstrap `CHANGELOG.md` skeleton을 만들어 wrap이 같은 source를 재사용할 수 있게 합니다. |
 
 필요한 directory도 함께 만듭니다: `.agent/spec/{active,done,archived,abandoned,handoffs}`, `.agent/autopilot`, `.agent/wiki/decisions`, `.agent/memory/{topics,handoffs}`, `.agent/runbooks`.
 
@@ -246,6 +250,7 @@ preview도 대화형으로 진행합니다.
 - `AGENTS.md`, `.agent/constitution.md`, `.agent/spec/prd.md`, `.agent/spec/design.md`가 있습니다.
 - `.agent/commands.json`이 valid JSON이고 stable key를 모두 포함합니다.
 - `.agent/wiki/domain.md`, `.agent/memory/gotchas.md`, health-check spec, runbooks가 있습니다.
+- public manifest가 없으면 `.agent/release-manifest.json` `0.0.0` baseline이 있고, project release notes source가 없으면 `CHANGELOG.md` bootstrap source가 있어 release 계열 skill이 source 부재 때문에 바로 막히지 않습니다.
 - `.agent/autopilot/state.json`과 `.agent/autopilot/progress.md`가 있습니다.
 - `.agent/spec/design.md`는 Introduction/Goals, Constraints, Context/Scope, Solution Strategy, Building Blocks, Runtime Scenarios, Deployment/Operational Notes, Cross-cutting Concepts, Decisions, Quality, Risks/Tech Debt, Glossary를 포함하고, 선택된 preset과 핵심 기본값을 기록합니다.
 - `.agent/spec/design.md`는 source of truth로서 구현 전에 먼저 읽혀야 하고, 기본 원칙으로 Hexagonal architecture와 TDD를 강조합니다.
@@ -257,6 +262,7 @@ preview도 대화형으로 진행합니다.
 - 마지막에 “프로젝트 초기 구성이 끝났습니다. 레시피를 작성해볼까요?”라고 안내합니다.
 
 `verify` command가 `null`이면 kitchen 완료는 가능하지만 release 상태는 blocked로 보고합니다.
+`taste`가 아직 APPROVE가 아니면 `wrap`/`serve`는 계속 blocked이지만, 그때도 어떤 파일과 어떤 순서가 필요한지 unblock 안내까지 함께 설명해야 합니다.
 
 ## Git 의례
 

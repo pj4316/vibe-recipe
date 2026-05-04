@@ -1,0 +1,10 @@
+{
+  "version": "0.0.0",
+  "source": "harness-bootstrap",
+  "publicArtifact": false,
+  "notes": [
+    "Initial pre-release baseline created by kitchen so wrap/serve have a manifest before the project defines its own release artifact.",
+    "Starting from 0.0.0 keeps the first wrap bump aligned with the project's first real release version.",
+    "Replace or retire this file once the project has a real public version source such as package.json, pyproject.toml, Cargo.toml, or an app/plugin manifest."
+  ]
+}

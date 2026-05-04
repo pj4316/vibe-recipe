@@ -19,6 +19,7 @@ Branch: feat/0001-health-check
 - harness 개선 작업은 ad hoc edit이 아니라 `kitchen`으로 다시 라우팅됩니다.
 - handoff note에 rehearsal 결과를 기록합니다.
 - Taste report가 harness 자체에 대한 release blocker가 없음을 확인합니다.
+- project changelog source 또는 bootstrap `CHANGELOG.md`, 그리고 `.agent/release-manifest.json`이 있어 wrap 입력 source가 준비되어 있습니다.
 
 ## 작업
 
@@ -26,4 +27,5 @@ Branch: feat/0001-health-check
 2. verification을 실행할 수 없으면 누락된 setup step을 기록합니다.
 3. `AGENTS.md`가 일반 기능 작업을 `recipe` -> `cook`으로 안내하는지 확인합니다.
 4. harness 변경이 `kitchen`으로 라우팅되는지 확인합니다.
-5. rehearsal 결과에 대해 `taste`를 실행합니다.
+5. project changelog source 또는 bootstrap `CHANGELOG.md`, 그리고 `.agent/release-manifest.json` 존재를 확인합니다.
+6. rehearsal 결과에 대해 `taste`를 실행합니다.

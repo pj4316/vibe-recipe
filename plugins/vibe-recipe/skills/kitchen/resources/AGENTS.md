@@ -138,6 +138,7 @@
 | `.agent/spec/handoffs/` | 구현, 테스트, review handoff |
 | `.agent/autopilot/` | Ralph식 fresh iteration state와 append-only progress |
 | `.agent/spec/design.md` | 시스템 architecture와 verification 전략의 source of truth |
+| `.agent/release-manifest.json` | bootstrap version source. public release manifest 전까지 wrap/serve 입력으로 사용 |
 | `.agent/wiki/domain.md` | 유비쿼터스 용어집, 역할, 상태, 비즈니스 규칙 |
 | `.agent/wiki/design-system.md` | UI가 있을 때만 쓰는 design system |
 | `.agent/wiki/decisions/` | ADR과 기술 결정 |
@@ -146,6 +147,7 @@
 | `.agent/memory/red-team-findings.md` | 반복되는 adversarial finding |
 | `.agent/runbooks/` | verification, debugging, deployment runbook |
 | `.hooks/` | 결정적 local gate |
+| project release notes source | 기존 release notes file을 우선하고, 없으면 kitchen이 bootstrap `CHANGELOG.md`를 만듭니다 |
 | `docs/` | 사람이 읽는 프로젝트 문서 |
 
 ## Recipe 라우팅
@@ -172,7 +174,8 @@
 | `.agent/wiki/decisions/*.md` | 승인된 ADR은 append-only |
 | `.agent/spec/INDEX.md` | librarian generated |
 | `.agent/spec/handoffs/INDEX.md` | librarian generated |
-| `CHANGELOG.md` | `wrap` generated |
+| `.agent/release-manifest.json` | kitchen generated bootstrap version source. real product manifest가 생기면 교체 또는 retire |
+| project release notes source | 기존 release notes file을 우선합니다. 없을 때만 kitchen bootstrap `CHANGELOG.md`를 source로 사용합니다 |
 
 ## Command 계약
 
@@ -182,6 +185,17 @@
 - UI/browser 변경은 `e2e` command가 있으면 실행하고, 없으면 Playwright MCP로 핵심 scenario를 확인한 뒤 결과를 기록합니다.
 - merge/release 전에는 `verify`를 실행합니다.
 - `verify`가 `null`이면 설정될 때까지 release는 blocked입니다.
+
+## Blocked 응답 계약
+
+- 어떤 skill이든 blocked면 단순히 막혔다고 끝내지 않습니다.
+- 응답에는 최소한 다음이 있어야 합니다.
+  - `Blocked reason`: 지금 진행할 수 없는 직접 원인
+  - `Why this gate exists`: 왜 이 조건이 필요한지
+  - `How to unblock`: 사용자가 바로 실행할 수 있는 해결 순서
+  - `Recommended next skill`: 보통 `recipe`, `cook`, `fix`, `taste`, `wrap`, `serve` 중 하나
+- unblock 단계는 추상적인 조언 대신 파일, command, 필요한 승인 여부를 포함한 짧은 순서로 씁니다.
+- release 관련 blocked면 `verify`, latest `taste` verdict, version source, project changelog source, clean tree 중 무엇이 비었는지 분리해서 설명합니다.
 
 ## Gotchas
 
@@ -208,6 +222,8 @@
 - project `verify` command가 green입니다.
 - 최신 `taste` verdict가 APPROVE입니다.
 - BLOCKER 또는 critical security/review finding이 남아 있지 않습니다.
+- version source는 public manifest가 있으면 그것을 우선하고, repo가 mirror public manifests를 의도적으로 함께 유지하면 그 manifest set 전체를 같은 version source로 다룰 수 있습니다. public manifest가 없으면 kitchen이 만든 `.agent/release-manifest.json` `0.0.0` baseline을 초기 source로 사용할 수 있습니다.
+- changelog source는 project가 이미 쓰는 release notes file을 우선하고, 없으면 kitchen이 만든 `CHANGELOG.md`를 사용합니다.
 - version과 changelog가 `wrap`으로 준비되었습니다.
 - working tree가 clean입니다.
 - push/deploy 전 사람 승인이 있습니다.

@@ -107,6 +107,8 @@ mode가 애매하면 기존 harness가 있을 때는 `abort`로 처리합니다.
 | `resources/domain.md` | `.agent/wiki/domain.md` | 유비쿼터스 용어집 seed |
 | `resources/design-system.md` | `.agent/wiki/design-system.md` | UI 프로젝트일 때만 생성하는 foundations-first design system seed |
 | `resources/commands.json` | `.agent/commands.json` | stable command profile |
+| `resources/release-manifest.json` | `.agent/release-manifest.json` | real product manifest가 없을 때 쓰는 `0.0.0` bootstrap version source |
+| `resources/CHANGELOG.md` | project release notes source | 기존 release notes file이 없을 때 wrap이 재사용할 bootstrap `CHANGELOG.md` source |
 | `resources/health-check.md` | `.agent/spec/active/0001-health-check.md` | harness rehearsal용 첫 spec |
 | `resources/runbook-verification.md` | `.agent/runbooks/verification.md` | 검증 절차 |
 | `resources/runbook-debugging.md` | `.agent/runbooks/debugging.md` | 디버깅 절차 |
@@ -116,7 +118,7 @@ mode가 애매하면 기존 harness가 있을 때는 `abort`로 처리합니다.
 | `examples/presets/web-app/design-system.md` | plugin authoring source | 미지정 시 design-system stance 기본값 |
 | `examples/presets/web-app/themes/*.md` | plugin authoring source | 미지정 시 theme packet 주입 |
 
-추가로 `.agent/spec/{active,done,archived,abandoned,handoffs}`, `.agent/wiki/decisions`, `.agent/memory/{topics,handoffs}`, `.agent/runbooks` 디렉터리를 준비합니다. `CLAUDE.md`는 `AGENTS.md` symlink를 우선하고, 실패하면 generated copy로 둡니다.
+추가로 `.agent/spec/{active,done,archived,abandoned,handoffs}`, `.agent/wiki/decisions`, `.agent/memory/{topics,handoffs}`, `.agent/runbooks` 디렉터리를 준비합니다. `CLAUDE.md`는 `AGENTS.md` symlink를 우선하고, 실패하면 generated copy로 둡니다. release 계열 skill의 source 부재를 줄이기 위해 `kitchen`은 project release notes source가 없을 때만 `CHANGELOG.md` bootstrap skeleton을 만들고, public manifest가 없으면 `.agent/release-manifest.json`을 `0.0.0` 초기 version source로 둡니다.
 
 `examples/`는 plugin repo 내부 authoring asset입니다. fallback 설치에서는 universal `AGENTS.md`에 preset/theme 예시 본문을 임베드해 self-contained reference로 제공합니다. target project에 생성되는 `.agent/spec/design.md`, `.agent/wiki/design-system.md`, `.agent/wiki/domain.md`는 examples 경로를 참조하는 문서가 아니라, 선택된 preset/theme를 바탕으로 생성된 결과물입니다.
 
@@ -172,10 +174,12 @@ preset 규칙은 다음과 같습니다.
 - `.agent/spec/design.md`가 repo facts 기반 architecture 플레이북으로 생성되고 Mermaid skeleton이 포함됩니다. 선택된 preset과 architecture 기본값도 보이며, Hexagonal architecture와 TDD 기본 원칙이 드러납니다.
 - `.agent/wiki/domain.md`가 선택된 preset, glossary depth, role/state style, domain tone을 포함합니다.
 - UI/frontend 프로젝트이면 `.agent/wiki/design-system.md`가 foundations, token hierarchy, accessibility, composition, governance를 포함한 정책 seed로 생성됩니다. backend/cli/library preset은 기본적으로 design-system을 포함하지 않습니다.
+- public manifest가 없으면 `.agent/release-manifest.json` `0.0.0` baseline이 있고, project release notes source가 없으면 bootstrap `CHANGELOG.md` source가 있어 wrap/serve가 source 부재만으로는 막히지 않습니다.
 - 생성/skip한 파일 목록과 command profile을 사용자에게 보고합니다.
 - 마지막 안내로 “프로젝트 초기 구성이 끝났습니다. 레시피를 작성해볼까요?”를 보여줍니다.
 
 `verify` command가 `null`이면 kitchen 완료는 가능하지만 release 상태는 blocked로 보고합니다.
+blocked를 보고할 때는 원인만이 아니라 왜 막는지와 어떻게 풀지까지 같이 설명합니다.
 
 ## 검증 포인트
 
@@ -184,7 +188,10 @@ preset 규칙은 다음과 같습니다.
 ```bash
 test -f plugins/vibe-recipe/skills/kitchen/resources/AGENTS.md
 test -f plugins/vibe-recipe/skills/kitchen/resources/commands.json
+test -f plugins/vibe-recipe/skills/kitchen/resources/release-manifest.json
+test -f plugins/vibe-recipe/skills/kitchen/resources/CHANGELOG.md
 python3 -m json.tool plugins/vibe-recipe/skills/kitchen/resources/commands.json >/dev/null
+python3 -m json.tool plugins/vibe-recipe/skills/kitchen/resources/release-manifest.json >/dev/null
 plugins/vibe-recipe/scripts/build-universal-agents-md.sh /tmp/vibe-recipe-AGENTS.md
 grep -q 'kitchen' /tmp/vibe-recipe-AGENTS.md
 grep -q 'recipe' /tmp/vibe-recipe-AGENTS.md

@@ -1,0 +1,10 @@
+{
+  "version": "0.0.0",
+  "source": "harness-bootstrap",
+  "publicArtifact": false,
+  "notes": [
+    "Kitchen may create this file as a 0.0.0 pre-release baseline before the project has a real package or app manifest.",
+    "Starting from 0.0.0 keeps the first wrap bump aligned with the project's first real release version.",
+    "Replace or retire it once the project has its own public release manifest."
+  ]
+}

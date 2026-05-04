@@ -28,7 +28,7 @@ description: /vr:peek 호출 시 사용합니다. active spec, git 상태, pendi
 - 현재 branch, ahead/behind 상태, dirty file, 최근 commit 5개.
 - `.agent/spec/active/`의 active spec과 status, branch, updated date, owner.
 - 최신 handoff와 최신 taste verdict.
-- release 준비 상태: changelog, tag, active spec, verify command.
+- release 준비 상태: project changelog source, version source, tag, active spec, verify command.
 - memory/config에 기록된 autopilot mode, budget cap, dry-run 상태.
 
 가능하면 아래 파일과 상태를 얕게 읽습니다.
@@ -41,7 +41,7 @@ description: /vr:peek 호출 시 사용합니다. active spec, git 상태, pendi
 | `.agent/spec/handoffs/` | 최신 cook/fix/taste report |
 | `.agent/commands.json` | focused/test/e2e/verify command 존재 여부 |
 | `.agent/autopilot/state.json` | opt-in run, stop point, budget |
-| `CHANGELOG.md`, version manifest, tags | release 준비 신호 |
+| project changelog source, version source, tags | release 준비 신호. public manifest가 없으면 `.agent/release-manifest.json`, release notes file이 없으면 bootstrap `CHANGELOG.md`까지 확인 |
 
 파일이 없으면 실패로 처리하지 않고 `Missing`으로 표시합니다. 없어서 workflow가 막히는 경우에는 내부 경로를 길게 나열하기보다 어떤 준비가 비어 있는지 쉬운 말로 설명한 뒤 `kitchen` 또는 `recipe`를 추천합니다.
 
