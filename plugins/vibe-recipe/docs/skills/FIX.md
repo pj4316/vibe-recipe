@@ -1,6 +1,6 @@
 # Fix 동작 문서
 
-`fix`는 실패를 재현하고 root cause를 좁힌 뒤, 최소 수정과 regression coverage로 같은 실패가 반복되지 않게 만드는 debug skill입니다. 사용자는 `/vr:fix` 또는 개발자 alias `/vr:debug`로 호출할 수 있습니다.
+`fix`는 실패를 재현하고 root cause를 좁힌 뒤, 최소 수정과 regression coverage로 같은 실패가 반복되지 않게 만드는 debug skill입니다. 사용자는 `/vr:fix`로 호출할 수 있습니다.
 
 `fix`는 새 기능을 구현하는 흐름이 아닙니다. 승인된 spec이 틀렸거나 제품 결정이 필요한 경우에는 코드를 고치기보다 `recipe`로 되돌립니다.
 

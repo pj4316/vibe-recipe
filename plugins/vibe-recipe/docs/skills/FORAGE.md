@@ -1,6 +1,6 @@
 # Forage 동작 문서
 
-`forage`는 접근 방식, library, vendor, API, architecture 선택지가 불명확할 때 `recipe` 전에 사용하는 research skill입니다. 사용자는 `/vr:forage` 또는 개발자 alias `/vr:research`로 호출할 수 있습니다.
+`forage`는 접근 방식, library, vendor, API, architecture 선택지가 불명확할 때 `recipe` 전에 사용하는 research skill입니다. 사용자는 `/vr:forage`로 호출할 수 있습니다.
 
 `forage`의 결과물은 구현이 아니라 option 비교와 `Status: Proposed` ADR 초안입니다. 사람 승인 없이 결정을 accepted로 바꾸지 않습니다.
 

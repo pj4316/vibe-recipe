@@ -1,6 +1,6 @@
 ---
 name: recipe
-description: /vr:recipe 또는 /vr:plan 호출 시 사용합니다. 비개발자도 답할 수 있는 제품 질문으로 사용자 요구사항을 상세화하고, 구현 전에 번호가 붙은 feature spec과 승인 가능한 작업 레시피를 준비합니다.
+description: /vr:recipe 호출 시 사용합니다. 비개발자도 답할 수 있는 제품 질문으로 사용자 요구사항을 상세화하고, 구현 전에 번호가 붙은 feature spec과 승인 가능한 작업 레시피를 준비합니다.
 ---
 
 # recipe (plan) - 레시피 작성

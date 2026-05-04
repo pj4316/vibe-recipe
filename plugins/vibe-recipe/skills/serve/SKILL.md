@@ -1,6 +1,6 @@
 ---
 name: serve
-description: /vr:serve 또는 /vr:release 호출 시 사용합니다. release gate를 실행하고 annotated tag를 만든 뒤, human-approved push/deploy 전에서 멈춥니다.
+description: /vr:serve 호출 시 사용합니다. release gate를 실행하고 annotated tag를 만든 뒤, human-approved push/deploy 전에서 멈춥니다.
 ---
 
 # serve (release) - 내보내기

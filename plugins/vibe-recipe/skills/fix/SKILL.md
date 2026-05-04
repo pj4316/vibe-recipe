@@ -1,6 +1,6 @@
 ---
 name: fix
-description: /vr:fix 또는 /vr:debug 호출 시 사용합니다. 실패를 진단하고 잘못된 가정을 의심하며, 코드를 수정하거나 spec 변경으로 escalation합니다.
+description: /vr:fix 호출 시 사용합니다. 실패를 진단하고 잘못된 가정을 의심하며, 코드를 수정하거나 spec 변경으로 escalation합니다.
 ---
 
 # fix (debug) - 문제 해결하기

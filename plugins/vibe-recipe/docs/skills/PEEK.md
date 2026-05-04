@@ -1,6 +1,6 @@
 # Peek 동작 문서
 
-`peek`는 세션 시작 시 또는 작업 방향을 바꾸기 전에 현재 workflow 상태를 빠르게 요약하는 read-only status skill입니다. 사용자는 `/vr:peek` 또는 개발자 alias `/vr:status`로 호출할 수 있습니다.
+`peek`는 세션 시작 시 또는 작업 방향을 바꾸기 전에 현재 workflow 상태를 빠르게 요약하는 read-only status skill입니다. 사용자는 `/vr:peek`으로 호출할 수 있습니다.
 
 `peek`는 파일을 쓰거나 문제를 고치지 않습니다. 현재 상태를 읽고 가장 안전한 다음 skill을 추천합니다.
 

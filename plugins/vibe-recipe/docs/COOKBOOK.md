@@ -8,12 +8,6 @@ Start with:
 /vr:kitchen
 ```
 
-Developer alias:
-
-```text
-/vr:init
-```
-
 `kitchen` runs an AskQuestion wizard, then generates `AGENTS.md`, `.agent/constitution.md`, `.agent/spec/design.md`, records native project commands, and seeds the first health-check spec.
 
 ## Rehearsal
