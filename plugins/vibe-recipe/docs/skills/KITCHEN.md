@@ -21,7 +21,7 @@ orchestration harness는 `AGENTS.md`, hooks, `.agent/`로 구성됩니다.
 ## 목표
 
 - target project 루트에 에이전트가 매 세션 읽을 `AGENTS.md`를 생성합니다.
-- `.agent/` 아래에 제품 문맥, 기술 설계, command profile, memory, spec, runbook seed를 구성합니다.
+- `.agent/` 아래에 제품 문맥, 기술 설계, command profile, memory, spec, runbook 문서를 구성합니다.
 - `.agent/wiki/domain.md`에 유비쿼터스 용어집을 만들어 사용자, spec, 코드 설명, review가 같은 도메인 언어로 소통하게 합니다.
 - release/deploy/push, auth/payment/data-loss, constitution 변경 같은 위험 작업에 human gate를 둡니다.
 - 첫 health-check spec을 만들어 harness가 실제로 동작하는지 rehearsal할 수 있게 합니다.
@@ -48,8 +48,10 @@ mode가 애매하면 기존 harness가 있을 때는 `abort`로 처리합니다.
 
 - 기존 README, docs, ADR, runbook, CI workflow를 읽습니다.
 - package scripts, Makefile, test/build/lint/e2e command를 `.agent/commands.json` stable key로 매핑합니다.
-- 기존 architecture와 module boundary를 `.agent/spec/design.md` seed로 요약합니다.
-- architecture seed는 감지된 entry point, source/test/config 경로, 외부 interface, data store, deploy surface를 “감지된 사실 + 미확정 항목”으로 정리합니다.
+- 기존 architecture와 module boundary를 `.agent/spec/design.md` 아키텍처 문서로 요약합니다.
+- 아키텍처 문서는 감지된 entry point, source/test/config 경로, 외부 interface, data store, deploy surface를 “감지된 사실 + 미확정 항목”으로 정리합니다.
+- 아키텍처 문서는 Hexagonal architecture를 실제 경계 모델로 설명해야 하며, driving/driven port, adapter 책임, dependency direction, boundary ownership을 문장과 표로 드러냅니다.
+- 아키텍처 문서는 TDD를 단순 권장사항으로 끝내지 않고, outside-in use case test, inside-out domain invariant test, adapter seam verification까지 포함한 검증 전략으로 설명합니다.
 - 기존 제품 용어를 `.agent/wiki/domain.md` 초안으로 추출하고, 비어 있는 부분은 선택된 preset의 glossary stance로 채웁니다.
 - 기존 `AGENTS.md`, `CLAUDE.md`, copilot 지침이 있으면 보존하고 충돌 없이 vibe-recipe routing을 추가합니다.
 - hooks는 non-destructive guardrail부터 설치하고, 차단성 hook은 preview와 승인 후 활성화합니다.
@@ -67,7 +69,7 @@ mode가 애매하면 기존 harness가 있을 때는 `abort`로 처리합니다.
 - 중요한 용어, 역할, 상태, 오해하면 안 되는 규칙이 있는가.
 - UI가 있다면 어떤 느낌과 밀도를 원하는가.
 
-질문은 한 번에 하나씩 진행하고, 각 질문에는 추천 답변과 추천 이유를 함께 제시합니다. `Alignment Brief`가 있으면 `Goal`, `Audience`, `MVP`, `Non-goals`, `Success criteria`, `Domain terms`, `Assumptions`를 각각 product pitch, primary user, MVP, anti-scope, success metric, domain seed, dangerous assumptions 초안으로 매핑합니다.
+질문은 한 번에 하나씩 진행하고, 각 질문에는 추천 답변과 추천 이유를 함께 제시합니다. `Alignment Brief`가 있으면 `Goal`, `Audience`, `MVP`, `Non-goals`, `Success criteria`, `Domain terms`, `Assumptions`를 각각 product pitch, primary user, MVP, anti-scope, success metric, domain terminology draft, dangerous assumptions 초안으로 매핑합니다.
 사용자가 architecture shape, UI reference/density/mode, domain tone을 직접 지정하지 않으면 `kitchen`은 질문으로 비우기보다 type-based preset 기본값을 적용합니다.
 
 초기 설정은 human-in-the-loop로 진행합니다.
@@ -103,9 +105,9 @@ mode가 애매하면 기존 harness가 있을 때는 `abort`로 처리합니다.
 | --- | --- | --- |
 | `resources/AGENTS.md` | `AGENTS.md` | 에이전트 운영 계약과 `.agent` 준수 규칙 |
 | `resources/constitution.md` | `.agent/constitution.md` | 초기화 이후 human-only인 프로젝트 헌장 |
-| `resources/design.md` | `.agent/spec/design.md` | arc42 + C4 hybrid architecture seed. repo facts와 Mermaid skeleton 포함 |
-| `resources/domain.md` | `.agent/wiki/domain.md` | 유비쿼터스 용어집 seed |
-| `resources/design-system.md` | `.agent/wiki/design-system.md` | UI 프로젝트일 때만 생성하는 foundations-first design system seed |
+| `resources/design.md` | `.agent/spec/design.md` | arc42 + C4 hybrid architecture 문서. repo facts와 Mermaid diagram skeleton 포함 |
+| `resources/domain.md` | `.agent/wiki/domain.md` | 유비쿼터스 용어집 문서 |
+| `resources/design-system.md` | `.agent/wiki/design-system.md` | UI 프로젝트일 때만 생성하는 foundations-first design system 문서 |
 | `resources/commands.json` | `.agent/commands.json` | stable command profile |
 | `resources/release-manifest.json` | `.agent/release-manifest.json` | real product manifest가 없을 때 쓰는 `0.0.0` bootstrap version source |
 | `resources/CHANGELOG.md` | project release notes source | 기존 release notes file이 없을 때 wrap이 재사용할 bootstrap `CHANGELOG.md` source |
@@ -134,9 +136,9 @@ preset 규칙은 다음과 같습니다.
 - domain은 선택된 preset의 domain packet glossary stance를 출발점으로 사용합니다.
 - `design-system.md`는 `web-app` preset일 때만 기본 프리셋 source가 있습니다. `backend-service`, `cli-tool`, `library-package`는 기본적으로 design-system 대상이 아니며, 명시적 요청이나 실제 UI surface가 있을 때만 생성합니다.
 - `web-app`에서는 다시 theme example을 고릅니다. admin/dashboard/backoffice면 `enterprise-professional`, 일반 B2B SaaS면 `modern-minimal`, consumer/collab면 `friendly-colorful`을 기본으로 씁니다.
-- 선택된 theme packet의 실제 값을 generated design-system seed에 직접 주입합니다. target project 문서에는 preset/theme 이름, 선택 이유, 그리고 실제 주입된 결과만 남기고 plugin 내부 경로는 남기지 않습니다. color palette, typography, spacing/radius, button design, chip/badge, icon style, card/input이 최소 주입 대상입니다.
+- 선택된 theme packet의 실제 값을 generated design-system 문서에 직접 주입합니다. target project 문서에는 preset/theme 이름, 선택 이유, 그리고 실제 주입된 결과만 남기고 plugin 내부 경로는 남기지 않습니다. color palette, typography, spacing/radius, button design, chip/badge, icon style, card/input이 최소 주입 대상입니다. 여기에 더해 border/focus/selection token, fallback font policy와 heading/body weight, control height/icon size/shadow token, navigation/tabs/selected state, table/list density와 numeric alignment, dialog/drawer/toast/skeleton/empty state tone까지 문서에 남겨야 합니다.
 
-강화된 seed는 다음 기준을 따릅니다.
+강화된 초기 문서는 다음 기준을 따릅니다.
 
 - `design.md`는 Introduction/Goals, Constraints, Context/Scope, Solution Strategy, Building Blocks, Runtime Scenarios, Deployment/Operational Notes, Cross-cutting Concepts, Decisions, Quality, Risks/Tech Debt, Glossary를 고정 섹션으로 둡니다.
 - `design.md`의 Context, Building Blocks, Runtime, Deployment에는 Mermaid skeleton을 넣고, Mermaid renderer가 없어도 읽히도록 제목, 범위, 범례, 관계 label을 함께 적습니다.
@@ -144,8 +146,8 @@ preset 규칙은 다음과 같습니다.
 - 별도 `architecture.md` 본문은 유지하지 않습니다. architecture guidance는 `.agent/spec/design.md`에 통합해 중복 source of truth와 문서 drift를 피합니다.
 - `design.md`는 Clean/Hexagonal/TDD를 “바뀌는 I/O로부터 domain/application core를 보호하는 실무 경계 모델”로 설명하고, driving/driven port, adapter 책임, dependency direction, test pyramid, architecture review checklist를 포함합니다.
 - `design-system.md`는 foundations-first 구조를 따르며 Accessibility, Content, Spacing/Grid, Color, Typography, Motion, Iconography, Empty/Error/Loading states를 기본 foundation으로 둡니다.
-- token은 primitive -> semantic alias -> component/state 계층으로 설명하고, seed에서는 semantic token 중심으로 정책을 세웁니다.
-- UI 프로젝트에서는 focus visible, color-only 금지, reduced motion 존중, contrast 기준, keyboard path를 직접 체크리스트로 seed합니다.
+- token은 primitive -> semantic alias -> component/state 계층으로 설명하고, 문서에서는 semantic token 중심으로 정책을 세웁니다.
+- UI 프로젝트에서는 focus visible, color-only 금지, reduced motion 존중, contrast 기준, keyboard path를 직접 체크리스트로 문서화합니다.
 - layout/composition에는 app shell, form, table/list, detail panel, empty/loading/error, destructive action 패턴 슬롯을 둡니다.
 - `design.md`, `design-system.md`, `domain.md`는 선택된 preset 이름, 선택 이유, 자동 적용된 핵심 기본값을 함께 기록합니다.
 
@@ -173,7 +175,7 @@ preset 규칙은 다음과 같습니다.
 - `.agent/runbooks/verification.md`, `.agent/runbooks/debugging.md`, `.agent/runbooks/deployment.md`가 생성됩니다.
 - `.agent/spec/design.md`가 repo facts 기반 architecture 플레이북으로 생성되고 Mermaid skeleton이 포함됩니다. 선택된 preset과 architecture 기본값도 보이며, Hexagonal architecture와 TDD 기본 원칙이 드러납니다.
 - `.agent/wiki/domain.md`가 선택된 preset, glossary depth, role/state style, domain tone을 포함합니다.
-- UI/frontend 프로젝트이면 `.agent/wiki/design-system.md`가 foundations, token hierarchy, accessibility, composition, governance를 포함한 정책 seed로 생성됩니다. backend/cli/library preset은 기본적으로 design-system을 포함하지 않습니다.
+- UI/frontend 프로젝트이면 `.agent/wiki/design-system.md`가 foundations, token hierarchy, accessibility, composition, governance를 포함한 정책 문서로 생성됩니다. 또한 color/font/spacing/state/component detail이 category 수준이 아니라 token/value 수준으로 충분히 채워져 있어야 하며, navigation/table/overlay 같은 실제 화면 패턴 디테일까지 포함해야 합니다. backend/cli/library preset은 기본적으로 design-system을 포함하지 않습니다.
 - public manifest가 없으면 `.agent/release-manifest.json` `0.0.0` baseline이 있고, project release notes source가 없으면 bootstrap `CHANGELOG.md` source가 있어 wrap/serve가 source 부재만으로는 막히지 않습니다.
 - 생성/skip한 파일 목록과 command profile을 사용자에게 보고합니다.
 - 마지막 안내로 “프로젝트 초기 구성이 끝났습니다. 레시피를 작성해볼까요?”를 보여줍니다.

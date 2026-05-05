@@ -169,7 +169,7 @@
 | `.agent/constitution.md` | kitchen 이후 human-only |
 | `.agent/spec/prd.md` | scope 변경은 `recipe`가 담당 |
 | `.agent/spec/design.md` | kitchen, forage, recipe, tidy |
-| `.agent/wiki/domain.md` | kitchen이 seed 생성, 용어 변경은 `recipe`, 정리는 `librarian` |
+| `.agent/wiki/domain.md` | kitchen이 초기 문서 생성, 용어 변경은 `recipe`, 정리는 `librarian` |
 | `.agent/wiki/design-system.md` | 정책 변경은 `recipe`, 동작 보존 migration은 `tidy` |
 | `.agent/wiki/decisions/*.md` | 승인된 ADR은 append-only |
 | `.agent/spec/INDEX.md` | librarian generated |

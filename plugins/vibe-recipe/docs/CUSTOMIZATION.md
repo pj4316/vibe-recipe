@@ -2,7 +2,7 @@
 
 ## Templates
 
-Project fallback seeds live in `templates/`. `kitchen` uses `skills/kitchen/resources/` as the source for generated harness files and may use `templates/` for generic fallback files that are copied without product-specific interpolation.
+Project fallback templates live in `templates/`. `kitchen` uses `skills/kitchen/resources/` as the source for generated harness files and may use `templates/` for generic fallback files that are copied without product-specific interpolation.
 
 ## Command Contract
 
@@ -34,4 +34,4 @@ Subagent prompts live in `agents/`. Keep each role narrow and tool access minima
 
 ## Design System
 
-`design-system.md` starts as a seed. Do not try to perfect it during `kitchen`; use `recipe` for design-system policy changes and `tidy` for behavior-preserving UI token or component migrations after real UI exists.
+`design-system.md` starts as an initial document. Do not try to perfect it during `kitchen`; use `recipe` for design-system policy changes and `tidy` for behavior-preserving UI token or component migrations after real UI exists.
