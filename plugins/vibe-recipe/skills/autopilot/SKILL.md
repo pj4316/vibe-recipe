@@ -20,16 +20,16 @@ description: /vr:autopilot 호출 시 사용합니다. 명시적으로 동의한
 - `autopilot`은 subagent가 아니라 top-level orchestrator skill입니다.
 - 실제 구현은 `cook`, 실패 진단은 `fix`, review는 `taste`, release prep은 명시 요청이 있을 때만 `wrap`이 담당합니다.
 - `serve`, push, deploy, publish, auth/payment/data-loss 승인, spec approval은 자동 실행하거나 자동 승인하지 않습니다.
-- Ralph식 fresh context 반복 실행은 `plugins/vibe-recipe/scripts/autopilot-run.sh`가 담당합니다.
+- Ralph식 fresh context 반복 실행은 `plugins/vibe-recipe/scripts/autopilot-run.mjs`가 담당합니다.
 
 ## Runner
 
-`autopilot-run.sh`는 active spec의 task checkbox를 source of truth로 사용합니다. Ralph의 `prd.json.userStories[].passes`를 별도 source로 복제하지 않습니다.
+`autopilot-run.mjs`는 active spec의 task checkbox를 source of truth로 사용합니다. Ralph의 `prd.json.userStories[].passes`를 별도 source로 복제하지 않습니다.
 
 ```bash
-plugins/vibe-recipe/scripts/autopilot-run.sh --repo . --tool codex --max-iterations 10
-plugins/vibe-recipe/scripts/autopilot-run.sh --repo . --dry-run --once
-plugins/vibe-recipe/scripts/autopilot-run.sh --repo . --status
+plugins/vibe-recipe/scripts/autopilot-run.mjs --repo . --tool codex --max-iterations 10
+plugins/vibe-recipe/scripts/autopilot-run.mjs --repo . --dry-run --once
+plugins/vibe-recipe/scripts/autopilot-run.mjs --repo . --status
 ```
 
 - 기본 tool은 `codex`이고 `--tool claude`를 선택할 수 있습니다.

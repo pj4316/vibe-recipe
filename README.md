@@ -40,8 +40,9 @@ plugins/vibe-recipe/
 
 - Codex marketplace는 `.agents/plugins/marketplace.json`을 사용합니다.
 - Claude Code는 `plugins/vibe-recipe/.claude-plugin/plugin.json`을 사용합니다.
-- Cursor는 `plugins/vibe-recipe/scripts/install-cursor.sh`를 사용합니다.
-- Codex/Aider/Gemini CLI fallback은 `plugins/vibe-recipe/scripts/install-codex.sh` 또는 `install-aider.sh`를 사용합니다.
+- Cursor는 `plugins/vibe-recipe/scripts/install-cursor.mjs`를 사용합니다.
+- Codex/Aider/Gemini CLI fallback은 `plugins/vibe-recipe/scripts/install-codex.mjs` 또는 `install-aider.mjs`를 사용합니다.
+- `kitchen`이 초기화한 대상 프로젝트는 Claude Code용 `.claude/settings.json`과 Codex용 `.agent/setup/vibe-recipe-codex.mjs`를 통해 팀원이 같은 `vibe-recipe` 플러그인을 준비할 수 있게 합니다.
 
 설치 후 가장 먼저 실행할 대표 명령은 아래와 같습니다.
 
@@ -69,8 +70,8 @@ Claude Code marketplace 정의는 `.claude-plugin/marketplace.json`에 있습니
 python3 -m json.tool .agents/plugins/marketplace.json >/dev/null
 python3 -m json.tool .claude-plugin/marketplace.json >/dev/null
 python3 -m json.tool plugins/vibe-recipe/hooks/hooks.json >/dev/null
-bash -n plugins/vibe-recipe/hooks/*.sh plugins/vibe-recipe/scripts/*.sh
-plugins/vibe-recipe/scripts/build-universal-agents-md.sh /tmp/vibe-recipe-AGENTS.md
+node --check plugins/vibe-recipe/hooks/*.mjs plugins/vibe-recipe/scripts/*.mjs
+node plugins/vibe-recipe/scripts/build-universal-agents-md.mjs /tmp/vibe-recipe-AGENTS.md
 ```
 
 이 검증은 marketplace JSON 문법, hook/script shell 문법, universal `AGENTS.md` builder 동작을 확인합니다.

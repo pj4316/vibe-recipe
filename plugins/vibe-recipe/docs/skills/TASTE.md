@@ -108,6 +108,6 @@ test -f plugins/vibe-recipe/skills/taste/SKILL.md
 test -f plugins/vibe-recipe/docs/skills/TASTE.md
 grep -q 'APPROVE / REQUEST_CHANGES / BLOCK' plugins/vibe-recipe/skills/taste/SKILL.md
 grep -q '.agent/spec/handoffs/NNNN-taste.md' plugins/vibe-recipe/skills/taste/SKILL.md
-plugins/vibe-recipe/scripts/build-universal-agents-md.sh /tmp/vibe-recipe-AGENTS.md
+node plugins/vibe-recipe/scripts/build-universal-agents-md.mjs /tmp/vibe-recipe-AGENTS.md
 grep -q 'taste (review)' /tmp/vibe-recipe-AGENTS.md
 ```

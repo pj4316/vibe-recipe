@@ -1,0 +1,13 @@
+{
+  "extraKnownMarketplaces": {
+    "vibe-recipe-marketplace": {
+      "source": {
+        "source": "github",
+        "repo": "pj4316/vibe-recipe"
+      }
+    }
+  },
+  "enabledPlugins": {
+    "vibe-recipe@vibe-recipe-marketplace": true
+  }
+}

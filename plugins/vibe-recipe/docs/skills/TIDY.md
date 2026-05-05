@@ -94,7 +94,7 @@ test -f plugins/vibe-recipe/skills/tidy/SKILL.md
 test -f plugins/vibe-recipe/docs/skills/TIDY.md
 grep -q 'Tidy Summary' plugins/vibe-recipe/skills/tidy/SKILL.md
 grep -q '동등성 증명' plugins/vibe-recipe/skills/tidy/SKILL.md
-plugins/vibe-recipe/scripts/build-universal-agents-md.sh /tmp/vibe-recipe-AGENTS.md
+node plugins/vibe-recipe/scripts/build-universal-agents-md.mjs /tmp/vibe-recipe-AGENTS.md
 grep -q 'tidy (refactor)' /tmp/vibe-recipe-AGENTS.md
 ```
 

@@ -79,6 +79,6 @@ test -f plugins/vibe-recipe/docs/skills/WRAP.md
 grep -q 'chore(release): X.Y.Z' plugins/vibe-recipe/skills/wrap/SKILL.md
 grep -q '.agent/spec/handoffs/NNNN-taste.md' plugins/vibe-recipe/skills/wrap/SKILL.md
 grep -q 'Changelog 포맷' plugins/vibe-recipe/skills/wrap/SKILL.md
-plugins/vibe-recipe/scripts/build-universal-agents-md.sh /tmp/vibe-recipe-AGENTS.md
+node plugins/vibe-recipe/scripts/build-universal-agents-md.mjs /tmp/vibe-recipe-AGENTS.md
 grep -q 'wrap (bump)' /tmp/vibe-recipe-AGENTS.md
 ```

@@ -96,7 +96,7 @@ test -f plugins/vibe-recipe/skills/forage/SKILL.md
 test -f plugins/vibe-recipe/docs/skills/FORAGE.md
 grep -q 'Decision question' plugins/vibe-recipe/skills/forage/SKILL.md
 grep -q 'Status: Proposed' plugins/vibe-recipe/skills/forage/SKILL.md
-plugins/vibe-recipe/scripts/build-universal-agents-md.sh /tmp/vibe-recipe-AGENTS.md
+node plugins/vibe-recipe/scripts/build-universal-agents-md.mjs /tmp/vibe-recipe-AGENTS.md
 grep -q 'forage (research)' /tmp/vibe-recipe-AGENTS.md
 ```
 

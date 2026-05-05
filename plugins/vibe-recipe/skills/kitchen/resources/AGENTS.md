@@ -16,6 +16,20 @@
   - {{anti_scope_2}}
 - 성공 기준: {{success_metric}}
 
+## 첫 세션 Bootstrap
+
+새로 clone한 프로젝트에서 `kitchen`, `recipe`, `cook`, `taste` 같은 vibe-recipe skill이 보이지 않으면 먼저 plugin bootstrap을 실행합니다.
+
+Codex:
+
+```bash
+node .agent/setup/vibe-recipe-codex.mjs
+```
+
+Claude Code에서는 `.claude/settings.json`의 project plugin 설정을 확인합니다. bootstrap 이후에는 새 Codex/Claude Code 세션을 열어 plugin discovery를 다시 시작합니다.
+
+이 bootstrap은 기능 개발이 아니라 local tool setup입니다. `~/.codex/config.toml`을 수정하기 전 백업을 만들고, 프로젝트 안의 `.codex/config.toml`에는 지원되지 않는 plugin 설정을 만들지 않습니다.
+
 ## Vibe Recipe 작업 흐름
 
 1. `kitchen/init`: harness를 초기화하거나 `.agent`, hooks, commands, 생성된 에이전트 지침을 개선합니다.
@@ -40,6 +54,7 @@
 - `.agent/wiki/domain.md`: 유비쿼터스 용어집이며 제품 용어, 역할, 상태, 비즈니스 규칙의 기준입니다.
 - `.agent/commands.json`: native command profile이며 `verify`가 release gate입니다.
 - `.agent/memory/gotchas.md`: 반복 실수를 피하기 위한 누적 주의사항입니다.
+- `.agent/setup/vibe-recipe-codex.mjs`: Codex 참여자가 `vibe-recipe` plugin marketplace와 enablement를 사용자 config에 준비하는 cross-platform bootstrap입니다.
 - `kitchen`이 생성한 design/domain 문서에는 type-based preset 기본값이 포함될 수 있으며, 사용자 명시 입력이 그것보다 우선합니다.
 
 충돌이 있으면 현재 사용자 지시를 우선하되, constitution 또는 product scope와 충돌하는 변경은 진행 전에 확인합니다. 기능 개발은 `recipe/plan`으로 spec을 만든 뒤 `cook/dev`로 진행합니다. `.agent/`, `.hooks/`, command profile, generated agent instructions 같은 harness를 개선하려면 다시 `kitchen/init`을 사용합니다.
@@ -50,6 +65,7 @@
 - hooks는 constitution 수정, push/deploy/release, secret, release gate처럼 결정적으로 검사 가능한 안전장치를 강제합니다.
 - `.agent/`는 spec, command profile, runbook, domain language, memory, handoff를 저장합니다.
 - `.agent/commands.json`은 스킬 정의 파일이 아니라 이 프로젝트의 native command profile입니다.
+- plugin bootstrap은 Claude Code project settings와 Codex user-config bootstrap을 준비합니다. Codex는 현재 repo-scoped plugin enablement가 없으므로 `.codex/config.toml`에 fake plugin block을 만들지 않습니다.
 
 ## 질문과 모호성
 
@@ -146,6 +162,9 @@
 | `.agent/memory/gotchas.md` | 반복되는 함정과 예방 메모 |
 | `.agent/memory/red-team-findings.md` | 반복되는 adversarial finding |
 | `.agent/runbooks/` | verification, debugging, deployment runbook |
+| `.agent/setup/vibe-recipe-codex.mjs` | Codex plugin bootstrap. `~/.codex/config.toml`을 백업 후 `vibe-recipe@vibe-recipe-marketplace`를 enabled로 둡니다 |
+| `.agent/setup/vibe-recipe-codex.mjs` | macOS/Linux/Git Bash wrapper |
+| `.claude/settings.json` | Claude Code project-scoped marketplace와 enabled plugin 설정 |
 | `.hooks/` | 결정적 local gate |
 | project release notes source | 기존 release notes file을 우선하고, 없으면 kitchen이 bootstrap `CHANGELOG.md`를 만듭니다 |
 | `docs/` | 사람이 읽는 프로젝트 문서 |
@@ -185,6 +204,14 @@
 - UI/browser 변경은 `e2e` command가 있으면 실행하고, 없으면 Playwright MCP로 핵심 scenario를 확인한 뒤 결과를 기록합니다.
 - merge/release 전에는 `verify`를 실행합니다.
 - `verify`가 `null`이면 설정될 때까지 release는 blocked입니다.
+
+## Plugin Bootstrap
+
+- Claude Code에서는 `.claude/settings.json`의 `extraKnownMarketplaces.vibe-recipe-marketplace`와 `enabledPlugins["vibe-recipe@vibe-recipe-marketplace"]`를 project scope 기준으로 사용합니다.
+- Codex에서는 `node .agent/setup/vibe-recipe-codex.mjs`를 실행해 각 참여자의 user config를 준비합니다.
+- Codex bootstrap은 `codex plugin marketplace add https://github.com/pj4316/vibe-recipe.git`를 시도하고, `~/.codex/config.toml`을 `config.toml.bak-vibe-recipe-<timestamp>`로 백업한 뒤 `[plugins."vibe-recipe@vibe-recipe-marketplace"] enabled = true`를 남깁니다.
+- Codex용 `.codex/config.toml`에는 marketplace/plugin 설정을 추가하지 않습니다. 현재 Codex에서 plugin 설정은 사용자 config 중심이기 때문입니다.
+- 새 참여자가 `recipe`, `cook`, `taste`를 찾지 못하면 먼저 `.agent/setup/vibe-recipe-codex.mjs` 실행 여부와 Claude Code plugin scope를 확인합니다.
 
 ## Blocked 응답 계약
 

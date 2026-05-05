@@ -93,7 +93,7 @@ test -f plugins/vibe-recipe/skills/fix/SKILL.md
 test -f plugins/vibe-recipe/docs/skills/FIX.md
 grep -q 'Fix Summary' plugins/vibe-recipe/skills/fix/SKILL.md
 grep -q 'code defect' plugins/vibe-recipe/skills/fix/SKILL.md
-plugins/vibe-recipe/scripts/build-universal-agents-md.sh /tmp/vibe-recipe-AGENTS.md
+node plugins/vibe-recipe/scripts/build-universal-agents-md.mjs /tmp/vibe-recipe-AGENTS.md
 grep -q 'fix (debug)' /tmp/vibe-recipe-AGENTS.md
 ```
 
