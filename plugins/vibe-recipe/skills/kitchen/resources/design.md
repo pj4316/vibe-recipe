@@ -3,7 +3,8 @@
 > Kitchen 리소스입니다. 제품 답변, 저장소 감지 결과, command 감지 결과로 생성합니다.
 > 이 문서는 `.agent/spec/design.md`의 source of truth이며, arc42의 섹션 구조와 C4의 계층/다이어그램 사고방식을 섞어 “지금 구현해야 할 시스템”을 설명합니다.
 > 구현 전에 가장 먼저 읽어야 하는 architecture 기준 문서이며, 기본 코딩 stance는 Hexagonal architecture와 TDD를 중시합니다.
-> Mermaid block은 seed skeleton입니다. renderer가 Mermaid를 몰라도 텍스트로 읽을 수 있게 제목, 범위, 범례, 관계 label을 함께 남깁니다.
+> 따라서 이 문서는 단순한 기술 개요가 아니라, 어떤 경계를 둘지, 어떤 책임을 core에 둘지, 어떤 adapter를 둘지, 어떤 순서로 검증할지를 함께 설명해야 합니다.
+> Mermaid block은 초기 다이어그램 뼈대입니다. renderer가 Mermaid를 몰라도 텍스트로 읽을 수 있게 제목, 범위, 범례, 관계 label을 함께 남깁니다.
 > 사용자가 architecture 방향을 지정하지 않으면 선택된 `{{preset_type}}` preset의 기본 stance를 먼저 적용합니다. architecture 기본값은 Hexagonal architecture와 TDD이며, 사용자 입력과 repo facts가 있으면 그것이 우선합니다.
 
 ## Preset defaults applied
@@ -96,7 +97,7 @@ flowchart LR
 
 ## 4. Solution Strategy
 
-### Architecture inference
+### Architecture
 
 - 형태: {{architecture_shape}}
 - building block naming tone: {{building_block_tone}}
@@ -105,6 +106,8 @@ flowchart LR
 - repo가 이미 말해주는 구조를 우선 사용합니다.
 - 큰 구조를 바꾸기 전에 spec, command profile, existing entry point를 먼저 존중합니다.
 - system context와 container 수준 설명만으로 충분하면 component 수준까지 내려가지 않습니다.
+- 아키텍처 설명은 최소한 entry point, application, domain, adapter, presentation 중 무엇이 실제로 필요한지와 각 경계의 책임을 분명히 적습니다.
+- “어디에 코드를 둘까”보다 “어떤 변화가 core를 흔들면 안 되는가”를 먼저 설명합니다.
 
 ### Core implementation principles
 
@@ -122,6 +125,22 @@ flowchart LR
 - shallow module을 지양합니다. shallow module은 단순 wrapper, 책임 없는 pass-through layer, 호출부보다 내부 복잡도를 줄이지 못하는 module입니다.
 - architecture 개선은 얕은 계층을 늘리는 방식이 아니라, 응집도 높은 deep module과 명확한 boundary를 만드는 방향으로 수행합니다.
 
+### Why Hexagonal architecture here
+
+- 이 시스템의 핵심 규칙과 workflow는 UI, transport, database, external API보다 오래 살아남는다는 가정으로 설계합니다.
+- 따라서 HTTP route, CLI command, worker, cron, webhook 같은 entry point는 core를 호출하는 driving adapter로 취급합니다.
+- persistence, payment, queue, email, clock, UUID, external API는 driven adapter로 취급하고, application core가 좁은 port를 정의합니다.
+- 새로운 integration이나 화면이 추가되더라도 domain/application core가 다시 쓰일 수 있어야 하며, adapter 교체가 core 규칙 변경으로 번지지 않아야 합니다.
+- 저장소가 아주 작더라도 이 문서는 “core policy와 바깥 I/O를 분리한다”는 기준을 유지하고, 과한 layer 수 대신 명확한 dependency direction을 우선합니다.
+
+### How TDD fits this architecture
+
+- TDD는 테스트를 먼저 쓰는 습관이 아니라, architecture boundary를 실제로 고정하는 방법입니다.
+- use case는 outside-in으로 시작해 entry point가 application use case를 어떻게 호출하는지 먼저 고정합니다.
+- domain rule은 inside-out으로 세분화해 invariant, state transition, validation rule을 빠른 test로 잠급니다.
+- driven port가 생기면 mock 남발보다 fake, stub, contract-style integration check를 우선해 adapter seam이 실제로 분리돼 있는지 검증합니다.
+- green 이후 refactor 단계에서는 이름 정리뿐 아니라 port 크기 축소, adapter 책임 분리, shallow module 제거까지 포함합니다.
+
 ### Port and adapter rules
 
 | Boundary | Who calls it | Who defines it | Implementation rule |
@@ -130,6 +149,16 @@ flowchart LR
 | Driven port / outbound SPI | application core | application core | DB, payment, clock, UUID, external API 같은 바깥 기능을 최소 계약으로 둡니다. |
 | Driving adapter | user, HTTP, CLI, worker | outer layer | request를 command/view-model로 변환하고 use case를 호출합니다. |
 | Driven adapter | application core through port | outer layer | SDK/SQL/API detail과 DTO mapping을 감추고 domain model을 오염시키지 않습니다. |
+
+### Boundary ownership rules
+
+| Layer | Owns | Must not own |
+| --- | --- | --- |
+| Entry point / driving adapter | request parsing, auth context handoff, protocol/status mapping | business rule, persistence detail, external SDK orchestration |
+| Application | use case orchestration, transaction boundary, port definition, workflow policy | framework callback, raw SQL/SDK detail, rendering concern |
+| Domain | invariant, state transition, business terminology, validation rule | HTTP shape, ORM annotation, queue protocol, UI concern |
+| Driven adapter | SQL/ORM, SDK/API client, file/queue/clock integration | domain rule, cross-use-case workflow policy |
+| Presentation | view-model, component composition, loading/error/empty state | domain invariant, persistence concern |
 
 ## Architecture Review Checklist
 
@@ -180,6 +209,8 @@ flowchart TB
 - user-facing request/response boundary:
 - internal module boundary:
 - integration protocol boundary:
+- primary driving ports / use cases:
+- primary driven ports / outbound contracts:
 
 ## 6. Runtime Scenarios
 
@@ -188,6 +219,7 @@ flowchart TB
 - happy path 1개, 실패 path 1개, background/integration path 1개를 기본으로 둡니다.
 - runtime은 “무엇이 어떤 순서로 상호작용하는지”를 보여주고, 구현 세부사항 나열로 흐르지 않습니다.
 - use case 중심 scenario는 outside-in으로 시작하고, domain invariant는 inside-out 단위 test로 별도 고정합니다.
+- 각 scenario는 어떤 driving port가 시작점인지, 어떤 driven adapter가 관여하는지, 어디서 domain rule이 검증되는지를 드러냅니다.
 
 ### Happy path
 
@@ -273,6 +305,8 @@ flowchart LR
 - Testability: domain/application logic은 빠른 test로 검증 가능해야 하며, 가능한 경우 TDD로 먼저 고정합니다.
 - Test pyramid: domain unit test와 application/use-case test를 가장 빠른 feedback 층으로 두고, adapter integration test와 E2E는 핵심 workflow와 위험한 failure path에 집중합니다.
 - TDD loop: use case는 outside-in으로 진입점을 고정하고, domain rule은 inside-out으로 불변식을 세분화한 뒤, green 직후 refactor로 이름, boundary, 중복을 정리합니다.
+- Seam verification: port가 있다고 주장하는 모든 경계는 test double 또는 contract check로 실제 분리 가능함을 보여야 합니다.
+- Adapter coverage: persistence/external API adapter는 “core가 기대하는 계약”과 “실제 기술 세부사항” 사이의 mapping 오류를 잡는 검증이 있어야 합니다.
 - Operability: 실패와 retry path가 관찰 가능합니다.
 - Accessibility: UI가 있다면 focus, contrast, color-only 금지, reduced motion을 준수합니다.
 - Release safety: `verify` green 전에는 release가 blocked입니다.

@@ -45,4 +45,11 @@
   - chip / badge
   - icon style
   - card and field
+- 상세 주입 대상:
+  - border / focus / selection token
+  - fallback font policy, heading/body weight, numeral emphasis rule
+  - control height / icon size / shadow-elevation token
+  - navigation / tabs / selected state styling
+  - table/list density, header, row selection, numeric alignment 규칙
+  - dialog/drawer/toast/skeleton/empty state tone
 - 값이 미지정이면 설명성 문장만 남기지 말고 선택된 theme packet의 구체 값을 우선 복사합니다.
