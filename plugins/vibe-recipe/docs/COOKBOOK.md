@@ -41,13 +41,13 @@ Skip `forage` when the approach is obvious.
 After `recipe` has an approved active spec, use Ralph-style fresh iterations:
 
 ```bash
-plugins/vibe-recipe/scripts/autopilot-run.sh --repo . --tool codex --max-iterations 10
+node plugins/vibe-recipe/scripts/autopilot-run.mjs --repo . --tool codex --max-iterations 10
 ```
 
 Check what would run without changing files:
 
 ```bash
-plugins/vibe-recipe/scripts/autopilot-run.sh --repo . --dry-run --once
+node plugins/vibe-recipe/scripts/autopilot-run.mjs --repo . --dry-run --once
 ```
 
 `autopilot` works one unchecked spec task per fresh agent instance. It stops at `taste` by default and never runs `serve`, push, deploy, or publish.

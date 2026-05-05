@@ -103,7 +103,7 @@ test -f plugins/vibe-recipe/docs/skills/COOK.md
 grep -q 'Task 0' plugins/vibe-recipe/skills/cook/SKILL.md
 grep -q 'Cook Summary' plugins/vibe-recipe/skills/cook/SKILL.md
 test -f plugins/vibe-recipe/agents/task-runner.md
-plugins/vibe-recipe/scripts/build-universal-agents-md.sh /tmp/vibe-recipe-AGENTS.md
+node plugins/vibe-recipe/scripts/build-universal-agents-md.mjs /tmp/vibe-recipe-AGENTS.md
 grep -q 'task-runner' /tmp/vibe-recipe-AGENTS.md
 ```
 

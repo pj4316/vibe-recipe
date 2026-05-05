@@ -6,15 +6,18 @@
 
 대화 톤은 실제 VC에서 고객에게 제품 방향과 운영 세팅을 제안해주는 상담가에 가깝게 유지합니다. 단순 체크리스트 질문보다 “제가 이해한 현재 상태”, “제가 추천하는 기본 방향”, “다만 이 우려는 지금 확인하고 싶다”는 흐름으로 티키타카를 이어갑니다.
 
-orchestration harness는 `AGENTS.md`, hooks, `.agent/`로 구성됩니다.
+orchestration harness는 `AGENTS.md`, hooks, `.agent/`, plugin bootstrap으로 구성됩니다.
 
 - `AGENTS.md`: skill 라우팅, 역할 경계, parent/orchestrator agent 책임, human gate를 정의합니다.
 - hooks: constitution 수정, push/deploy/release, secret, release gate처럼 결정적으로 검사 가능한 안전장치를 강제합니다.
 - `.agent/`: spec, command profile, runbook, domain language, memory, handoff를 저장합니다.
+- plugin bootstrap: Codex와 Claude Code 참여자가 같은 프로젝트에서 `vibe-recipe` 플러그인을 쓸 수 있도록 설정과 bootstrap 경로를 남깁니다.
 
 `.agent/commands.json`은 각 skill이나 기능을 정의하는 파일이 아닙니다. target project의 native command profile이며 `cook`, `taste`, `serve`가 어떤 test/build/e2e/verify/dev 명령을 실행할지 판단하는 기준입니다.
 
 초기화가 끝나면 target project는 별도 harness 작업 없이 바로 `recipe/plan`으로 첫 spec을 만들고 `cook/dev`로 구현을 시작할 수 있어야 합니다.
+
+Codex는 현재 Claude Code의 `.claude/settings.json`처럼 repository-scoped marketplace/plugin enablement를 공식 지원하지 않습니다. `kitchen`은 Codex용 `.codex/config.toml`에 지원되지 않는 plugin block을 만들지 않고, `.agent/setup/vibe-recipe-codex.mjs`를 생성해 각 참여자의 `~/.codex/config.toml`을 백업 후 자동 패치합니다. Claude Code는 project-scoped plugin 설정을 지원하므로 `.claude/settings.json`에 marketplace와 enabled plugin을 병합합니다.
 
 같은 대화에 제품 brief나 이전 alignment 메모가 있으면 `kitchen`은 이를 제품 답변 초안으로 사용합니다. 별도 brief가 없어도 빠른 `/vr:kitchen` 초기화 흐름은 그대로 진행합니다.
 
@@ -111,6 +114,8 @@ mode가 애매하면 기존 harness가 있을 때는 `abort`로 처리합니다.
 | `resources/commands.json` | `.agent/commands.json` | stable command profile |
 | `resources/release-manifest.json` | `.agent/release-manifest.json` | real product manifest가 없을 때 쓰는 `0.0.0` bootstrap version source |
 | `resources/CHANGELOG.md` | project release notes source | 기존 release notes file이 없을 때 wrap이 재사용할 bootstrap `CHANGELOG.md` source |
+| `resources/setup-vibe-recipe-codex.mjs` | `.agent/setup/vibe-recipe-codex.mjs` | Codex marketplace 등록과 `~/.codex/config.toml` plugin enablement 자동 패치. Windows/macOS/Linux 공통 실행 경로 |
+| `resources/claude-settings.json` | `.claude/settings.json` | Claude Code project marketplace와 enabled plugin 설정. 기존 JSON은 보존 병합 |
 | `resources/health-check.md` | `.agent/spec/active/0001-health-check.md` | harness rehearsal용 첫 spec |
 | `resources/runbook-verification.md` | `.agent/runbooks/verification.md` | 검증 절차 |
 | `resources/runbook-debugging.md` | `.agent/runbooks/debugging.md` | 디버깅 절차 |
@@ -120,7 +125,21 @@ mode가 애매하면 기존 harness가 있을 때는 `abort`로 처리합니다.
 | `examples/presets/web-app/design-system.md` | plugin authoring source | 미지정 시 design-system stance 기본값 |
 | `examples/presets/web-app/themes/*.md` | plugin authoring source | 미지정 시 theme packet 주입 |
 
-추가로 `.agent/spec/{active,done,archived,abandoned,handoffs}`, `.agent/wiki/decisions`, `.agent/memory/{topics,handoffs}`, `.agent/runbooks` 디렉터리를 준비합니다. `CLAUDE.md`는 `AGENTS.md` symlink를 우선하고, 실패하면 generated copy로 둡니다. release 계열 skill의 source 부재를 줄이기 위해 `kitchen`은 project release notes source가 없을 때만 `CHANGELOG.md` bootstrap skeleton을 만들고, public manifest가 없으면 `.agent/release-manifest.json`을 `0.0.0` 초기 version source로 둡니다.
+추가로 `.agent/spec/{active,done,archived,abandoned,handoffs}`, `.agent/wiki/decisions`, `.agent/memory/{topics,handoffs}`, `.agent/runbooks`, `.agent/setup`, `.claude` 디렉터리를 준비합니다. `CLAUDE.md`는 `AGENTS.md` symlink를 우선하고, 실패하면 generated copy로 둡니다. release 계열 skill의 source 부재를 줄이기 위해 `kitchen`은 project release notes source가 없을 때만 `CHANGELOG.md` bootstrap skeleton을 만들고, public manifest가 없으면 `.agent/release-manifest.json`을 `0.0.0` 초기 version source로 둡니다.
+
+Claude Code 설정 병합은 다음 정책을 따릅니다.
+
+- 기존 `.claude/settings.json`이 없으면 `resources/claude-settings.json`을 기반으로 생성합니다.
+- 기존 파일이 있으면 `permissions`, `env`, MCP, hook 같은 다른 키는 그대로 두고 `extraKnownMarketplaces.vibe-recipe-marketplace`와 `enabledPlugins["vibe-recipe@vibe-recipe-marketplace"] = true`만 추가하거나 갱신합니다.
+- JSON이 깨져 있으면 덮어쓰지 말고 blocked로 보고하고, 사용자가 파일을 고치거나 백업 승인할 때까지 멈춥니다.
+
+Codex bootstrap은 다음 정책을 따릅니다.
+
+- `.agent/setup/vibe-recipe-codex.mjs`는 create only로 둡니다. Node.js가 있는 Windows/macOS/Linux에서 `node .agent/setup/vibe-recipe-codex.mjs`로 실행합니다.
+- Node bootstrap은 `codex plugin marketplace add https://github.com/pj4316/vibe-recipe.git`를 시도합니다.
+- 이어서 `~/.codex/config.toml`에 `[marketplaces.vibe-recipe-marketplace]`와 `[plugins."vibe-recipe@vibe-recipe-marketplace"] enabled = true`를 idempotent하게 남깁니다.
+- 패치 전 `config.toml.bak-vibe-recipe-<timestamp>` 백업을 만듭니다.
+- 테스트나 CI에서는 `CODEX_HOME`으로 임시 config 위치를 바꾸고, 필요하면 `VIBE_RECIPE_SKIP_MARKETPLACE_ADD=1`로 CLI marketplace 호출만 건너뜁니다.
 
 `examples/`는 plugin repo 내부 authoring asset입니다. fallback 설치에서는 universal `AGENTS.md`에 preset/theme 예시 본문을 임베드해 self-contained reference로 제공합니다. target project에 생성되는 `.agent/spec/design.md`, `.agent/wiki/design-system.md`, `.agent/wiki/domain.md`는 examples 경로를 참조하는 문서가 아니라, 선택된 preset/theme를 바탕으로 생성된 결과물입니다.
 
@@ -173,6 +192,9 @@ preset 규칙은 다음과 같습니다.
 - `.agent/spec/active/0001-health-check.md`가 생성됩니다.
 - `.agent/autopilot/state.json`과 `.agent/autopilot/progress.md`가 생성됩니다.
 - `.agent/runbooks/verification.md`, `.agent/runbooks/debugging.md`, `.agent/runbooks/deployment.md`가 생성됩니다.
+- `.agent/setup/vibe-recipe-codex.mjs`가 생성되고 Codex plugin bootstrap 경로가 `AGENTS.md`와 verification runbook에 설명됩니다.
+- `.claude/settings.json`이 생성되거나 보존 병합되어 `vibe-recipe@vibe-recipe-marketplace` project plugin enablement를 포함합니다.
+- Codex용 `.codex/config.toml`에는 marketplace/plugin block을 만들지 않습니다. Codex 참여자는 `.agent/setup/vibe-recipe-codex.mjs`로 user config를 백업 후 자동 패치합니다.
 - `.agent/spec/design.md`가 repo facts 기반 architecture 플레이북으로 생성되고 Mermaid skeleton이 포함됩니다. 선택된 preset과 architecture 기본값도 보이며, Hexagonal architecture와 TDD 기본 원칙이 드러납니다.
 - `.agent/wiki/domain.md`가 선택된 preset, glossary depth, role/state style, domain tone을 포함합니다.
 - UI/frontend 프로젝트이면 `.agent/wiki/design-system.md`가 foundations, token hierarchy, accessibility, composition, governance를 포함한 정책 문서로 생성됩니다. 또한 color/font/spacing/state/component detail이 category 수준이 아니라 token/value 수준으로 충분히 채워져 있어야 하며, navigation/table/overlay 같은 실제 화면 패턴 디테일까지 포함해야 합니다. backend/cli/library preset은 기본적으로 design-system을 포함하지 않습니다.
@@ -192,11 +214,17 @@ test -f plugins/vibe-recipe/skills/kitchen/resources/AGENTS.md
 test -f plugins/vibe-recipe/skills/kitchen/resources/commands.json
 test -f plugins/vibe-recipe/skills/kitchen/resources/release-manifest.json
 test -f plugins/vibe-recipe/skills/kitchen/resources/CHANGELOG.md
+test -f plugins/vibe-recipe/skills/kitchen/resources/setup-vibe-recipe-codex.mjs
+test -f plugins/vibe-recipe/skills/kitchen/resources/claude-settings.json
 python3 -m json.tool plugins/vibe-recipe/skills/kitchen/resources/commands.json >/dev/null
 python3 -m json.tool plugins/vibe-recipe/skills/kitchen/resources/release-manifest.json >/dev/null
-plugins/vibe-recipe/scripts/build-universal-agents-md.sh /tmp/vibe-recipe-AGENTS.md
+python3 -m json.tool plugins/vibe-recipe/skills/kitchen/resources/claude-settings.json >/dev/null
+node --check plugins/vibe-recipe/skills/kitchen/resources/setup-vibe-recipe-codex.mjs
+node plugins/vibe-recipe/scripts/build-universal-agents-md.mjs /tmp/vibe-recipe-AGENTS.md
 grep -q 'kitchen' /tmp/vibe-recipe-AGENTS.md
 grep -q 'recipe' /tmp/vibe-recipe-AGENTS.md
+grep -q 'vibe-recipe@vibe-recipe-marketplace' /tmp/vibe-recipe-AGENTS.md
+grep -q 'codex plugin marketplace add' /tmp/vibe-recipe-AGENTS.md
 ```
 
-hooks나 install script까지 함께 바꿨다면 관련 shell 파일에 `bash -n`을 실행합니다.
+hooks나 install script까지 함께 바꿨다면 관련 `.mjs` 파일에 `node --check`를 실행합니다.

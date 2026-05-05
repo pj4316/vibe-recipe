@@ -13,12 +13,12 @@
 
 ## Runner
 
-Ralph식 fresh context 반복 실행은 `plugins/vibe-recipe/scripts/autopilot-run.sh`가 담당합니다.
+Ralph식 fresh context 반복 실행은 `plugins/vibe-recipe/scripts/autopilot-run.mjs`가 담당합니다.
 
 ```bash
-plugins/vibe-recipe/scripts/autopilot-run.sh --repo . --tool codex --max-iterations 10
-plugins/vibe-recipe/scripts/autopilot-run.sh --repo . --dry-run --once
-plugins/vibe-recipe/scripts/autopilot-run.sh --repo . --status
+node plugins/vibe-recipe/scripts/autopilot-run.mjs --repo . --tool codex --max-iterations 10
+node plugins/vibe-recipe/scripts/autopilot-run.mjs --repo . --dry-run --once
+node plugins/vibe-recipe/scripts/autopilot-run.mjs --repo . --status
 ```
 
 - 기본 tool은 `codex`이고 `--tool claude`를 선택할 수 있습니다.
@@ -96,11 +96,11 @@ plugins/vibe-recipe/scripts/autopilot-run.sh --repo . --status
 ```bash
 test -f plugins/vibe-recipe/skills/autopilot/SKILL.md
 test -f plugins/vibe-recipe/docs/skills/AUTOPILOT.md
-test -f plugins/vibe-recipe/scripts/autopilot-run.sh
-bash -n plugins/vibe-recipe/scripts/autopilot-run.sh
+test -f plugins/vibe-recipe/scripts/autopilot-run.mjs
+node --check plugins/vibe-recipe/scripts/autopilot-run.mjs
 grep -q 'serve' plugins/vibe-recipe/skills/autopilot/SKILL.md
 grep -q 'Run brief' plugins/vibe-recipe/skills/autopilot/SKILL.md
-grep -q 'autopilot-run.sh' plugins/vibe-recipe/skills/autopilot/SKILL.md
-plugins/vibe-recipe/scripts/build-universal-agents-md.sh /tmp/vibe-recipe-AGENTS.md
+grep -q 'autopilot-run.mjs' plugins/vibe-recipe/skills/autopilot/SKILL.md
+node plugins/vibe-recipe/scripts/build-universal-agents-md.mjs /tmp/vibe-recipe-AGENTS.md
 grep -q 'autopilot - 자동 운항' /tmp/vibe-recipe-AGENTS.md
 ```

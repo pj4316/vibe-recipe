@@ -80,7 +80,7 @@ test -f plugins/vibe-recipe/skills/peek/SKILL.md
 test -f plugins/vibe-recipe/docs/skills/PEEK.md
 grep -q 'Peek Status' plugins/vibe-recipe/skills/peek/SKILL.md
 grep -q 'needs-review' plugins/vibe-recipe/skills/peek/SKILL.md
-plugins/vibe-recipe/scripts/build-universal-agents-md.sh /tmp/vibe-recipe-AGENTS.md
+node plugins/vibe-recipe/scripts/build-universal-agents-md.mjs /tmp/vibe-recipe-AGENTS.md
 grep -q 'peek (status)' /tmp/vibe-recipe-AGENTS.md
 ```
 

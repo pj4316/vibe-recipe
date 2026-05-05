@@ -45,7 +45,7 @@ description: /vr:serve 호출 시 사용합니다. release gate를 실행하고 
 - 최신 `taste` report.
 - `.agent/commands.json`의 `verify` command.
 - `.agent/constitution.md`의 human gate 정책.
-- optional `.hooks/release.sh`.
+- optional `.hooks/release.mjs`.
 
 ## 흐름
 
@@ -53,7 +53,7 @@ description: /vr:serve 호출 시 사용합니다. release gate를 실행하고 
 2. Gate: `.agent/commands.json`의 `verify`를 실행하고 실패하면 `BLOCK`으로 멈춥니다.
 3. Version check: version source, project changelog source heading, tag name이 모두 `X.Y.Z`로 일치하는지 확인합니다. mirror public manifests set이면 모든 manifest version을 검사합니다.
 4. Tag: local annotated tag `vX.Y.Z`를 생성합니다. tag message에는 changelog 요약과 wrap summary path를 포함합니다.
-5. Optional hook: `.hooks/release.sh`가 있으면 별도 명시 승인을 받은 경우에만 실행합니다.
+5. Optional hook: `.hooks/release.mjs`가 있으면 별도 명시 승인을 받은 경우에만 실행합니다.
 6. Summary: release gate summary를 최종 응답에 남깁니다. repo 파일에 release memory를 쓰지 않습니다.
 7. Stop: push/deploy/publish 명령은 실행하지 않고 필요한 승인과 다음 command를 안내합니다.
 
@@ -70,7 +70,7 @@ description: /vr:serve 호출 시 사용합니다. release gate를 실행하고 
 
 - `serve`는 release gate와 local tag까지만 수행합니다.
 - `git push`, `git push --tags`, package publish, app deploy, cloud deploy, external release API 호출은 별도 승인 없이는 실행하지 않습니다.
-- `.hooks/release.sh`가 remote side effect를 만들 수 있으면 hook 실행도 별도 승인 대상입니다.
+- `.hooks/release.mjs`가 remote side effect를 만들 수 있으면 hook 실행도 별도 승인 대상입니다.
 - approval 문구에는 대상 remote, tag, branch, deploy environment를 구체적으로 포함해야 합니다.
 
 ## Release gate summary

@@ -7,13 +7,16 @@ description: /vr:kitchen 호출 시 사용합니다. 새 프로젝트 또는 기
 
 `kitchen`은 vibe-recipe orchestration harness를 구축하는 skill입니다. 새 프로젝트에는 기본 harness를 설치하고, 기존 서비스에는 현재 구조와 명령을 존중하며 비침투적으로 도입합니다.
 
-orchestration harness는 세 층입니다.
+orchestration harness는 네 층입니다.
 
 - `AGENTS.md`: skill 라우팅, 역할 경계, parent/orchestrator agent 책임, human gate.
 - hooks: constitution 수정, push/deploy/release, secret, release gate처럼 결정적으로 검사 가능한 안전장치.
 - `.agent/`: spec, command profile, runbook, domain language, memory, handoff.
+- plugin bootstrap: 이 프로젝트 참여자가 Codex/Claude Code에서 `vibe-recipe` 플러그인을 바로 쓸 수 있게 하는 프로젝트 수준 설정과 사용자 config bootstrap.
 
 `.agent/commands.json`은 스킬 정의 파일이 아닙니다. target project의 native command profile이며 `cook`, `taste`, `serve`가 어떤 setup/build/test/e2e/lint/verify/dev 명령을 실행할지 판단하는 기준입니다. release 계열 skill이 source 부재 때문에 바로 막히지 않도록 `kitchen`은 bootstrap changelog와 version source도 함께 준비합니다.
+
+Codex는 현재 Claude Code의 `.claude/settings.json`처럼 repo-scoped marketplace/plugin enablement를 공식 지원하지 않습니다. 따라서 `kitchen`은 Codex용 fake `.codex/config.toml` plugin block을 만들지 않고, `.agent/setup/vibe-recipe-codex.mjs`를 생성해 각 참여자의 `~/.codex/config.toml`을 백업 후 자동 패치하게 합니다. Claude Code는 `.claude/settings.json`에 project-scoped marketplace와 enabled plugin을 병합합니다.
 
 ## 대화 톤
 
@@ -66,6 +69,8 @@ orchestration harness는 세 층입니다.
 - `resources/commands.json`
 - `resources/release-manifest.json`
 - `resources/CHANGELOG.md`
+- `resources/setup-vibe-recipe-codex.mjs`
+- `resources/claude-settings.json`
 - `resources/health-check.md`
 - `resources/runbook-verification.md`
 - `resources/runbook-debugging.md`
@@ -77,7 +82,7 @@ orchestration harness는 세 층입니다.
 
 세부 동작 문서는 `plugins/vibe-recipe/docs/skills/KITCHEN.md`를 따릅니다.
 
-`examples/`는 plugin repo 내부 authoring source입니다. slash command가 없는 fallback 설치에서는 `build-universal-agents-md.sh`가 이 예시 본문을 universal `AGENTS.md`에 임베드해 self-contained reference로 제공합니다. target project에 생성되는 `.agent/spec/design.md`, `.agent/wiki/design-system.md`, `.agent/wiki/domain.md`는 examples 경로를 참조하는 문서가 아니라, 선택된 preset/theme를 바탕으로 생성된 결과물이어야 합니다.
+`examples/`는 plugin repo 내부 authoring source입니다. slash command가 없는 fallback 설치에서는 `build-universal-agents-md.mjs`가 이 예시 본문을 universal `AGENTS.md`에 임베드해 self-contained reference로 제공합니다. target project에 생성되는 `.agent/spec/design.md`, `.agent/wiki/design-system.md`, `.agent/wiki/domain.md`는 examples 경로를 참조하는 문서가 아니라, 선택된 preset/theme를 바탕으로 생성된 결과물이어야 합니다.
 
 핵심 생성 문서의 의도는 다음과 같습니다.
 
@@ -240,25 +245,32 @@ preview도 대화형으로 진행합니다.
 | `.agent/spec/active/0001-health-check.md` | harness rehearsal용 create only. |
 | `.agent/autopilot/state.json`, `.agent/autopilot/progress.md` | autopilot runner state 초기 문서. Source of truth는 active spec task checkbox입니다. |
 | `.agent/runbooks/*` | verification/debugging/deployment 문서. |
+| `.agent/setup/vibe-recipe-codex.mjs` | Codex용 cross-platform bootstrap script. `codex plugin marketplace add https://github.com/pj4316/vibe-recipe.git`를 실행하고 `~/.codex/config.toml`에 plugin enablement를 자동 패치합니다. |
+| `.agent/setup/vibe-recipe-codex.mjs` | macOS/Linux/Git Bash convenience wrapper. 내부에서 Node bootstrap을 호출합니다. |
+| `.claude/settings.json` | Claude Code project scope 설정. 기존 JSON이 있으면 보존 병합하고 `extraKnownMarketplaces.vibe-recipe-marketplace`, `enabledPlugins["vibe-recipe@vibe-recipe-marketplace"] = true`만 추가합니다. |
 | `.agent/memory/*`, indexes | create only. librarian이 이후 관리. |
 | `.hooks/*` | create only. 차단성 hook은 승인 후 활성화. |
 | `CLAUDE.md` | `AGENTS.md` symlink 우선, 실패 시 generated copy. |
 | project release notes source | 기존 release notes file을 우선하고, 없을 때만 kitchen이 bootstrap `CHANGELOG.md` skeleton을 만들어 wrap이 같은 source를 재사용할 수 있게 합니다. |
 
-필요한 directory도 함께 만듭니다: `.agent/spec/{active,done,archived,abandoned,handoffs}`, `.agent/autopilot`, `.agent/wiki/decisions`, `.agent/memory/{topics,handoffs}`, `.agent/runbooks`.
+필요한 directory도 함께 만듭니다: `.agent/spec/{active,done,archived,abandoned,handoffs}`, `.agent/autopilot`, `.agent/wiki/decisions`, `.agent/memory/{topics,handoffs}`, `.agent/runbooks`, `.agent/setup`, `.claude`.
 
 ## 완료 기준
 
 - `AGENTS.md`, `.agent/constitution.md`, `.agent/spec/prd.md`, `.agent/spec/design.md`가 있습니다.
 - `.agent/commands.json`이 valid JSON이고 stable key를 모두 포함합니다.
 - `.agent/wiki/domain.md`, `.agent/memory/gotchas.md`, health-check spec, runbooks가 있습니다.
+- `.agent/setup/vibe-recipe-codex.mjs`가 있고, 생성된 `AGENTS.md`와 verification runbook이 이 스크립트를 Codex plugin bootstrap 경로로 안내합니다.
+- `.claude/settings.json`이 기존 설정을 보존하면서 `vibe-recipe@vibe-recipe-marketplace` project plugin enablement를 포함합니다.
+- Codex용 `.codex/config.toml`에는 marketplace/plugin enable block을 생성하지 않습니다. 현재 Codex plugin 설정은 사용자 config 중심이므로 `.agent/setup/vibe-recipe-codex.mjs`가 `~/.codex/config.toml`을 백업 후 패치합니다.
 - public manifest가 없으면 `.agent/release-manifest.json` `0.0.0` baseline이 있고, project release notes source가 없으면 `CHANGELOG.md` bootstrap source가 있어 release 계열 skill이 source 부재 때문에 바로 막히지 않습니다.
 - `.agent/autopilot/state.json`과 `.agent/autopilot/progress.md`가 있습니다.
 - `.agent/spec/design.md`는 Introduction/Goals, Constraints, Context/Scope, Solution Strategy, Building Blocks, Runtime Scenarios, Deployment/Operational Notes, Cross-cutting Concepts, Decisions, Quality, Risks/Tech Debt, Glossary를 포함하고, 선택된 preset과 핵심 기본값을 기록합니다.
 - `.agent/spec/design.md`는 source of truth로서 구현 전에 먼저 읽혀야 하고, 기본 원칙으로 Hexagonal architecture와 TDD를 강조합니다. 이때 두 원칙은 슬로건이 아니라 구조 경계와 검증 전략으로 구체화돼 있어야 합니다.
 - `.agent/wiki/domain.md`는 선택된 preset, glossary depth, role/state style, domain tone을 기록합니다.
 - UI/frontend 프로젝트이면 design-system 문서가 있거나 생성하지 않은 이유가 명확합니다. 생성 시 foundations, token hierarchy, focus visible을 포함한 state/accessibility rule, composition pattern, governance가 보입니다. 또한 color/font/spacing/state/component detail이 category 수준이 아니라 token/value 수준으로 충분히 채워져 있어야 하며, navigation/table/overlay 같은 실제 화면 패턴 디테일까지 포함해야 합니다. backend/cli/library preset은 기본적으로 design-system을 포함하지 않습니다.
-- `.hooks/pre-commit.sh`와 `CLAUDE.md` 처리 결과가 보고됩니다.
+- `.hooks/pre-commit.mjs`와 `CLAUDE.md` 처리 결과가 보고됩니다.
+- Codex bootstrap 스크립트와 Claude Code project settings 처리 결과가 보고됩니다.
 - 생성/skip한 항목은 사용자 친화적인 category 이름으로 먼저 보고하고, 필요하면 실제 파일 목록을 덧붙입니다.
 - command profile은 “이 프로젝트에서 실행/검증에 쓸 명령 정리”로 설명하고, release blocked 여부는 이유와 다음 단계까지 함께 안내합니다.
 - 마지막에 “프로젝트 초기 구성이 끝났습니다. 레시피를 작성해볼까요?”라고 안내합니다.

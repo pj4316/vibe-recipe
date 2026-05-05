@@ -1,11 +1,11 @@
 {
   "hooks": {
-    "preToolUse": "./pre-tool-use.sh",
-    "postToolUse": "./post-tool-use.sh",
-    "preCommit": "./pre-commit.sh",
-    "commitMsg": "./commit-msg.sh",
-    "subagentStop": "./subagent-stop.sh",
-    "sessionEnd": "./session-end.sh"
+    "preToolUse": "./pre-tool-use.mjs",
+    "postToolUse": "./post-tool-use.mjs",
+    "preCommit": "./pre-commit.mjs",
+    "commitMsg": "./commit-msg.mjs",
+    "subagentStop": "./subagent-stop.mjs",
+    "sessionEnd": "./session-end.mjs"
   },
   "policy": {
     "protectedFiles": [
