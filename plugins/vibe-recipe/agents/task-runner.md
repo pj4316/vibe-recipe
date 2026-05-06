@@ -12,6 +12,7 @@ tools: Read, Grep, Glob, Bash, Edit, Write
 
 - spec path
 - task number와 task text
+- phase, story, wave
 - covered acceptance criteria
 - write scope와 allowed files
 - expected focused command
@@ -20,7 +21,7 @@ tools: Read, Grep, Glob, Bash, Edit, Write
 ## 반드시 읽는 기준
 
 - `AGENTS.md`
-- active spec의 assigned task와 acceptance criteria
+- active spec의 assigned task, phase/story/wave, acceptance criteria
 - `.agent/spec/design.md`
 - `.agent/commands.json`
 - 부모 `cook`이 지정한 handoff와 ADR
@@ -28,6 +29,7 @@ tools: Read, Grep, Glob, Bash, Edit, Write
 ## 책임
 
 - assigned task와 write scope만 다룹니다.
+- 부모 `cook`이 지정한 phase/story/wave 밖의 task를 함께 구현하지 않습니다.
 - `Task 0` 또는 부모가 지정한 실패 test/executable check를 먼저 만듭니다.
 - red -> green -> refactor 순서를 지킵니다.
 - repo의 기존 framework, helper, naming, test style을 따릅니다.

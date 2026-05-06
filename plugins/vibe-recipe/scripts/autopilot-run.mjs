@@ -194,24 +194,127 @@ function taskLines(specPath) {
   return readText(specPath).split(/\r?\n/).map((line, index) => ({ line, index }));
 }
 
+function parseTaskBlocks(specPath) {
+  const lines = readText(specPath).split(/\r?\n/);
+  const tasks = [];
+  let current = null;
+  const taskHeader = /^- \[([ xX])\] Task ([0-9]+):\s*(.*)$/;
+  for (let index = 0; index < lines.length; index += 1) {
+    const line = lines[index];
+    const header = line.match(taskHeader);
+    if (header) {
+      if (current) tasks.push(current);
+      current = {
+        line,
+        index,
+        done: header[1].toLowerCase() === "x",
+        number: header[2],
+        title: header[3],
+        metadata: {},
+      };
+      continue;
+    }
+    if (!current) continue;
+    const meta = line.match(/^\s+-\s+([^:]+):\s*(.*)$/);
+    if (meta) {
+      current.metadata[meta[1].trim().toLowerCase()] = meta[2].trim();
+    }
+  }
+  if (current) tasks.push(current);
+  return tasks;
+}
+
+function parseExecutionOrder(specPath) {
+  const lines = readText(specPath).split(/\r?\n/);
+  let inSection = false;
+  let hasSection = false;
+  let hasPhaseOrder = false;
+  const waves = [];
+
+  for (const line of lines) {
+    if (/^## 실행 순서\b/.test(line)) {
+      inSection = true;
+      hasSection = true;
+      continue;
+    }
+    if (inSection && /^## /.test(line)) break;
+    if (!inSection) continue;
+
+    if (/^- Phase order:\s*/.test(line)) {
+      hasPhaseOrder = true;
+      continue;
+    }
+
+    const wave = line.match(/^- (W[0-9]+):\s*(.*)$/i);
+    if (wave) {
+      const normalized = normalizeWave(wave[1]);
+      if (!waves.includes(normalized)) waves.push(normalized);
+    }
+  }
+
+  return { hasSection, hasPhaseOrder, waves };
+}
+
 function taskCount(specPath) {
-  return taskLines(specPath).filter(({ line }) => /^- \[[ xX]\] Task [0-9]+:/.test(line)).length;
+  return parseTaskBlocks(specPath).length;
 }
 
 function doneTaskCount(specPath) {
-  return taskLines(specPath).filter(({ line }) => /^- \[[xX]\] Task [0-9]+:/.test(line)).length;
+  return parseTaskBlocks(specPath).filter((task) => task.done).length;
 }
 
 function nextTaskLine(specPath) {
-  return taskLines(specPath).find(({ line }) => /^- \[ \] Task [0-9]+:/.test(line));
+  const tasks = parseTaskBlocks(specPath);
+  if (!tasks.length) return null;
+  const executionOrder = parseExecutionOrder(specPath);
+  if (!executionOrder.hasSection || !executionOrder.hasPhaseOrder || !executionOrder.waves.length) {
+    fail("BLOCKED: spec is missing a valid ## 실행 순서 section with Phase order and wave entries. Run plate before autopilot.");
+  }
+
+  const required = ["phase", "story", "covers", "write scope", "dependency", "wave", "parallel", "check"];
+  for (const task of tasks) {
+    const missing = required.filter((key) => !task.metadata[key]);
+    if (missing.length) {
+      fail(`BLOCKED: Task ${task.number} is missing plate metadata: ${missing.join(", ")}. Run plate before autopilot.`);
+    }
+  }
+
+  const missingWaves = tasks
+    .map((task) => normalizeWave(task.metadata.wave))
+    .filter((wave, index, all) => wave && all.indexOf(wave) === index && !executionOrder.waves.includes(wave));
+  if (missingWaves.length) {
+    fail(`BLOCKED: execution order is missing wave entries for ${missingWaves.join(", ")}. Run plate before autopilot.`);
+  }
+
+  const done = new Set(tasks.filter((task) => task.done).map((task) => task.number));
+
+  for (const wave of executionOrder.waves) {
+    const waveTasks = tasks.filter((task) => normalizeWave(task.metadata.wave) === wave);
+    const pending = waveTasks.filter((task) => !task.done);
+    if (!pending.length) continue;
+
+    for (const task of pending) {
+      const deps = dependencyTaskNumbers(task.metadata.dependency);
+      const missingDeps = deps.filter((dep) => !done.has(dep));
+      if (!missingDeps.length) return task;
+    }
+
+    const blocked = pending
+      .map((task) => `Task ${task.number} waits for ${dependencyTaskNumbers(task.metadata.dependency).filter((dep) => !done.has(dep)).map((dep) => `Task ${dep}`).join(", ")}`)
+      .join("; ");
+    fail(`BLOCKED: no runnable task in ${wave}. ${blocked}`);
+  }
+
+  return null;
 }
 
-function taskNumberFromLine(line) {
-  return line.match(/^- \[ \] Task ([0-9]+):/)?.[1] || "";
+function normalizeWave(value) {
+  return String(value || "").trim().toUpperCase();
 }
 
-function taskTitleFromLine(line) {
-  return line.replace(/^- \[ \] Task [0-9]+:\s*/, "");
+function dependencyTaskNumbers(value) {
+  if (!value || /^none$/i.test(value)) return [];
+  return [...value.matchAll(/Task\s+([0-9]+)/gi)].map((match) => match[1]);
 }
 
 function relativePath(path) {
@@ -316,12 +419,21 @@ function tasteFingerprint(report) {
     .slice(0, 16);
 }
 
-function writeSelfHealedTaskHandoff(path, specRel, taskNumber, taskTitle, output) {
+function tasteReleaseReadiness(report) {
+  if (!existsSync(report)) return "";
+  return readText(report).match(/^Release readiness:\s*(.+)$/m)?.[1]?.trim() || "";
+}
+
+function writeSelfHealedTaskHandoff(path, specRel, taskNumber, taskTitle, taskMeta, output) {
   writeText(path, `# Task Handoff: Task ${taskNumber}
 Status: done
 Source spec: ${specRel}
 Generated by: autopilot runner self-heal
 Task: ${taskTitle}
+Phase: ${taskMeta.phase || ""}
+Story: ${taskMeta.story || ""}
+Wave: ${taskMeta.wave || ""}
+Covers: ${taskMeta.covers || ""}
 
 ## Summary
 Fresh agent returned \`<autopilot>DONE</autopilot>\`, but the expected task handoff file was missing. The runner synthesized this handoff to keep coordination state aligned.
@@ -357,8 +469,10 @@ function writeSelfHealedTasteReport(path, specPath, specRel, verdict, recommende
   const specNumber = specNumberFromPath(specPath);
   const specSlug = specBase.slice(5);
   const nextSkill = verdict === "APPROVE" ? "wrap" : verdict === "REQUEST_CHANGES" ? (recommendedSkill || "cook") : "recipe";
+  const releaseReadiness = verdict === "APPROVE" ? "Ready for Wrap" : "Not Ready";
   writeText(path, `# Taste Report: ${specNumber} ${specSlug}
 Verdict: ${verdict}
+Release readiness: ${releaseReadiness}
 Reason: runner self-healed a missing taste report from the fresh-agent verdict.
 Source spec: ${specRel}
 Diff scope: current working tree for the active spec
@@ -410,7 +524,7 @@ function tasteLoopRecommendation(report) {
   return section.join("\n").match(/\b(cook|fix)\b/i)?.[1]?.toLowerCase() || "";
 }
 
-function buildTaskPrompt(specRel, taskNumber, taskTitle) {
+function buildTaskPrompt(specRel, taskNumber, taskTitle, taskMeta) {
   const specNumber = basename(specRel).slice(0, 4);
   return `You are a fresh vibe-recipe autopilot iteration. Work in exactly one bounded slice.
 
@@ -424,6 +538,13 @@ Read:
 Task:
 - Use the cook/dev contract.
 - Implement only Task ${taskNumber}: ${taskTitle}
+- Phase: ${taskMeta.phase}
+- Story: ${taskMeta.story}
+- Wave: ${taskMeta.wave}
+- Covers: ${taskMeta.covers}
+- Write scope: ${taskMeta["write scope"]}
+- Dependency: ${taskMeta.dependency}
+- Check: ${taskMeta.check}
 - Preserve unrelated user changes and do not expand scope.
 - Do not mark the task checkbox yourself; the runner will mark it after completion.
 - Write or update the task handoff at .agent/spec/handoffs/${specNumber}-task${taskNumber}.md.
@@ -448,6 +569,7 @@ function buildTastePrompt(specRel, specNumber) {
 Use the taste/review contract for ${specRel}.
 Read AGENTS.md, the active spec, cook/task handoffs, git diff, and .agent/commands.json.
 Write the taste report to .agent/spec/handoffs/${specNumber}-taste.md.
+Ensure the report includes the required Release readiness line.
 Do not modify product code or spec scope.
 
 Final response contract:
@@ -462,11 +584,13 @@ function buildWrapPrompt(specRel, tasteReportRel) {
 
 Use the wrap/bump contract.
 Read AGENTS.md, ${specRel}, ${tasteReportRel}, release commit range, and .agent/commands.json.
+Use ${tasteReportRel} as the current spec's readiness evidence, and only prepare release files when the relevant taste reports say Release readiness: Ready for Wrap.
+Build the release set from all active specs that are Ready for Wrap unless the user explicitly narrowed it.
 Resolve exact release files before editing:
 - Version source: use one public manifest path if the repo already has one; if the repo intentionally keeps mirrored public manifests in sync, treat that mirrored set as the version source; otherwise use '.agent/release-manifest.json'.
 - Changelog source: use the repo's existing release notes file if one already exists; otherwise use 'CHANGELOG.md' at the repo root.
 - Choose one canonical changelog source. For versioning, either choose one canonical source or one mirrored manifest set, cite the exact path or paths in the wrap summary, and do not update unrelated competing files.
-Prepare version/changelog only if taste verdict is APPROVE and verify is configured.
+Prepare version/changelog only if taste verdict is APPROVE, release readiness is Ready for Wrap, and verify is configured.
 Do not tag, push, deploy, publish, or run serve.
 
 Final response contract:
@@ -532,7 +656,8 @@ function printStatus(specPath, status, nextLine, total, done) {
   console.log(`- Spec status: ${status}`);
   console.log(`- Tasks: ${done}/${total} done`);
   if (nextLine) {
-    console.log(`- Next task: Task ${taskNumberFromLine(nextLine.line)} - ${taskTitleFromLine(nextLine.line)}`);
+    console.log(`- Next task: Task ${nextLine.number} - ${nextLine.title}`);
+    console.log(`- Next wave: ${nextLine.metadata.wave}`);
   } else {
     console.log("- Next task: none");
   }
@@ -588,19 +713,20 @@ for (let loop = 1; loop <= options.maxIterations; loop += 1) {
   nextLine = nextTaskLine(spec);
   if (nextLine) {
     const runIteration = nextAgentIteration(options.maxIterations, specRel);
-    const taskNumber = taskNumberFromLine(nextLine.line);
-    const taskTitle = taskTitleFromLine(nextLine.line);
+    const taskNumber = nextLine.number;
+    const taskTitle = nextLine.title;
+    const taskMeta = nextLine.metadata;
     const handoff = taskHandoffPath(spec, taskNumber);
-    const prompt = buildTaskPrompt(specRel, taskNumber, taskTitle);
+    const prompt = buildTaskPrompt(specRel, taskNumber, taskTitle, taskMeta);
 
     writeState(specRel, runIteration, `Task ${taskNumber}`, "running");
-    appendProgress(`Iteration ${runIteration} started`, `- Task: Task ${taskNumber} - ${taskTitle}`);
+    appendProgress(`Iteration ${runIteration} started`, `- Task: Task ${taskNumber} - ${taskTitle}\n- Phase: ${taskMeta.phase}\n- Story: ${taskMeta.story}\n- Wave: ${taskMeta.wave}`);
     const output = runFreshAgent(prompt);
     if (options.dryRun) process.exit(0);
 
     if (output.includes("<autopilot>DONE</autopilot>")) {
       if (!existsSync(handoff)) {
-        writeSelfHealedTaskHandoff(handoff, specRel, taskNumber, taskTitle, output);
+        writeSelfHealedTaskHandoff(handoff, specRel, taskNumber, taskTitle, taskMeta, output);
         appendProgress(`Task ${taskNumber} self-healed`, `- Task: ${taskTitle}\n- Runner synthesized the missing task handoff: ${relativePath(handoff)}`);
       }
       markTaskDone(spec, taskNumber);
@@ -638,16 +764,22 @@ for (let loop = 1; loop <= options.maxIterations; loop += 1) {
 
   const reportText = tasteReport && existsSync(tasteReport) ? readText(tasteReport) : "";
   if (tasteVerdict === "APPROVE" || reportText.includes("Verdict: APPROVE")) {
+    const releaseReadiness = tasteReport ? tasteReleaseReadiness(tasteReport) : "";
     if (!tasteReport) {
       appendProgress("Taste blocked", "- Verdict was APPROVE but no spec-specific taste report could be synthesized.");
       writeState(specRel, runIteration, "taste", "blocked");
       fail("BLOCKED: taste approved but no spec-specific taste report was available.");
     }
-    appendProgress("Taste approved", `- Taste report: ${tasteReport ? relativePath(tasteReport) : "from fresh-agent output"}`);
+    appendProgress("Taste approved", `- Taste report: ${tasteReport ? relativePath(tasteReport) : "from fresh-agent output"}\n- Release readiness: ${releaseReadiness || "missing"}`);
     writeState(specRel, runIteration, "taste", "approved");
     if (options.stopPoint === "taste") {
       console.log("<promise>COMPLETE</promise>");
       process.exit(0);
+    }
+    if (releaseReadiness !== "Ready for Wrap") {
+      appendProgress("Wrap blocked", `- Reason: taste approved without Ready for Wrap readiness\n- Release readiness: ${releaseReadiness || "missing"}`);
+      writeState(specRel, runIteration, "taste", "blocked");
+      fail("BLOCKED: taste approved but release readiness is not Ready for Wrap.");
     }
 
     const wrapIteration = nextAgentIteration(options.maxIterations, specRel);

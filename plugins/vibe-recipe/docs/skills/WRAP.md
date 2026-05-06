@@ -1,10 +1,12 @@
 # Wrap 동작 문서
 
-`wrap`은 `taste`가 `APPROVE`한 변경을 release branch로 포장하는 release-prep skill입니다. version manifest와 project changelog source를 갱신하고 `chore(release): X.Y.Z` commit을 만들지만, tag, push, deploy는 하지 않습니다. commit message에는 관련 spec을 가리키는 `Refs:` footer를 포함합니다.
+`wrap`은 `taste`가 `Ready for Wrap`으로 표시한 active spec들을 release set으로 묶어 release branch로 포장하는 release-prep skill입니다. version manifest와 project changelog source를 갱신하고 `chore(release): X.Y.Z` commit을 만들지만, tag, push, deploy는 하지 않습니다. commit message에는 release set에 포함된 spec들을 가리키는 `Refs:` footer를 포함합니다.
 
 ## 목표
 
-- 최신 `taste` verdict가 `APPROVE`인지 확인합니다.
+- release set에 포함할 각 active spec의 최신 `taste` verdict가 `APPROVE`이고 `Release readiness: Ready for Wrap`인지 확인합니다.
+- 사용자가 spec을 지정하지 않으면 모든 `Ready for Wrap` active spec을 기본 release set으로 제안합니다.
+- release set에서 제외된 active spec과 제외 이유를 summary에 남깁니다.
 - 마지막 release tag 또는 현재 manifest version을 기준으로 release 대상 commit range를 고정합니다.
 - Conventional Commits와 breaking marker를 읽어 SemVer bump를 제안합니다.
 - version manifest와 changelog만 갱신합니다.
@@ -13,8 +15,8 @@
 
 ## 시작 조건
 
-- 현재 release 대상 spec의 `.agent/spec/handoffs/NNNN-taste.md`가 있고 verdict가 `APPROVE`입니다.
-- BLOCK 또는 REQUEST_CHANGES taste report가 pending이면 시작하지 않습니다.
+- release set에 포함할 active spec이 1개 이상 있고, 각 spec의 `.agent/spec/handoffs/NNNN-taste.md`가 `Verdict: APPROVE`와 `Release readiness: Ready for Wrap`을 포함합니다.
+- `Draft`, `Approved`, `In Progress`, `Blocked`, `REQUEST_CHANGES`, `BLOCK`, `Not Ready`, taste report 누락 spec은 release set에서 제외합니다.
 - `git status --short`를 확인해 unrelated dirty change를 release commit에서 제외합니다.
 - 마지막 release tag 또는 현재 manifest version을 기준 version으로 확인합니다.
 - version source와 changelog source가 명확합니다. public release manifest가 아직 없으면 `.agent/release-manifest.json`을 초기 source로 사용할 수 있습니다.
@@ -44,29 +46,32 @@
 
 ## Flow
 
-1. Preflight: taste verdict, git status, command profile, version/changelog source를 확인합니다.
-2. Range: 마지막 release tag와 HEAD 사이의 release 대상 commit을 고정합니다.
-3. Classify: Conventional Commits와 breaking marker를 분류합니다.
-4. Changelog plan: 기존 project changelog source 포맷을 감지하거나 새 `CHANGELOG.md` 생성 포맷을 정합니다.
-5. Preview: target version, 포함 commit, changelog section, 갱신 파일, 제외 dirty file을 보여주고 override 기회를 줍니다.
-6. Update: version source와 project changelog source만 갱신합니다. mirror public manifests set이면 같은 version으로 함께 갱신합니다.
-7. Verify: `.agent/commands.json`의 `verify`를 실행합니다.
-8. Commit: `chore(release): X.Y.Z` 제목과 `Refs: .agent/spec/...` footer를 함께 써서 commit을 만들고 `serve`를 추천합니다.
+1. Preflight: taste verdict, release readiness, git status, command profile, version/changelog source를 확인합니다.
+2. Release set: 지정된 spec 또는 모든 `Ready for Wrap` active spec을 포함하고, 나머지 active spec은 excluded list에 둡니다.
+3. Range: 마지막 release tag와 HEAD 사이의 release 대상 commit을 고정합니다.
+4. Classify: release set 전체의 spec, taste evidence, Conventional Commits, breaking marker를 합쳐 분류합니다.
+5. Changelog plan: 기존 project changelog source 포맷을 감지하거나 새 `CHANGELOG.md` 생성 포맷을 정합니다.
+6. Preview: target version, release set, excluded active specs, 포함 commit, changelog section, 갱신 파일, 제외 dirty file을 보여주고 override 기회를 줍니다.
+7. Update: version source와 project changelog source만 갱신합니다. mirror public manifests set이면 같은 version으로 함께 갱신합니다.
+8. Verify: `.agent/commands.json`의 `verify`를 실행합니다.
+9. Commit: `chore(release): X.Y.Z` 제목과 release set의 모든 `Refs: .agent/spec/active/NNNN-*.md` footer를 함께 써서 commit을 만들고 `serve`를 추천합니다.
 
 ## 쓰기 범위
 
 - 허용: release version source. mirror public manifests set이면 같은 version으로 함께 갱신 가능, project changelog source, release prep commit.
 - 금지: product code, spec scope, generated agent instructions, tag, deploy script 실행, remote push.
 - unrelated dirty file이 있으면 release commit에 포함하지 않습니다. 분리할 수 없으면 blocked로 멈춥니다.
-- release prep commit은 Conventional Commits 형식과 `Refs: .agent/spec/...` footer를 모두 만족해야 합니다.
+- release prep commit은 Conventional Commits 형식과 release set의 모든 spec을 가리키는 `Refs: .agent/spec/...` footer를 모두 만족해야 합니다.
 
 ## Handoff 필수 항목
 
-- taste report path
+- release set spec path와 각 taste report path
+- excluded active specs와 제외 이유
 - commit range와 previous version
 - bump 종류와 target version
 - 갱신한 manifest와 changelog format
 - `verify` 결과와 syntax check 결과
+- serve handoff: release set specs, excluded active specs, lifecycle close owner
 - blocked reason, why this gate exists, how to unblock, 또는 recommended next skill: `serve`
 
 ## 검증 포인트
@@ -77,6 +82,7 @@
 test -f plugins/vibe-recipe/skills/wrap/SKILL.md
 test -f plugins/vibe-recipe/docs/skills/WRAP.md
 grep -q 'chore(release): X.Y.Z' plugins/vibe-recipe/skills/wrap/SKILL.md
+grep -q 'release set' plugins/vibe-recipe/skills/wrap/SKILL.md
 grep -q '.agent/spec/handoffs/NNNN-taste.md' plugins/vibe-recipe/skills/wrap/SKILL.md
 grep -q 'Changelog 포맷' plugins/vibe-recipe/skills/wrap/SKILL.md
 node plugins/vibe-recipe/scripts/build-universal-agents-md.mjs /tmp/vibe-recipe-AGENTS.md

@@ -12,6 +12,7 @@
 - merge blocker와 follow-up concern을 구분합니다.
 - 다음 loop를 `plate`, `cook`, `fix`, `recipe`, `tidy`, `wrap`, `serve` 중 하나로 명확히 추천합니다.
 - review report를 현재 spec 번호에 맞는 `.agent/spec/handoffs/NNNN-taste.md`에 남겨 `peek`, `wrap`, `serve`가 같은 spec의 최신 verdict를 재사용할 수 있게 합니다.
+- `APPROVE` verdict이면 active spec 본문을 수정하지 않고 report에 `Release readiness: Ready for Wrap`을 남겨 release set 후보로 표시합니다.
 - blocked 또는 request_changes면 reason만이 아니라 why/how-to-unblock도 함께 남깁니다.
 
 ## 시작 조건
@@ -62,7 +63,7 @@ verdict 우선순위는 `BLOCK` > `REQUEST_CHANGES` > `APPROVE`입니다. projec
 | `security-auditor` | auth, secret, injection, dependency, data-loss 위험 검토 |
 | `red-team` | abuse, replay, race, boundary, timezone/locale 위험 검토 |
 
-모든 subagent는 read-only입니다. 수정은 `taste`가 아니라 후속 `cook`, `fix`, `tidy`에서 수행합니다. `taste` 자체도 제품 코드, test, generated artifact, active spec 본문을 수정하지 않으며, 허용되는 쓰기는 현재 spec 번호에 해당하는 `.agent/spec/handoffs/NNNN-taste.md` report뿐입니다.
+모든 subagent는 read-only입니다. 수정은 `taste`가 아니라 후속 `cook`, `fix`, `tidy`에서 수행합니다. `taste` 자체도 제품 코드, test, generated artifact, active spec 본문을 수정하지 않으며, 허용되는 쓰기는 현재 spec 번호에 해당하는 `.agent/spec/handoffs/NNNN-taste.md` report뿐입니다. `APPROVE` 뒤에도 spec은 `active/`에 남고, `serve`가 release set을 통과시킨 뒤에만 `done/`으로 이동합니다.
 
 각 subagent에는 동일한 입력 패킷을 넘깁니다.
 
@@ -79,9 +80,11 @@ Forbidden writes: product code, tests, generated artifacts, spec edits
 ## Report 필수 항목
 
 - verdict와 한 문장 이유
+- release readiness: `Ready for Wrap` 또는 `Not Ready`
 - source spec, diff scope, handoff source, evidence refs
 - regression 결과
 - acceptance coverage
+- task traceability: unmapped requirements, unmapped tasks, phase/wave issues, unsafe parallel markers
 - project verify 결과 또는 blocked 이유
 - BLOCKER, CONCERN, SUGGESTION
 - coverage gap
@@ -90,13 +93,17 @@ Forbidden writes: product code, tests, generated artifacts, spec edits
 
 report 저장 위치는 현재 spec 번호에 해당하는 `.agent/spec/handoffs/NNNN-taste.md`입니다. spec 자체가 틀렸다면 active spec을 고치지 말고 report에서 `recipe` escalation을 남깁니다.
 
+`Release readiness: Ready for Wrap`은 verdict가 `APPROVE`일 때만 사용합니다. 그 외 verdict, missing verify, unresolved human gate, BLOCKER가 있으면 `Release readiness: Not Ready`로 남기고 release set에서 제외합니다.
+
+task checkbox 완료 여부만으로 coverage를 인정하지 않습니다. 각 `US/AC/FR/SC`는 `Covers`와 command/manual evidence에 연결되어야 하며, phase/wave 순서 위반이나 unsafe parallel marker는 `Task Traceability`에 남깁니다.
+
 ## Loop Recommendation 매핑
 
 - scope mismatch, acceptance criteria 오류, 제품 결정 누락은 `recipe`로 보냅니다.
 - 승인된 task가 남았거나 구현 slice가 미완성이면 추가 `cook`으로 보냅니다.
 - regression, bug, failing test처럼 원인이 좁혀진 구현 결함은 `fix`로 보냅니다.
 - 동작 변경 없이 구조나 boundary 정리가 필요하면 `tidy`로 보냅니다.
-- verdict가 `APPROVE`이고 version/changelog 준비가 필요하면 `wrap`으로 보냅니다.
+- verdict가 `APPROVE`이면 `Release readiness: Ready for Wrap`을 남기고, version/changelog 준비가 필요하면 `wrap`으로 보냅니다.
 - `wrap`이 끝났고 release gate만 남았으면 `serve`로 보냅니다.
 
 ## 검증 포인트
@@ -107,6 +114,8 @@ report 저장 위치는 현재 spec 번호에 해당하는 `.agent/spec/handoffs
 test -f plugins/vibe-recipe/skills/taste/SKILL.md
 test -f plugins/vibe-recipe/docs/skills/TASTE.md
 grep -q 'APPROVE / REQUEST_CHANGES / BLOCK' plugins/vibe-recipe/skills/taste/SKILL.md
+grep -q 'Ready for Wrap' plugins/vibe-recipe/skills/taste/SKILL.md
+grep -q 'Task Traceability' plugins/vibe-recipe/skills/taste/SKILL.md
 grep -q '.agent/spec/handoffs/NNNN-taste.md' plugins/vibe-recipe/skills/taste/SKILL.md
 node plugins/vibe-recipe/scripts/build-universal-agents-md.mjs /tmp/vibe-recipe-AGENTS.md
 grep -q 'taste (review)' /tmp/vibe-recipe-AGENTS.md

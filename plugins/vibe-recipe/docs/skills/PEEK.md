@@ -8,7 +8,7 @@
 
 - branch, dirty tree, 최근 commit을 확인합니다.
 - active spec, next task, 최신 handoff/review 상태를 요약합니다.
-- release readiness와 autopilot state를 얕게 확인합니다.
+- release readiness와 autopilot state를 얕게 확인합니다. release readiness는 active spec별 `Ready for Wrap` 후보와 최신 `wrap` summary를 분리합니다.
 - 막힌 이유가 있으면 `Risks`에 분리합니다.
 - 다음 skill을 하나 추천하고 이유를 남깁니다.
 
@@ -36,17 +36,20 @@
 | `needs-work` | approved/in-progress plated spec의 task가 남아 `cook` 필요 |
 | `needs-review` | 변경이 있고 최신 `taste`가 없거나 오래됨 |
 | `blocked` | failing review, missing verify, dirty release state, human gate 미승인 |
-| `release-ready` | latest `taste APPROVE`, clean tree, release 단계 명확 |
+| `ready-for-wrap` | `Release readiness: Ready for Wrap` active spec이 있어 `wrap` release set 생성 가능 |
+| `release-ready` | 최신 `wrap` summary가 있고 clean tree에서 `serve` gate만 남음 |
 
 ## Report 형식
 
 ```markdown
 # Peek Status
-Status: ready / needs-plan / needs-plate / needs-work / needs-review / blocked / release-ready
+Status: ready / needs-plan / needs-plate / needs-work / needs-review / blocked / ready-for-wrap / release-ready
 
 ## Now
 - Branch:
 - Active spec:
+- Ready for Wrap specs:
+- Excluded active specs:
 - Working tree:
 - Latest handoff/review:
 
@@ -70,7 +73,8 @@ Status: ready / needs-plan / needs-plate / needs-work / needs-review / blocked /
 - approved plated task가 남아 있으면 `cook`.
 - 실패나 regression이면 `fix`.
 - 변경 검수가 필요하면 `taste`.
-- release 준비는 `wrap`, release gate는 `serve`.
+- `Ready for Wrap` active spec이 있으면 `wrap`.
+- 최신 `wrap` summary가 있고 tag/release gate만 남았으면 `serve`.
 - harness 파일이 없거나 깨졌으면 `kitchen`.
 
 ## 검증 포인트
@@ -82,6 +86,7 @@ test -f plugins/vibe-recipe/skills/peek/SKILL.md
 test -f plugins/vibe-recipe/docs/skills/PEEK.md
 grep -q 'Peek Status' plugins/vibe-recipe/skills/peek/SKILL.md
 grep -q 'needs-review' plugins/vibe-recipe/skills/peek/SKILL.md
+grep -q 'ready-for-wrap' plugins/vibe-recipe/skills/peek/SKILL.md
 node plugins/vibe-recipe/scripts/build-universal-agents-md.mjs /tmp/vibe-recipe-AGENTS.md
 grep -q 'peek (status)' /tmp/vibe-recipe-AGENTS.md
 ```
