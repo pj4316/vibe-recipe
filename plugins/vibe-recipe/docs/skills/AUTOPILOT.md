@@ -9,7 +9,7 @@
 - `recipe`로 spec을 만들고, 승인 전에는 구현으로 넘어가지 않습니다.
 - spec이 충분하면 먼저 `plate`로 task breakdown을 만들고, 승인된 뒤 `cook`으로 구현하고 `taste`로 review합니다.
 - `taste` report에서 기본적으로 멈춥니다.
-- release-prep opt-in이 있을 때만 `wrap`까지 진행합니다.
+- release-prep opt-in이 있을 때만 `wrap`까지 진행합니다. 이때 `wrap` 대상은 현재 spec 하나가 아니라 모든 `Ready for Wrap` active spec으로 구성된 release set입니다.
 
 ## Runner
 
@@ -26,7 +26,7 @@ node plugins/vibe-recipe/scripts/autopilot-run.mjs --repo . --status
 - 각 iteration은 fresh CLI instance를 실행합니다.
 - `--max-iterations`는 task, `taste`, follow-up, `wrap`을 포함한 전체 fresh-agent 실행 횟수 상한입니다.
 - Codex 기본 호출은 `codex exec --cd <repo> --sandbox workspace-write`입니다.
-- active spec의 task checkbox가 Ralph의 `passes` 상태 역할을 합니다.
+- active spec의 task checkbox가 Ralph의 `passes` 상태 역할을 하지만, task 선택은 `plate`가 만든 phase/wave order를 따릅니다.
 - `.agent/autopilot/state.json`은 run metadata만 저장합니다.
 - `.agent/autopilot/progress.md`는 append-only progress log입니다.
 - fresh agent가 `<autopilot>DONE</autopilot>`을 반환하면 runner가 task checkbox를 완료로 바꾸고 task commit을 만듭니다.
@@ -41,7 +41,7 @@ node plugins/vibe-recipe/scripts/autopilot-run.mjs --repo . --status
 - 승인된 spec 없이 `cook`, `fix`, `tidy`를 실행하지 않습니다.
 - release/deploy/push, auth/payment/data-loss, external API side effect는 즉시 중단하고 승인 요청으로 바꿉니다.
 - `taste` `BLOCK`, 반복 실패, scope 폭증, budget 초과는 즉시 중단 조건입니다.
-- `serve`는 always forbidden입니다.
+- `serve`는 always forbidden입니다. release set을 실제 tag하고 spec을 `done/`으로 닫는 단계는 사람이 `/vr:serve`를 호출해야 합니다.
 - dirty tree에 unrelated change가 있으면 runner는 시작하지 않습니다.
 
 ## Run brief 필수 항목
@@ -57,6 +57,7 @@ node plugins/vibe-recipe/scripts/autopilot-run.mjs --repo . --status
 ## 상태 모델
 
 - `.agent/spec/active/NNNN-*.md`의 `## 작업 목록` checkbox가 task completion source입니다.
+- task 실행 가능 여부는 `Phase`, `Wave`, `Dependency`, `Parallel` 필드와 `## 실행 순서`를 기준으로 판단합니다.
 - `.agent/autopilot/state.json`은 active spec, iteration count, stop point, last task, last status를 저장합니다.
 - `.agent/autopilot/progress.md`는 iteration별 append-only progress log입니다.
 - task별 근거는 `.agent/spec/handoffs/NNNN-task<N>.md`, cook summary, taste report입니다.
@@ -69,10 +70,10 @@ node plugins/vibe-recipe/scripts/autopilot-run.mjs --repo . --status
 3. Plan: `recipe`로 승인 가능한 spec을 만들거나 보강합니다.
 4. Plate: 승인된 spec에 `plate` 구현 계획과 task breakdown이 없으면 먼저 작성합니다.
 5. Approval gate: spec이 `Approved`가 아니면 멈추고 사용자 승인을 요청합니다.
-6. Execute: 승인되고 plated된 spec을 `cook`으로 task 단위 구현합니다.
+6. Execute: 승인되고 plated된 spec을 `cook`으로 phase/wave 순서에 맞춰 task 단위 구현합니다.
 7. Review: `taste`를 실행하고 verdict를 확인합니다.
 8. Loop: `REQUEST_CHANGES`는 taste report의 loop recommendation을 따라 bounded `cook` 또는 `fix` follow-up을 반복합니다. 기본값은 follow-up 최대 3회, 같은 recommendation 최대 2회, `taste` loop 최대 3회입니다. 같은 finding이 반복되고 blocker가 줄지 않으면 중단합니다. `BLOCK`은 즉시 중단합니다.
-9. Stop: 기본적으로 `taste` report에서 멈춥니다. release-prep opt-in이 있으면 `wrap`까지 진행합니다.
+9. Stop: 기본적으로 `taste` report에서 멈춥니다. release-prep opt-in이 있으면 모든 `Ready for Wrap` active spec을 release set 후보로 두고 `wrap`까지 진행합니다.
 
 ## Context hygiene
 

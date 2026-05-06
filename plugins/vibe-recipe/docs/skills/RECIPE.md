@@ -17,7 +17,7 @@
 ## 목표
 
 - 비개발자도 답할 수 있는 제품 언어로 요구사항을 구체화합니다.
-- 구현 전에 `.agent/spec/active/NNNN-<slug>.md` draft spec을 만듭니다.
+- 구현 전에 `.agent/spec/active/NNNN-<slug>.md` draft spec을 만듭니다. 여러 active spec은 허용하지만, 각 spec은 독립적인 scope와 global monotonic number를 가져야 합니다.
 - `Alignment Brief`가 있으면 goal, audience, MVP, non-goal, success criteria를 spec 초안으로 사용합니다.
 - `US-###`, `AC-###`, `FR-###`, `SC-###`로 후속 `plate`가 추적할 수 있는 요구사항 ID를 남깁니다.
 - 새 용어, 역할, 상태, 위험한 오해를 `.agent/wiki/domain.md`와 맞춥니다.

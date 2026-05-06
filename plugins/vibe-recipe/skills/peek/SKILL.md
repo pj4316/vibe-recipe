@@ -1,6 +1,6 @@
 ---
 name: peek
-description: /vr:peek 호출 시 사용합니다. active spec, git 상태, pending review, release readiness, autopilot mode를 read-only로 요약합니다.
+description: /vr:peek 호출 시 사용합니다. active spec, git 상태, pending review, Ready for Wrap release readiness, autopilot mode를 read-only로 요약합니다.
 ---
 
 # peek (status) - 지금 상태 보기
@@ -28,7 +28,7 @@ description: /vr:peek 호출 시 사용합니다. active spec, git 상태, pendi
 - 현재 branch, ahead/behind 상태, dirty file, 최근 commit 5개.
 - `.agent/spec/active/`의 active spec과 status, branch, updated date, owner.
 - 최신 handoff와 최신 taste verdict.
-- release 준비 상태: project changelog source, version source, tag, active spec, verify command.
+- release 준비 상태: project changelog source, version source, tag, active spec별 latest taste verdict, `Ready for Wrap` 후보, verify command.
 - memory/config에 기록된 autopilot mode, budget cap, dry-run 상태.
 
 가능하면 아래 파일과 상태를 얕게 읽습니다.
@@ -55,7 +55,8 @@ description: /vr:peek 호출 시 사용합니다. active spec, git 상태, pendi
 | `needs-work` | approved/in-progress plated spec의 task가 남아 `cook`이 필요합니다. |
 | `needs-review` | 변경이 있고 최신 `taste`가 없거나 오래됐습니다. |
 | `blocked` | failing review, missing verify, dirty release state, human gate 미승인이 있습니다. |
-| `release-ready` | latest `taste APPROVE`, clean tree, wrap/serve 전 단계가 명확합니다. |
+| `ready-for-wrap` | `Release readiness: Ready for Wrap` active spec이 있어 `wrap` release set을 만들 수 있습니다. |
+| `release-ready` | 최신 `wrap` summary가 있고 clean tree에서 `serve` gate만 남았습니다. |
 
 ## Next skill 라우팅
 
@@ -69,7 +70,7 @@ description: /vr:peek 호출 시 사용합니다. active spec, git 상태, pendi
 | 실패나 regression이 보임 | `fix` |
 | 변경 검수가 필요함 | `taste` |
 | 구조 개선만 남음 | `tidy` |
-| release note/version 준비가 필요함 | `wrap` |
+| `Ready for Wrap` active spec이 1개 이상 있음 | `wrap` |
 | release gate/tag만 남음 | `serve` |
 | harness 파일이 없거나 깨짐 | `kitchen` |
 
@@ -85,11 +86,13 @@ description: /vr:peek 호출 시 사용합니다. active spec, git 상태, pendi
 
 ```markdown
 # Peek Status
-Status: ready / needs-plan / needs-plate / needs-work / needs-review / blocked / release-ready
+Status: ready / needs-plan / needs-plate / needs-work / needs-review / blocked / ready-for-wrap / release-ready
 
 ## Now
 - Branch:
 - Active spec:
+- Ready for Wrap specs:
+- Excluded active specs:
 - Working tree:
 - Latest handoff/review:
 
@@ -110,6 +113,6 @@ Status: ready / needs-plan / needs-plate / needs-work / needs-review / blocked /
 
 - 현재 branch와 dirty state를 확인했습니다.
 - active spec과 최신 handoff/review 상태가 있으면 요약했습니다.
-- release readiness를 묻는 경우 latest taste/verify/changelog/tag 신호를 분리했습니다.
+- release readiness를 묻는 경우 active spec별 latest taste, `Ready for Wrap`, wrap summary, verify/changelog/tag 신호를 분리했습니다.
 - 가장 안전한 다음 skill과 이유가 있습니다.
 - 읽지 못한 source는 `Missing`으로 표시했습니다.

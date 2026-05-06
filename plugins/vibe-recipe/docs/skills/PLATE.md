@@ -9,7 +9,8 @@
 - active spec의 `US-###`, `AC-###`, `FR-###`, `SC-###`를 읽고 구현 coverage를 만듭니다.
 - repo의 실제 구조와 기존 패턴을 기준으로 implementation approach를 정합니다.
 - `cook`이 실행할 수 있는 task list를 작성합니다.
-- 각 task에 covered requirement, write scope, dependency, parallel 가능 여부, check를 연결합니다.
+- 각 task에 phase, story, covered requirement, write scope, dependency, wave, parallel 가능 여부, check를 연결합니다.
+- `Setup -> Foundation -> US-### -> Polish` phase와 `W00`, `W01` 같은 execution wave를 만들어 순차 실행과 병렬 후보를 분리합니다.
 - `.agent/commands.json`의 `test`, `e2e`, `verify` 상태를 검증 계획에 반영합니다.
 
 ## 시작 조건
@@ -28,6 +29,7 @@
 
 - `구현 계획`
 - `작업 목록`
+- `실행 순서`
 - `검증 계획`
 - `Plate 상태`
 
@@ -36,6 +38,9 @@
 - `Covers`: 연결된 `AC/FR/SC`
 - `Write scope`: 파일 또는 모듈 경계
 - `Dependency`: 선행 task
+- `Phase`: `Setup`, `Foundation`, `US-###`, `Polish` 중 하나
+- `Story`: 관련 user story ID. setup/polish 공통 작업은 `Shared`
+- `Wave`: `W00`, `W01` 같은 실행 묶음
 - `Parallel`: 병렬 가능 여부와 이유
 - `Check`: command 또는 manual check
 
@@ -44,7 +49,9 @@
 - 모든 핵심 acceptance와 functional requirement가 task에 매핑되어 있습니다.
 - `Task 0`이 실패 test 또는 executable acceptance check입니다.
 - task가 `cook/dev`에서 하나씩 처리 가능한 크기입니다.
+- phase order와 wave order가 있으며, 앞 wave가 끝나야 다음 wave로 넘어갈 수 있습니다.
 - 같은 파일을 건드리는 task는 병렬로 표시되지 않았습니다.
+- 같은 wave의 `Parallel: Yes` task는 dependency가 없고 write scope가 disjoint입니다.
 - `Plate 상태`가 `Planned`이거나 blocker와 next skill이 명확합니다.
 
 ## 검증 포인트
@@ -55,6 +62,7 @@
 test -f plugins/vibe-recipe/skills/plate/SKILL.md
 test -f plugins/vibe-recipe/docs/skills/PLATE.md
 grep -q 'Task 0' plugins/vibe-recipe/skills/plate/SKILL.md
+grep -q 'Wave' plugins/vibe-recipe/skills/plate/SKILL.md
 grep -q 'Plate 상태' plugins/vibe-recipe/skills/plate/SKILL.md
 node plugins/vibe-recipe/scripts/build-universal-agents-md.mjs /tmp/vibe-recipe-AGENTS.md
 grep -q 'plate' /tmp/vibe-recipe-AGENTS.md

@@ -1,6 +1,6 @@
 ---
 name: cook
-description: Approved 또는 In Progress recipe와 plate implementation plan을 task 단위 TDD 실행으로 지휘하고, task-runner 결과를 통합해 taste/review까지 이어지게 합니다. /vr:cook 호출, plated task orchestration, acceptance matrix, TDD review loop가 필요할 때 사용합니다.
+description: Approved 또는 In Progress recipe와 plate implementation plan을 phase/wave 순서에 따라 task 단위 TDD 실행으로 지휘하고, task-runner 결과를 통합해 taste/review까지 이어지게 합니다. /vr:cook 호출, plated task orchestration, acceptance matrix, TDD review loop가 필요할 때 사용합니다.
 ---
 
 # cook (dev) - 요리하기
@@ -20,6 +20,9 @@ description: Approved 또는 In Progress recipe와 plate implementation plan을 
 
 - `.agent/spec/active/NNNN-<slug>.md`가 있고 `Status: Approved` 또는 `Status: In Progress`입니다.
 - active spec에 `Plate 상태: Planned`, `구현 계획`, `작업 목록`, `검증 계획`이 있습니다.
+- 각 task에 `Phase`, `Story`, `Covers`, `Write scope`, `Dependency`, `Wave`, `Parallel`, `Check`가 있습니다.
+- `## 실행 순서`에 phase order와 wave order가 있습니다.
+- 여러 active spec이 있어도 `cook`은 한 번에 하나의 spec과 하나의 task lane만 구현합니다. 다른 active spec의 task를 같은 run이나 commit에 섞지 않습니다.
 - 사용자가 task를 지정하지 않았으면 recipe 전체 구현 모드입니다.
 - `Task 0`의 실패 test 또는 executable acceptance check가 `plate` 작업 목록에 있습니다.
 - `AGENTS.md`, active spec, `.agent/spec/design.md`, `.agent/commands.json`, 관련 ADR과 handoff를 읽었습니다.
@@ -32,9 +35,9 @@ description: Approved 또는 In Progress recipe와 plate implementation plan을 
 
 1. Preflight: 기준 문서, plate 계획, command profile, branch, working tree, 이전 handoff를 확인합니다.
 2. Matrix: `US/AC/FR/SC`, tasks, `Check`, command를 연결한 acceptance matrix를 만듭니다.
-3. Plan: plate의 task dependency, write scope, serial/parallel 가능성을 검증합니다.
+3. Plan: plate의 phase order, wave order, task dependency, write scope, serial/parallel 가능성을 검증합니다.
 4. Red: `Task 0`을 먼저 `task-runner`에 맡겨 실패 test 또는 executable check를 만듭니다.
-5. Dispatch: 준비된 task를 하나씩 `task-runner`에 배정합니다.
+5. Dispatch: phase와 wave 순서대로 task를 배정합니다. 기본은 linear이고, 같은 wave의 안전한 병렬 후보만 opt-in 병렬 실행합니다.
 6. Integrate: task-runner handoff를 읽고 diff, command 결과, risk를 합성합니다.
 7. Verify: focused command 후 필요한 `test`, `e2e`, 가능한 `verify`를 실행합니다.
 8. Loop: 실패하면 원인에 따라 같은 task 재실행, `fix`, `plate` 보강, 또는 `recipe` 보강으로 보냅니다.
@@ -43,8 +46,10 @@ description: Approved 또는 In Progress recipe와 plate implementation plan을 
 ## Task 실행 계약
 
 - task 하나의 구현은 `task-runner`가 red -> green -> refactor로 수행합니다.
-- 메인 `cook`은 task-runner에게 spec path, task number, `Covers`, write scope, dependency, allowed files, expected command를 넘깁니다.
-- 독립 task만 별도 worktree/worker로 보낼 수 있습니다. write scope, migration, shared test fixture, generated file이 겹치면 serial로 실행합니다.
+- 메인 `cook`은 task-runner에게 spec path, task number, `Phase`, `Story`, `Wave`, `Covers`, write scope, dependency, allowed files, expected command를 넘깁니다.
+- phase는 `Setup -> Foundation -> US-### priority order -> Polish` 순서를 지킵니다. `Foundation`이 끝나기 전에는 user story phase를 시작하지 않습니다.
+- wave는 순차 gate입니다. 앞 wave가 완료되고 check가 통과해야 다음 wave를 시작합니다.
+- 독립 task만 별도 worktree/worker로 보낼 수 있습니다. 같은 wave, `Parallel: Yes`, dependency 없음, write scope disjoint를 모두 만족해야 합니다. migration, shared test fixture, generated file이 겹치면 serial로 실행합니다.
 - task가 너무 크거나 acceptance와 맞지 않으면 구현 전에 `plate` 보강으로 넘깁니다. 제품 scope 자체가 문제면 `recipe` 보강으로 넘깁니다.
 
 ## 통합 규칙
@@ -59,7 +64,7 @@ description: Approved 또는 In Progress recipe와 plate implementation plan을 
 - `task-runner`: cook의 기본 실행 agent입니다. task 하나를 TDD로 구현하고 handoff를 반환합니다.
 - `tester`: acceptance matrix, Task 0 검증, UI/e2e 판단이 필요할 때 사용합니다.
 - `implementor`: `fix`나 `tidy` 성격의 보조 구현이 필요할 때만 사용합니다.
-- 병렬 작업은 사용자가 opt-in했고 task별 write scope가 격리되어 있을 때만 사용합니다. 최대 3개 worker까지 허용합니다.
+- 병렬 작업은 사용자가 opt-in했고 같은 wave의 task별 write scope가 격리되어 있을 때만 사용합니다. 최대 3개 worker까지 허용합니다.
 - worker에게는 다른 작업자가 있을 수 있으며, 서로의 변경을 되돌리지 말라고 명시합니다.
 
 ## Git
@@ -96,6 +101,7 @@ Status: done / blocked
 
 - 모든 task의 `Check`가 통과했거나 blocked 이유가 명확합니다.
 - acceptance matrix가 covered/blocked로 분류되어 있습니다.
+- phase order와 wave order를 위반하지 않았습니다.
 - task-runner handoff와 cook summary에 command 결과가 있습니다.
 - spec task checkbox, status, 남은 risk가 최신입니다.
 - 관련 없는 사용자 변경을 건드리지 않았습니다.
