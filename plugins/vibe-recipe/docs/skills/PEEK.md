@@ -32,7 +32,8 @@
 | --- | --- |
 | `ready` | 다음 skill을 바로 실행할 수 있음 |
 | `needs-plan` | active approved spec이 없어 `recipe` 필요 |
-| `needs-work` | approved/in-progress spec의 task가 남아 `cook` 필요 |
+| `needs-plate` | active spec은 있지만 구현 계획과 task breakdown이 없어 `plate` 필요 |
+| `needs-work` | approved/in-progress plated spec의 task가 남아 `cook` 필요 |
 | `needs-review` | 변경이 있고 최신 `taste`가 없거나 오래됨 |
 | `blocked` | failing review, missing verify, dirty release state, human gate 미승인 |
 | `release-ready` | latest `taste APPROVE`, clean tree, release 단계 명확 |
@@ -41,7 +42,7 @@
 
 ```markdown
 # Peek Status
-Status: ready / needs-plan / needs-work / needs-review / blocked / release-ready
+Status: ready / needs-plan / needs-plate / needs-work / needs-review / blocked / release-ready
 
 ## Now
 - Branch:
@@ -64,8 +65,9 @@ Status: ready / needs-plan / needs-work / needs-review / blocked / release-ready
 
 - scope가 불명확하면 `recipe`에서 alignment 질문을 먼저 진행합니다.
 - active spec이 없으면 `recipe`.
+- active spec에 `Plate 상태: Planned`가 없으면 `plate`.
 - 기술 선택이 막고 있으면 `forage`.
-- approved task가 남아 있으면 `cook`.
+- approved plated task가 남아 있으면 `cook`.
 - 실패나 regression이면 `fix`.
 - 변경 검수가 필요하면 `taste`.
 - release 준비는 `wrap`, release gate는 `serve`.

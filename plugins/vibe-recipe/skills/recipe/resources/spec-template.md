@@ -18,26 +18,46 @@ Status: Draft
 - Command source: `.agent/commands.json`
 - Spec source: `.agent/spec/prd.md`, `.agent/spec/design.md`
 
-## 목표
+## 사용자 시나리오
 
-- {{goal_1}}
-- {{goal_2}}
+### US-001 {{primary_user_story_title}}
+
+- Priority: P1
+- Actor: {{primary_actor}}
+- Goal: {{user_value_or_goal}}
+- Independent test: {{observable_user_test_without_implementation_detail}}
+
+Acceptance:
+
+- AC-001: Given {{context}}, when {{action}}, then {{observable_result}}.
+- AC-002: Given {{context}}, when {{failure_or_empty_case}}, then {{observable_result}}.
+
+### US-002 {{secondary_user_story_title_or_none}}
+
+- Priority: P2
+- Actor: {{secondary_actor_or_same_actor}}
+- Goal: {{secondary_user_value_or_goal}}
+- Independent test: {{observable_user_test_or_none}}
+
+Acceptance:
+
+- AC-003: Given {{context}}, when {{action}}, then {{observable_result}}.
+
+## 기능 요구사항
+
+- FR-001: {{testable_functional_requirement}}
+- FR-002: {{testable_functional_requirement}}
+- FR-003: {{testable_functional_requirement}}
+
+## 성공 기준
+
+- SC-001: {{measurable_technology_agnostic_outcome}}
+- SC-002: {{measurable_technology_agnostic_outcome}}
 
 ## 제외 범위
 
 - {{non_goal_1}}
 - {{non_goal_2}}
-
-## 사용자 흐름
-
-1. {{step_1}}
-2. {{step_2}}
-3. {{step_3}}
-
-## 수락 기준
-
-- Given {{context}}, when {{action}}, then {{observable_result}}.
-- Given {{context}}, when {{failure_or_empty_case}}, then {{observable_result}}.
 
 ## 예외와 상태
 
@@ -85,29 +105,6 @@ Status: Draft
 - Proposed ADR: {{proposed_adr_path_or_none}}
 - Reason: {{hard_to_reverse_surprising_tradeoff_or_none}}
 
-## 작업 목록
-
-- [ ] Task 0: 실패 test 또는 executable acceptance check 작성
-  - Check: {{failing_test_or_executable_acceptance_check}}
-- [ ] Task 1: {{small_implementation_slice}}
-  - Check: {{test_or_manual_check}}
-- [ ] Task 2: {{small_implementation_slice}}
-  - Check: {{test_or_manual_check}}
-- [ ] Task 3: {{small_implementation_slice}}
-  - Check: {{test_or_manual_check}}
-
-## 검증 계획
-
-- TDD first check: {{failing_test_or_executable_acceptance_check}}
-- Red -> Green -> Refactor note: {{tdd_sequence_note}}
-- Unit/domain: {{unit_test_plan_or_none}}
-- Integration: {{integration_test_plan_or_none}}
-- E2E/browser: {{e2e_or_playwright_mcp_plan_or_none}}
-- Command profile:
-  - test: {{test_command_value_and_status}}
-  - e2e: {{e2e_command_value_and_status}}
-  - verify: {{verify_command_value_and_status_or_blocked_reason}}
-
 ## 위험과 가정
 
 - {{risk_or_assumption}}
@@ -119,3 +116,9 @@ Status: Draft
 ## 열린 질문
 
 - {{open_question_or_none}}
+
+## Plate 상태
+
+- Required before cook: Yes
+- Status: Not planned
+- Notes: 구현 접근, 파일/모듈 경계, task breakdown, 검증 계획은 후속 `plate` 단계에서 작성한다.

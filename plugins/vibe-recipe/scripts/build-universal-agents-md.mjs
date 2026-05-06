@@ -58,13 +58,14 @@ parts.push('Use these instructions when slash commands are unavailable. Natural 
 parts.push("## Core Contract\n\n");
 parts.push(`You are working with the vibe-recipe workflow.
 
-- Start meaningful product or behavior changes with \`recipe\` so requirements, acceptance criteria, task breakdown, verification, and human gates are explicit.
+- Start meaningful product or behavior changes with \`recipe\` so product intent, user scenarios, acceptance criteria, and human gates are explicit.
+- Use \`plate\` after \`recipe\` to create implementation plans, task breakdown, write scopes, dependencies, and verification mapping before \`cook\`.
 - Use \`kitchen\` to initialize, adopt, heal, or adjust the project harness. Do not use feature work to patch harness files ad hoc.
 - When \`kitchen\` prepares a target project, include plugin bootstrap: Claude Code project settings should enable \`vibe-recipe@vibe-recipe-marketplace\`, and Codex users should run \`node .agent/setup/vibe-recipe-codex.mjs\`.
 - Codex does not currently support repository-scoped plugin enablement like Claude Code project settings. Do not create fake \`.codex/config.toml\` plugin blocks; use \`codex plugin marketplace add https://github.com/pj4316/vibe-recipe.git\` and user config bootstrap instead.
 - Use \`peek\` for read-only status before changing direction.
 - Use \`forage\` before \`recipe\` when library, vendor, API, architecture, or approach choices are unclear.
-- Use \`cook\` only for approved or in-progress specs. It orchestrates task work and preserves recipe scope.
+- Use \`cook\` only for approved or in-progress specs that have a \`plate\` plan. It orchestrates task work and preserves recipe scope.
 - Use \`fix\` for failing tests, regressions, production symptoms, or review/release blockers.
 - Use \`tidy\` only for behavior-preserving refactors and prove equivalence with tests, snapshots, commands, or manual checks.
 - Use \`taste\` after \`cook\`, \`fix\`, or \`tidy\` to review acceptance coverage, regression evidence, security, red-team risk, and next loop.

@@ -1,6 +1,6 @@
 ---
 name: autopilot
-description: /vr:autopilot 호출 시 사용합니다. 명시적으로 동의한 경우에만 forage -> recipe -> cook -> taste 흐름을 예산, 중단 조건, 체크포인트와 함께 자동 진행합니다. serve는 자동 실행하지 않습니다.
+description: /vr:autopilot 호출 시 사용합니다. 명시적으로 동의한 경우에만 forage -> recipe -> plate -> cook -> taste 흐름을 예산, 중단 조건, 체크포인트와 함께 자동 진행합니다. serve는 자동 실행하지 않습니다.
 ---
 
 # autopilot - 자동 운항
@@ -16,7 +16,7 @@ description: /vr:autopilot 호출 시 사용합니다. 명시적으로 동의한
 
 ## 역할 구분
 
-- `autopilot`은 `forage` -> `recipe` -> `cook` -> `taste` loop를 제한된 budget 안에서 조율합니다.
+- `autopilot`은 `forage` -> `recipe` -> `plate` -> `cook` -> `taste` loop를 제한된 budget 안에서 조율합니다.
 - `autopilot`은 subagent가 아니라 top-level orchestrator skill입니다.
 - 실제 구현은 `cook`, 실패 진단은 `fix`, review는 `taste`, release prep은 명시 요청이 있을 때만 `wrap`이 담당합니다.
 - `serve`, push, deploy, publish, auth/payment/data-loss 승인, spec approval은 자동 실행하거나 자동 승인하지 않습니다.
@@ -53,7 +53,7 @@ plugins/vibe-recipe/scripts/autopilot-run.mjs --repo . --status
 - 시작 시 stop point, 최대 turn 수, 최대 시간, 예산 cap, dry-run 여부를 정합니다.
 - 기본 stop point는 `taste` report입니다. `wrap`은 명시 요청이 있을 때만 실행하고, `serve`는 절대 자동 실행하지 않습니다.
 - `--dry-run` 모드에서는 계획, routing, 예상 변경 범위만 작성하고 파일을 수정하지 않습니다.
-- 승인된 spec 없이 `cook`, `fix`, `tidy`를 실행하지 않습니다. 사용자가 spec을 승인하기 전에는 `recipe` draft에서 멈춥니다.
+- 승인되고 plated된 spec 없이 `cook`, `fix`, `tidy`를 실행하지 않습니다. 사용자가 spec을 승인하기 전에는 `recipe` draft에서 멈춥니다.
 - human gate가 필요한 release/deploy/push, auth/payment/data-loss, external API side effect는 즉시 중단하고 승인 요청으로 바꿉니다.
 - 설정된 경우 phase 경계마다 checkpoint commit을 만들 수 있지만, dirty tree와 unrelated change가 있으면 commit하지 않습니다.
 - 모호성, scope 폭증, 반복 실패, BLOCK finding, 예산 초과, user-visible risk 증가가 발생하면 즉시 사람에게 중단 보고합니다.

@@ -1,6 +1,6 @@
 ---
 name: taste
-description: cook, fix, tidy 이후 recipe acceptance, task handoff, diff, verification evidence를 종합해 APPROVE / REQUEST_CHANGES / BLOCK verdict를 냅니다. /vr:taste 호출, merge 전 review, TDD loop 판정, security/red-team 검수가 필요할 때 사용합니다.
+description: cook, fix, tidy 이후 recipe/plate acceptance, task handoff, diff, verification evidence를 종합해 APPROVE / REQUEST_CHANGES / BLOCK verdict를 냅니다. /vr:taste 호출, merge 전 review, TDD loop 판정, security/red-team 검수가 필요할 때 사용합니다.
 ---
 
 # taste (review) - 맛보기

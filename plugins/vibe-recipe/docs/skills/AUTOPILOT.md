@@ -1,13 +1,13 @@
 # Autopilot 동작 문서
 
-`autopilot`은 사용자가 명시적으로 opt-in한 경우에만 `forage` -> `recipe` -> `cook` -> `taste` loop를 제한된 budget 안에서 조율하는 top-level orchestrator입니다. human approval이 필요한 결정을 대신 승인하지 않으며, `serve`, push, deploy, publish는 절대 자동 실행하지 않습니다.
+`autopilot`은 사용자가 명시적으로 opt-in한 경우에만 `forage` -> `recipe` -> `plate` -> `cook` -> `taste` loop를 제한된 budget 안에서 조율하는 top-level orchestrator입니다. human approval이 필요한 결정을 대신 승인하지 않으며, `serve`, push, deploy, publish는 절대 자동 실행하지 않습니다.
 
 ## 목표
 
 - run brief로 goal, stop point, budget, forbidden action을 고정합니다.
 - 접근 방식이 불명확하면 `forage`로 option과 proposed ADR을 만듭니다.
 - `recipe`로 spec을 만들고, 승인 전에는 구현으로 넘어가지 않습니다.
-- 승인된 spec만 `cook`으로 구현하고 `taste`로 review합니다.
+- spec이 충분하면 먼저 `plate`로 task breakdown을 만들고, 승인된 뒤 `cook`으로 구현하고 `taste`로 review합니다.
 - `taste` report에서 기본적으로 멈춥니다.
 - release-prep opt-in이 있을 때만 `wrap`까지 진행합니다.
 
@@ -67,11 +67,12 @@ node plugins/vibe-recipe/scripts/autopilot-run.mjs --repo . --status
 1. Preflight: `peek` 수준으로 git status, active spec, command profile, latest taste/wrap 상태를 확인합니다.
 2. Route: 접근 방식이나 vendor 선택이 불명확하면 `forage`를 사용합니다.
 3. Plan: `recipe`로 승인 가능한 spec을 만들거나 보강합니다.
-4. Approval gate: spec이 `Approved`가 아니면 멈추고 사용자 승인을 요청합니다.
-5. Execute: 승인된 spec을 `cook`으로 task 단위 구현합니다.
-6. Review: `taste`를 실행하고 verdict를 확인합니다.
-7. Loop: `REQUEST_CHANGES`는 taste report의 loop recommendation을 따라 bounded `cook` 또는 `fix` follow-up을 반복합니다. 기본값은 follow-up 최대 3회, 같은 recommendation 최대 2회, `taste` loop 최대 3회입니다. 같은 finding이 반복되고 blocker가 줄지 않으면 중단합니다. `BLOCK`은 즉시 중단합니다.
-8. Stop: 기본적으로 `taste` report에서 멈춥니다. release-prep opt-in이 있으면 `wrap`까지 진행합니다.
+4. Plate: 승인된 spec에 `plate` 구현 계획과 task breakdown이 없으면 먼저 작성합니다.
+5. Approval gate: spec이 `Approved`가 아니면 멈추고 사용자 승인을 요청합니다.
+6. Execute: 승인되고 plated된 spec을 `cook`으로 task 단위 구현합니다.
+7. Review: `taste`를 실행하고 verdict를 확인합니다.
+8. Loop: `REQUEST_CHANGES`는 taste report의 loop recommendation을 따라 bounded `cook` 또는 `fix` follow-up을 반복합니다. 기본값은 follow-up 최대 3회, 같은 recommendation 최대 2회, `taste` loop 최대 3회입니다. 같은 finding이 반복되고 blocker가 줄지 않으면 중단합니다. `BLOCK`은 즉시 중단합니다.
+9. Stop: 기본적으로 `taste` report에서 멈춥니다. release-prep opt-in이 있으면 `wrap`까지 진행합니다.
 
 ## Context hygiene
 

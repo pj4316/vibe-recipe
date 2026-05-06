@@ -24,7 +24,7 @@ description: /vr:tidy 호출 시 사용합니다. 동작 변경 없이 구조를
 - shallow module 제거 또는 deep module 재구성이 목표여야 합니다. 새 계층 추가 자체를 목표로 삼지 않습니다.
 - 관련 active spec, design note, ADR, command profile, 이전 handoff를 필요한 범위에서 읽었습니다.
 - `git status --short`로 작업 트리를 확인했고, 관련 없는 사용자 변경을 되돌리지 않습니다.
-- public API, migration, data model, user-visible behavior 변경이 필요하면 `tidy`가 아니라 `recipe` 또는 `cook`으로 라우팅합니다.
+- public API, migration, data model, user-visible behavior 변경이 필요하면 `tidy`가 아니라 `recipe` 또는 `plate`/`cook`으로 라우팅합니다.
 
 ## Refactor scope
 
@@ -34,7 +34,7 @@ description: /vr:tidy 호출 시 사용합니다. 동작 변경 없이 구조를
 | shallow wrapper 제거, deep module extraction | 허용 | 호출부 interface가 더 단순해지는지 확인 |
 | design-system migration | 조건부 허용 | token/pattern 결정은 `recipe`, 코드 이관은 `tidy` |
 | performance-neutral simplification | 허용 | behavior와 complexity risk를 함께 확인 |
-| feature addition, acceptance 변경 | 금지 | `recipe`/`cook`으로 escalation |
+| feature addition, acceptance 변경 | 금지 | `recipe`/`plate`/`cook`으로 escalation |
 | schema/data migration, public contract 변경 | 금지 | 별도 spec과 human gate 필요 |
 
 ## 흐름
@@ -62,7 +62,7 @@ description: /vr:tidy 호출 시 사용합니다. 동작 변경 없이 구조를
 - deep module을 선호합니다. 호출부에는 작은 interface를 제공하고 내부에서 복잡도, policy, error handling을 책임집니다.
 - shallow module을 지양합니다. 단순 wrapper나 책임 없는 pass-through layer는 제거하거나 더 깊은 module로 합칩니다.
 - Hexagonal architecture나 ports-and-adapters는 boundary와 testability를 개선할 때만 사용합니다.
-- module boundary 변경이 product behavior를 바꾸면 `tidy`가 아니라 `recipe` 또는 `cook`으로 라우팅합니다.
+- module boundary 변경이 product behavior를 바꾸면 `tidy`가 아니라 `recipe` 또는 `plate`/`cook`으로 라우팅합니다.
 
 ## Subagent 사용
 

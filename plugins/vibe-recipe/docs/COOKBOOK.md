@@ -16,6 +16,7 @@ Run one safe loop before real feature work:
 
 ```text
 /vr:recipe
+/vr:plate
 /vr:cook
 /vr:taste
 /vr:wrap
@@ -30,15 +31,16 @@ Use:
 ```text
 /vr:forage
 /vr:recipe
+/vr:plate
 /vr:cook
 /vr:taste
 ```
 
-Skip `forage` when the approach is obvious.
+Skip `forage` when the approach is obvious. Do not skip `plate`; `cook` expects an implementation plan and executable task list.
 
 ## Autopilot Loop
 
-After `recipe` has an approved active spec, use Ralph-style fresh iterations:
+After `recipe` has an approved active spec and `plate` has produced task breakdown, use Ralph-style fresh iterations:
 
 ```bash
 node plugins/vibe-recipe/scripts/autopilot-run.mjs --repo . --tool codex --max-iterations 10

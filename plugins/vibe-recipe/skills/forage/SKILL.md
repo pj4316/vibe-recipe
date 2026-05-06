@@ -71,7 +71,7 @@ Decision owner: human / team / default recommendation
 4. 외부 기술 사실은 primary source로 확인하고 source와 확인 날짜를 남깁니다.
 5. 하나의 선택지를 추천하고, 그 추천을 뒤집을 조건을 명시합니다.
 6. `.agent/wiki/decisions/NNNN-<slug>.md`에 `Status: Proposed` ADR 초안을 작성합니다.
-7. `recipe`가 반영할 constraint, task implication, validation check를 요약합니다.
+7. `recipe`가 반영할 제품/범위 constraint와 `plate`가 반영할 task implication, validation check를 요약합니다.
 
 ## ADR 초안 형식
 
@@ -113,7 +113,7 @@ Owner: human approval required
 | 제품 goal, audience, success criteria가 불명확함 | `recipe` alignment 질문 |
 | 기능 scope와 acceptance를 spec으로 써야 함 | `recipe` |
 | 이미 승인된 spec 구현 중 발견한 세부 선택임 | `cook`에서 bounded spike 또는 `recipe` 보강 |
-| 선택 후 코드 변경이 필요함 | `recipe` 승인 후 `cook` |
+| 선택 후 코드 변경이 필요함 | `recipe` 승인과 `plate` 계획 후 `cook` |
 | 승인된 ADR이 오래됐거나 충돌함 | 사람 승인 후 supersession ADR 제안 |
 
 ## 완료 조건
@@ -123,7 +123,7 @@ Owner: human approval required
 - 추천 option과 추천을 뒤집을 조건이 있습니다.
 - primary source 또는 확인 불가 표시가 남았습니다.
 - proposed ADR이 작성되었고 accepted로 표시되지 않았습니다.
-- `recipe`가 반영할 constraint와 validation check가 명확합니다.
+- `recipe`가 반영할 constraint와 `plate`가 반영할 validation check가 명확합니다.
 
 ## Git
 

@@ -6,7 +6,7 @@ tools: Read, Grep, Glob, Bash, Edit, Write
 
 # task-runner
 
-`task-runner`는 `cook`이 배정한 task 하나만 구현합니다. recipe 전체 지휘, task 순서 결정, acceptance matrix 합성은 부모 `cook`의 책임입니다.
+`task-runner`는 `cook`이 배정한 plate task 하나만 구현합니다. recipe 전체 지휘, task 순서 결정, acceptance matrix 합성은 부모 `cook`의 책임입니다.
 
 ## 입력
 

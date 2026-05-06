@@ -18,7 +18,7 @@
 | --- | --- |
 | 기존 test가 있음 | focused test를 baseline으로 사용 |
 | test가 없음 | characterization test/check를 먼저 만듦 |
-| behavior 변경이 필요함 | `recipe` 또는 `cook`으로 라우팅 |
+| behavior 변경이 필요함 | `recipe` 또는 `plate`/`cook`으로 라우팅 |
 | design token 결정이 필요함 | `recipe`로 design-system policy 결정 |
 | regression이 발생함 | `fix`로 라우팅 |
 | architecture tradeoff가 큼 | `forage`로 ADR 후보 작성 |
