@@ -119,7 +119,7 @@ Status: fixed / blocked / escalated
 - 수정이 원인에 비례해 작고, unrelated change를 되돌리지 않았습니다.
 - regression coverage 또는 manual 재현 절차가 남았습니다.
 - focused command와 가능한 상위 검증 결과가 기록되어 있습니다.
-- 다음 단계가 `taste`, `recipe`, `cook`, `tidy`, `wrap` 중 하나로 분명합니다.
+- 다음 단계가 `taste`, `recipe`, `plate`, `cook`, `tidy`, `wrap` 중 하나로 분명합니다.
 
 ## Git
 

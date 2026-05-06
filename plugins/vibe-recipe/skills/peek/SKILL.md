@@ -51,7 +51,8 @@ description: /vr:peek 호출 시 사용합니다. active spec, git 상태, pendi
 | --- | --- |
 | `ready` | 다음 skill을 바로 실행할 수 있습니다. |
 | `needs-plan` | active approved spec이 없어 `recipe`가 필요합니다. |
-| `needs-work` | approved/in-progress spec의 task가 남아 `cook`이 필요합니다. |
+| `needs-plate` | active spec은 있지만 구현 계획과 task breakdown이 없어 `plate`가 필요합니다. |
+| `needs-work` | approved/in-progress plated spec의 task가 남아 `cook`이 필요합니다. |
 | `needs-review` | 변경이 있고 최신 `taste`가 없거나 오래됐습니다. |
 | `blocked` | failing review, missing verify, dirty release state, human gate 미승인이 있습니다. |
 | `release-ready` | latest `taste APPROVE`, clean tree, wrap/serve 전 단계가 명확합니다. |
@@ -62,8 +63,9 @@ description: /vr:peek 호출 시 사용합니다. active spec, git 상태, pendi
 | --- | --- |
 | 제품 의도나 scope가 불명확함 | `recipe`에서 alignment 질문 |
 | active spec이 없거나 draft 작성이 필요함 | `recipe` |
+| active spec에 `Plate 상태: Planned`가 없음 | `plate` |
 | 기술 선택이 blocking함 | `forage` |
-| approved task가 남아 있음 | `cook` |
+| approved plated task가 남아 있음 | `cook` |
 | 실패나 regression이 보임 | `fix` |
 | 변경 검수가 필요함 | `taste` |
 | 구조 개선만 남음 | `tidy` |
@@ -83,7 +85,7 @@ description: /vr:peek 호출 시 사용합니다. active spec, git 상태, pendi
 
 ```markdown
 # Peek Status
-Status: ready / needs-plan / needs-work / needs-review / blocked / release-ready
+Status: ready / needs-plan / needs-plate / needs-work / needs-review / blocked / release-ready
 
 ## Now
 - Branch:

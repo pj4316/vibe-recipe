@@ -6,11 +6,11 @@
 
 ## 목표
 
-- recipe acceptance matrix와 task-runner handoff를 읽고 요구사항 충족 여부를 확인합니다.
+- recipe acceptance, plate task mapping, task-runner handoff를 읽고 요구사항 충족 여부를 확인합니다.
 - focused command, `test`, `e2e`, `verify`, manual check 증거를 분리합니다.
 - `tester`, `reviewer`, `security-auditor`, `red-team` 결과를 합성합니다.
 - merge blocker와 follow-up concern을 구분합니다.
-- 다음 loop를 `cook`, `fix`, `recipe`, `tidy`, `wrap`, `serve` 중 하나로 명확히 추천합니다.
+- 다음 loop를 `plate`, `cook`, `fix`, `recipe`, `tidy`, `wrap`, `serve` 중 하나로 명확히 추천합니다.
 - review report를 현재 spec 번호에 맞는 `.agent/spec/handoffs/NNNN-taste.md`에 남겨 `peek`, `wrap`, `serve`가 같은 spec의 최신 verdict를 재사용할 수 있게 합니다.
 - blocked 또는 request_changes면 reason만이 아니라 why/how-to-unblock도 함께 남깁니다.
 

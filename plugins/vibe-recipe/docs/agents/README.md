@@ -6,7 +6,7 @@
 
 | Agent | 주 사용 흐름 | 기능 |
 | --- | --- | --- |
-| `planner` | `recipe` | 사용자 요구사항을 numbered spec으로 만들기 전에 질문, scope, acceptance criteria, task 분해를 검토합니다. |
+| `planner` | `recipe` | 사용자 요구사항을 numbered 제품 spec으로 만들기 전에 질문, scope, user story, acceptance criteria를 검토합니다. |
 | `task-runner` | `cook` | `cook`이 배정한 task 하나를 red -> green -> refactor로 구현하고 task handoff를 반환합니다. |
 | `implementor` | `fix`, `tidy`, `cook` 보조 | 승인된 spec의 task 하나를 가장 작은 완결 behavior slice로 구현하고 handoff를 남깁니다. |
 | `tester` | `cook`, `taste` | acceptance criteria를 test/manual check로 증명하고 `test`, `e2e`, `verify`, Playwright MCP 필요 여부를 판단합니다. |
@@ -31,7 +31,7 @@
 ## 공통 계약
 
 - 작업 시작 전 `AGENTS.md`, `.agent/constitution.md`, active spec, `.agent/spec/design.md`, `.agent/commands.json`을 필요한 범위에서 읽습니다.
-- `recipe`가 승인한 spec 없이 `cook` 계열 작업을 시작하지 않습니다.
+- `recipe`가 승인하고 `plate`가 계획한 spec 없이 `cook` 계열 작업을 시작하지 않습니다.
 - 구현 흐름은 `Task 0`의 실패 test 또는 executable acceptance check를 우선합니다.
 - UI/browser 변경은 `e2e` command 또는 Playwright MCP 검증 계획과 연결합니다.
 - release, deploy, push, auth/payment/data-loss 작업은 human gate를 요구합니다.

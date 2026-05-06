@@ -11,7 +11,7 @@
 - 외부 기술 사실은 primary source 중심으로 확인합니다.
 - 추천 option, tradeoff, risk, migration cost, reversal condition을 남깁니다.
 - `.agent/wiki/decisions/NNNN-<slug>.md`에 proposed ADR을 작성합니다.
-- `recipe`가 반영할 constraint, validation check, task implication을 전달합니다.
+- `recipe`가 반영할 제품/범위 constraint와 `plate`가 반영할 validation check, task implication을 전달합니다.
 
 ## 시작 조건
 
