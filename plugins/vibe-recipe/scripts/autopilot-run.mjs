@@ -26,6 +26,7 @@ Options:
                              Maximum consecutive retries for the same cook/fix recommendation. Default: 2.
   --max-taste-loops N        Maximum REQUEST_CHANGES taste loops. Default: 3.
   --stop-point taste|wrap    Stop after taste report or wrap summary. Default: taste.
+  --all-approved             Plan against every Approved/In Progress active spec.
   --dry-run                  Print the next prompt and update no files.
   --once                     Run at most one fresh-agent iteration.
   --status                   Show active spec and next task without running an agent.
@@ -40,6 +41,7 @@ const options = {
   maxSameRecommendationRetries: 2,
   maxTasteLoops: 3,
   stopPoint: "taste",
+  allApproved: false,
   dryRun: false,
   once: false,
   statusOnly: false,
@@ -82,6 +84,7 @@ for (let i = 2; i < process.argv.length; i += 1) {
   else if (arg.startsWith("--max-taste-loops=")) options.maxTasteLoops = parsePositiveInt(arg.slice("--max-taste-loops=".length), "--max-taste-loops");
   else if (arg === "--stop-point") options.stopPoint = readValue("--stop-point");
   else if (arg.startsWith("--stop-point=")) options.stopPoint = arg.slice("--stop-point=".length);
+  else if (arg === "--all-approved") options.allApproved = true;
   else if (arg === "--dry-run") options.dryRun = true;
   else if (arg === "--once") options.once = true;
   else if (arg === "--status") options.statusOnly = true;
@@ -171,14 +174,40 @@ function writeState(specPath, iteration, lastTask, lastStatus) {
 
 function listSpecFiles(dir) {
   if (!existsSync(dir)) return [];
-  return readdirSync(dir)
-    .filter((entry) => /^[0-9]{4}-.*\.md$/.test(entry))
-    .sort()
-    .map((entry) => join(dir, entry));
+  return readdirSync(dir, { withFileTypes: true })
+    .flatMap((entry) => {
+      if (entry.isFile() && /^[0-9]{4}-.*\.md$/.test(entry.name)) {
+        return [join(dir, entry.name)];
+      }
+      if (entry.isDirectory() && /^[0-9]{4}-/.test(entry.name) && existsSync(join(dir, entry.name, "spec.md"))) {
+        return [join(dir, entry.name, "spec.md")];
+      }
+      return [];
+    })
+    .sort();
 }
 
 function activeSpec() {
   return listSpecFiles(join(agentDir, "spec/active"))[0] || "";
+}
+
+function activeSpecs() {
+  return listSpecFiles(join(agentDir, "spec/active"));
+}
+
+function isFolderSpec(specPath) {
+  return basename(specPath) === "spec.md";
+}
+
+function taskSourcePath(specPath) {
+  const siblingTasks = join(dirname(specPath), "tasks.md");
+  return isFolderSpec(specPath) && existsSync(siblingTasks) ? siblingTasks : specPath;
+}
+
+function memoryPath(specPath) {
+  return isFolderSpec(specPath)
+    ? join(dirname(specPath), "memory.md")
+    : join(agentDir, "spec", "handoffs", `${specNumberFromPath(specPath)}-memory.md`);
 }
 
 function specStatus(path) {
@@ -187,15 +216,79 @@ function specStatus(path) {
 }
 
 function specNumberFromPath(path) {
-  return basename(path).slice(0, 4);
+  return isFolderSpec(path) ? basename(dirname(path)).slice(0, 4) : basename(path).slice(0, 4);
+}
+
+function specSlugFromPath(specPath) {
+  const base = isFolderSpec(specPath) ? basename(dirname(specPath)) : basename(specPath, ".md");
+  return base.slice(5);
+}
+
+function ensureMemoryFile(specPath) {
+  const path = memoryPath(specPath);
+  if (!existsSync(path)) {
+    writeText(path, "# Memory\n\n## Shared\n");
+  }
+  return path;
+}
+
+function appendMemorySection(specPath, title, body) {
+  const path = ensureMemoryFile(specPath);
+  const existing = readText(path).trimEnd();
+  writeText(path, `${existing}\n\n## ${title}\n${body.trim()}\n`);
+}
+
+function extractLatestSection(body, headingPattern) {
+  const lines = body.split(/\r?\n/);
+  const sections = [];
+  let current = null;
+
+  for (const line of lines) {
+    const heading = line.match(/^##\s+(.*)$/);
+    if (heading) {
+      if (current) sections.push(current);
+      current = { title: heading[1].trim(), lines: [line] };
+      continue;
+    }
+    if (current) current.lines.push(line);
+  }
+  if (current) sections.push(current);
+
+  const match = [...sections].reverse().find((section) => headingPattern.test(section.title));
+  return match ? match.lines.join("\n").trim() : "";
+}
+
+function tasteReportText(reportPath) {
+  if (!reportPath || !existsSync(reportPath)) return "";
+  const body = readText(reportPath);
+  if (basename(reportPath) !== "memory.md") return body;
+  return extractLatestSection(body, /^Taste Report\b/i);
+}
+
+function extractStructuredSection(text, name) {
+  const lines = text.split(/\r?\n/);
+  const matcher = new RegExp(`^#{2,3}\\s+${name}\\b`, "i");
+  const section = [];
+  let inSection = false;
+
+  for (const line of lines) {
+    if (matcher.test(line)) {
+      inSection = true;
+      continue;
+    }
+    if (inSection && /^#{2,3}\s+/.test(line)) break;
+    if (inSection) section.push(line);
+  }
+
+  return section.join("\n").trim();
 }
 
 function taskLines(specPath) {
-  return readText(specPath).split(/\r?\n/).map((line, index) => ({ line, index }));
+  return readText(taskSourcePath(specPath)).split(/\r?\n/).map((line, index) => ({ line, index }));
 }
 
 function parseTaskBlocks(specPath) {
-  const lines = readText(specPath).split(/\r?\n/);
+  const lines = readText(taskSourcePath(specPath)).split(/\r?\n/);
   const tasks = [];
   let current = null;
   const taskHeader = /^- \[([ xX])\] Task ([0-9]+):\s*(.*)$/;
@@ -225,14 +318,14 @@ function parseTaskBlocks(specPath) {
 }
 
 function parseExecutionOrder(specPath) {
-  const lines = readText(specPath).split(/\r?\n/);
+  const lines = readText(taskSourcePath(specPath)).split(/\r?\n/);
   let inSection = false;
   let hasSection = false;
   let hasPhaseOrder = false;
   const waves = [];
 
   for (const line of lines) {
-    if (/^## 실행 순서\b/.test(line)) {
+    if (/^## 실행 순서/.test(line)) {
       inSection = true;
       hasSection = true;
       continue;
@@ -263,19 +356,25 @@ function doneTaskCount(specPath) {
   return parseTaskBlocks(specPath).filter((task) => task.done).length;
 }
 
-function nextTaskLine(specPath) {
+function nextTaskPlan(specPath) {
   const tasks = parseTaskBlocks(specPath);
-  if (!tasks.length) return null;
+  if (!tasks.length) return { next: null, blocked: "" };
   const executionOrder = parseExecutionOrder(specPath);
   if (!executionOrder.hasSection || !executionOrder.hasPhaseOrder || !executionOrder.waves.length) {
-    fail("BLOCKED: spec is missing a valid ## 실행 순서 section with Phase order and wave entries. Run plate before autopilot.");
+    return {
+      next: null,
+      blocked: "BLOCKED: spec is missing a valid ## 실행 순서 section with Phase order and wave entries. Run plate before autopilot.",
+    };
   }
 
   const required = ["phase", "story", "covers", "write scope", "dependency", "wave", "parallel", "check"];
   for (const task of tasks) {
     const missing = required.filter((key) => !task.metadata[key]);
     if (missing.length) {
-      fail(`BLOCKED: Task ${task.number} is missing plate metadata: ${missing.join(", ")}. Run plate before autopilot.`);
+      return {
+        next: null,
+        blocked: `BLOCKED: Task ${task.number} is missing plate metadata: ${missing.join(", ")}. Run plate before autopilot.`,
+      };
     }
   }
 
@@ -283,7 +382,10 @@ function nextTaskLine(specPath) {
     .map((task) => normalizeWave(task.metadata.wave))
     .filter((wave, index, all) => wave && all.indexOf(wave) === index && !executionOrder.waves.includes(wave));
   if (missingWaves.length) {
-    fail(`BLOCKED: execution order is missing wave entries for ${missingWaves.join(", ")}. Run plate before autopilot.`);
+    return {
+      next: null,
+      blocked: `BLOCKED: execution order is missing wave entries for ${missingWaves.join(", ")}. Run plate before autopilot.`,
+    };
   }
 
   const done = new Set(tasks.filter((task) => task.done).map((task) => task.number));
@@ -296,16 +398,27 @@ function nextTaskLine(specPath) {
     for (const task of pending) {
       const deps = dependencyTaskNumbers(task.metadata.dependency);
       const missingDeps = deps.filter((dep) => !done.has(dep));
-      if (!missingDeps.length) return task;
+      if (!missingDeps.length) return { next: task, blocked: "" };
     }
 
     const blocked = pending
       .map((task) => `Task ${task.number} waits for ${dependencyTaskNumbers(task.metadata.dependency).filter((dep) => !done.has(dep)).map((dep) => `Task ${dep}`).join(", ")}`)
       .join("; ");
-    fail(`BLOCKED: no runnable task in ${wave}. ${blocked}`);
+    return {
+      next: null,
+      blocked: `BLOCKED: no runnable task in ${wave}. ${blocked}`,
+    };
   }
 
-  return null;
+  return { next: null, blocked: "" };
+}
+
+function nextTaskLine(specPath) {
+  const plan = nextTaskPlan(specPath);
+  if (plan.blocked) {
+    fail(plan.blocked);
+  }
+  return plan.next;
 }
 
 function normalizeWave(value) {
@@ -335,7 +448,8 @@ function ensureCleanTree() {
 }
 
 function markTaskDone(specPath, taskNumber) {
-  const lines = readText(specPath).split(/\r?\n/);
+  const source = taskSourcePath(specPath);
+  const lines = readText(source).split(/\r?\n/);
   let changed = false;
   const updated = lines.map((line) => {
     if (!changed && new RegExp(`^- \\[ \\] Task ${taskNumber}:`).test(line)) {
@@ -344,7 +458,7 @@ function markTaskDone(specPath, taskNumber) {
     }
     return line;
   });
-  writeText(specPath, updated.join("\n"));
+  writeText(source, updated.join("\n"));
 }
 
 function taskHandoffPath(specPath, taskNumber) {
@@ -356,8 +470,43 @@ function tasteReportPath(specPath) {
 }
 
 function latestTasteReport(specPath) {
+  if (isFolderSpec(specPath)) {
+    const memory = memoryPath(specPath);
+    if (tasteReportText(memory)) return memory;
+  }
   const report = tasteReportPath(specPath);
   return existsSync(report) ? report : "";
+}
+
+function approvedActiveSpecs() {
+  return activeSpecs().filter((specPath) => /^(Approved|In Progress)\b/.test(specStatus(specPath)));
+}
+
+function printAllApprovedPlan(specs) {
+  console.log("Autopilot all-approved plan");
+  console.log(`- Repo: ${repo}`);
+  console.log(`- Specs: ${specs.length}`);
+  for (const specPath of specs) {
+    const plan = nextTaskPlan(specPath);
+    const next = plan.next;
+    const total = taskCount(specPath);
+    const done = doneTaskCount(specPath);
+    console.log(`\nSpec: ${relativePath(specPath)}`);
+    console.log(`- Status: ${specStatus(specPath)}`);
+    console.log(`- Tasks: ${done}/${total} done`);
+    console.log(`- Task source: ${relativePath(taskSourcePath(specPath))}`);
+    console.log(`- Memory: ${relativePath(memoryPath(specPath))}`);
+    if (plan.blocked) {
+      console.log("- Next task: blocked");
+      console.log(`- Blocker: ${plan.blocked.replace(/^BLOCKED:\s*/, "")}`);
+    } else if (next) {
+      console.log(`- Next task: Task ${next.number} - ${next.title}`);
+      console.log(`- Next wave: ${next.metadata.wave}`);
+      console.log(`- Write scope: ${next.metadata["write scope"] || "missing"}`);
+    } else {
+      console.log("- Next task: none; taste is next");
+    }
+  }
 }
 
 function autopilotVerdictFromOutput(output) {
@@ -386,33 +535,18 @@ function recommendedFollowupFromOutput(output) {
 }
 
 function tasteBlockerCount(report) {
-  if (!existsSync(report)) return 0;
-  const lines = readText(report).split(/\r?\n/);
-  let inSection = false;
-  let count = 0;
-  for (const line of lines) {
-    if (/^## Findings/.test(line)) {
-      inSection = true;
-      continue;
-    }
-    if (inSection && /^## /.test(line)) break;
-    if (inSection && line.includes("BLOCKER")) count += 1;
-  }
-  return count;
+  const findings = extractStructuredSection(tasteReportText(report), "Findings");
+  return findings ? findings.split(/\r?\n/).filter((line) => line.includes("BLOCKER")).length : 0;
 }
 
 function tasteFingerprint(report) {
-  if (!existsSync(report)) return "";
-  const lines = readText(report).split(/\r?\n/);
-  let section = "";
-  const selected = [];
-  for (const line of lines) {
-    if (/^## Findings/.test(line)) section = "findings";
-    else if (/^## Coverage Gap/.test(line)) section = "gap";
-    else if (/^## Loop Recommendation/.test(line)) section = "loop";
-    else if (/^## /.test(line)) section = "";
-    if (section) selected.push(line);
-  }
+  const text = tasteReportText(report);
+  if (!text) return "";
+  const selected = [
+    extractStructuredSection(text, "Findings"),
+    extractStructuredSection(text, "Coverage Gap"),
+    extractStructuredSection(text, "Loop Recommendation"),
+  ].filter(Boolean);
   return createHash("sha256")
     .update(selected.join("\n").toLowerCase().replace(/\s+/g, " "))
     .digest("hex")
@@ -420,13 +554,14 @@ function tasteFingerprint(report) {
 }
 
 function tasteReleaseReadiness(report) {
-  if (!existsSync(report)) return "";
-  return readText(report).match(/^Release readiness:\s*(.+)$/m)?.[1]?.trim() || "";
+  return tasteReportText(report).match(/^Release readiness:\s*(.+)$/m)?.[1]?.trim() || "";
 }
 
-function writeSelfHealedTaskHandoff(path, specRel, taskNumber, taskTitle, taskMeta, output) {
-  writeText(path, `# Task Handoff: Task ${taskNumber}
-Status: done
+function writeSelfHealedTaskHandoff(specPath, path, specRel, taskNumber, taskTitle, taskMeta, output) {
+  const summary = isFolderSpec(specPath)
+    ? "Fresh agent returned `<autopilot>DONE</autopilot>`, and the runner recorded a coordination summary in memory.md so later iterations keep the latest context."
+    : "Fresh agent returned `<autopilot>DONE</autopilot>`, but the expected task handoff file was missing. The runner synthesized this handoff to keep coordination state aligned.";
+  const body = `Status: done
 Source spec: ${specRel}
 Generated by: autopilot runner self-heal
 Task: ${taskTitle}
@@ -435,43 +570,56 @@ Story: ${taskMeta.story || ""}
 Wave: ${taskMeta.wave || ""}
 Covers: ${taskMeta.covers || ""}
 
-## Summary
-Fresh agent returned \`<autopilot>DONE</autopilot>\`, but the expected task handoff file was missing. The runner synthesized this handoff to keep coordination state aligned.
+### Summary
+${summary}
 
-## Evidence
+### Evidence
 ${outputBullets(output)}
 
-## Next
+### Next
 Use the existing spec and diff as the source of truth if a richer handoff is needed later.
-`);
+`;
+  if (isFolderSpec(specPath)) {
+    appendMemorySection(specPath, `Task ${taskNumber} (autopilot runner)`, body);
+    return;
+  }
+  writeText(path, `# Task Handoff: Task ${taskNumber}
+${body}`);
 }
 
-function writeSelfHealedFollowupHandoff(path, specRel, recommendedSkill, output) {
-  writeText(path, `# ${recommendedSkill.toUpperCase()} Follow-up Handoff
-Status: done
+function writeSelfHealedFollowupHandoff(specPath, path, specRel, recommendedSkill, output) {
+  const summary = isFolderSpec(specPath)
+    ? "Fresh agent returned `<autopilot>DONE</autopilot>`, and the runner recorded the follow-up summary in memory.md so the next taste iteration sees the latest context."
+    : "Fresh agent returned `<autopilot>DONE</autopilot>`, but the expected follow-up handoff file was missing. The runner synthesized this handoff so the loop can continue without user cleanup.";
+  const body = `Status: done
 Source spec: ${specRel}
 Generated by: autopilot runner self-heal
 Loop skill: ${recommendedSkill}
 
-## Summary
-Fresh agent returned \`<autopilot>DONE</autopilot>\`, but the expected follow-up handoff file was missing. The runner synthesized this handoff so the loop can continue without user cleanup.
+### Summary
+${summary}
 
-## Evidence
+### Evidence
 ${outputBullets(output)}
 
-## Next
+### Next
 Re-run \`taste\` against the current diff and this spec.
-`);
+`;
+  if (isFolderSpec(specPath)) {
+    appendMemorySection(specPath, `${recommendedSkill.toUpperCase()} Follow-up`, body);
+    return;
+  }
+  writeText(path, `# ${recommendedSkill.toUpperCase()} Follow-up Handoff
+${body}`);
 }
 
 function writeSelfHealedTasteReport(path, specPath, specRel, verdict, recommendedSkill, output) {
-  const specBase = basename(specPath, ".md");
   const specNumber = specNumberFromPath(specPath);
-  const specSlug = specBase.slice(5);
+  const specSlug = specSlugFromPath(specPath);
   const nextSkill = verdict === "APPROVE" ? "wrap" : verdict === "REQUEST_CHANGES" ? (recommendedSkill || "cook") : "recipe";
   const releaseReadiness = verdict === "APPROVE" ? "Ready for Wrap" : "Not Ready";
-  writeText(path, `# Taste Report: ${specNumber} ${specSlug}
-Verdict: ${verdict}
+  const detailHeading = isFolderSpec(specPath) ? "###" : "##";
+  const body = `Verdict: ${verdict}
 Release readiness: ${releaseReadiness}
 Reason: runner self-healed a missing taste report from the fresh-agent verdict.
 Source spec: ${specRel}
@@ -480,28 +628,34 @@ Handoff source: autopilot runner self-heal
 Evidence refs:
 - Fresh-agent output captured by the runner for this iteration.
 
-## Summary
+${detailHeading} Summary
 Fresh agent returned \`${verdict}\`, but the expected taste report file was missing. The runner synthesized this report so downstream coordination can proceed without manual cleanup.
 
-## Verification
+${detailHeading} Verification
 - Regression: see evidence excerpt below.
 - Acceptance coverage: not normalized by the runner.
 - Project verify: not normalized by the runner.
 - Manual checks: not recorded by the runner.
 
-## Findings
+${detailHeading} Findings
 - CONCERN: the original taste iteration omitted its structured report, so this synthesized report preserves only the runner-visible evidence.
 
-## Coverage Gap
+${detailHeading} Coverage Gap
 The original iteration did not leave the expected structured taste artifact.
 
-## Loop Recommendation
+${detailHeading} Loop Recommendation
 Recommended skill: ${nextSkill}
 Reason: proceed according to the verdict while keeping the synthesized report as the coordination source.
 
-## Evidence Excerpt
+${detailHeading} Evidence Excerpt
 ${outputBullets(output)}
-`);
+`;
+  if (isFolderSpec(specPath)) {
+    appendMemorySection(specPath, "Taste Report", body);
+    return;
+  }
+  writeText(path, `# Taste Report: ${specNumber} ${specSlug}
+${body}`);
 }
 
 function followupHandoffPath(specPath, skill) {
@@ -509,31 +663,30 @@ function followupHandoffPath(specPath, skill) {
 }
 
 function tasteLoopRecommendation(report) {
-  if (!existsSync(report)) return "";
-  const lines = readText(report).split(/\r?\n/);
-  let inSection = false;
-  const section = [];
-  for (const line of lines) {
-    if (/^## Loop Recommendation/.test(line)) {
-      inSection = true;
-      continue;
-    }
-    if (inSection && /^## /.test(line)) break;
-    if (inSection) section.push(line);
-  }
-  return section.join("\n").match(/\b(cook|fix)\b/i)?.[1]?.toLowerCase() || "";
+  return extractStructuredSection(tasteReportText(report), "Loop Recommendation").match(/\b(cook|fix)\b/i)?.[1]?.toLowerCase() || "";
 }
 
 function buildTaskPrompt(specRel, taskNumber, taskTitle, taskMeta) {
-  const specNumber = basename(specRel).slice(0, 4);
+  const specNumber = specRel.split("/").find((part) => /^[0-9]{4}-/.test(part))?.slice(0, 4) || basename(specRel).slice(0, 4);
+  const folderSpec = specRel.endsWith("/spec.md");
+  const specDirRel = dirname(specRel);
+  const tasksRel = folderSpec ? `${specDirRel}/tasks.md` : specRel;
+  const memoryRel = folderSpec ? `${specDirRel}/memory.md` : "";
+  const readContextLine = folderSpec
+    ? `- ${memoryRel} if present`
+    : `- legacy handoffs under .agent/spec/handoffs/${specNumber}-*.md if present`;
+  const writeGuard = folderSpec
+    ? `- Do not edit ${tasksRel} or ${memoryRel}; return changed files, commands, findings, and risks so the runner/cook can update coordination state.`
+    : `- Do not edit ${tasksRel}; use existing legacy handoffs only as read-only context.`;
   return `You are a fresh vibe-recipe autopilot iteration. Work in exactly one bounded slice.
 
 Read:
 - AGENTS.md
 - ${specRel}
+- ${tasksRel}
+${readContextLine}
 - .agent/commands.json
 - .agent/autopilot/progress.md if present
-- relevant handoffs under .agent/spec/handoffs/
 
 Task:
 - Use the cook/dev contract.
@@ -547,7 +700,7 @@ Task:
 - Check: ${taskMeta.check}
 - Preserve unrelated user changes and do not expand scope.
 - Do not mark the task checkbox yourself; the runner will mark it after completion.
-- Write or update the task handoff at .agent/spec/handoffs/${specNumber}-task${taskNumber}.md.
+${writeGuard}
 - Run the focused check for this task, then the relevant test command, and verify when practical.
 
 Forbidden:
@@ -563,12 +716,20 @@ Final response contract:
 `;
 }
 
-function buildTastePrompt(specRel, specNumber) {
+function buildTastePrompt(specPath, specRel, specNumber) {
+  const folderSpec = isFolderSpec(specPath);
+  const memoryRel = relativePath(memoryPath(specPath));
+  const readContext = folderSpec
+    ? `Read AGENTS.md, the active spec folder, ${memoryRel} if present, git diff, and .agent/commands.json.`
+    : "Read AGENTS.md, the active spec, cook/task handoffs, git diff, and .agent/commands.json.";
+  const writeTarget = folderSpec
+    ? `Append the taste report to ${memoryRel} under a new \`## Taste Report\` section. Inside that section, use \`### Summary\`, \`### Verification\`, \`### Findings\`, \`### Coverage Gap\`, and \`### Loop Recommendation\` headings.`
+    : `Write the taste report to .agent/spec/handoffs/${specNumber}-taste.md.`;
   return `You are a fresh vibe-recipe autopilot review iteration.
 
 Use the taste/review contract for ${specRel}.
-Read AGENTS.md, the active spec, cook/task handoffs, git diff, and .agent/commands.json.
-Write the taste report to .agent/spec/handoffs/${specNumber}-taste.md.
+${readContext}
+${writeTarget}
 Ensure the report includes the required Release readiness line.
 Do not modify product code or spec scope.
 
@@ -599,13 +760,22 @@ Final response contract:
 `;
 }
 
-function buildFollowupPrompt(specRel, tasteReportRel, recommendedSkill, followupHandoffRel) {
+function buildFollowupPrompt(specPath, specRel, tasteReportRel, recommendedSkill, followupHandoffRel) {
+  const folderSpec = isFolderSpec(specPath);
+  const tasksRel = relativePath(taskSourcePath(specPath));
+  const memoryRel = relativePath(memoryPath(specPath));
+  const readContext = folderSpec
+    ? `Read AGENTS.md, ${specRel}, ${tasksRel}, ${memoryRel} if present, the latest taste report section inside ${tasteReportRel}, git diff, and .agent/commands.json.`
+    : `Read AGENTS.md, ${specRel}, ${tasteReportRel}, relevant task handoffs, and .agent/commands.json.`;
+  const writeInstruction = folderSpec
+    ? `Do not edit ${tasksRel} or ${memoryRel}; return changed files, commands, findings, and risks so the runner can append coordination state.`
+    : `Write or update the follow-up handoff at ${followupHandoffRel}.`;
   return `You are a fresh vibe-recipe autopilot follow-up iteration.
 
 Use the ${recommendedSkill} contract for ${specRel}.
-Read AGENTS.md, ${specRel}, ${tasteReportRel}, relevant task handoffs, and .agent/commands.json.
+${readContext}
 Address the current REQUEST_CHANGES findings without expanding scope.
-Write or update the follow-up handoff at ${followupHandoffRel}.
+${writeInstruction}
 Run the focused check for this follow-up, then the relevant test command, and verify when practical.
 
 Forbidden:
@@ -674,13 +844,25 @@ function nextAgentIteration(maxIterations, specRel) {
   return agentRuns;
 }
 
+if (options.allApproved) {
+  const specs = approvedActiveSpecs();
+  if (!specs.length) {
+    fail("BLOCKED: no Approved or In Progress active specs found under .agent/spec/active/.");
+  }
+  printAllApprovedPlan(specs);
+  if (options.dryRun || options.statusOnly) {
+    process.exit(0);
+  }
+  fail("BLOCKED: --all-approved execution requires cook spec fan-out orchestration; rerun with --dry-run for the plan or invoke cook with human approval.", 2);
+}
+
 const spec = activeSpec();
 if (!spec) {
   fail("BLOCKED: no active spec found under .agent/spec/active/.");
 }
 
 const status = specStatus(spec);
-if (status !== "Approved" && status !== "In Progress") {
+if (!/^(Approved|In Progress)\b/.test(status)) {
   fail(`PAUSED: active spec is ${status}. Autopilot requires Approved or In Progress.`);
 }
 
@@ -725,8 +907,11 @@ for (let loop = 1; loop <= options.maxIterations; loop += 1) {
     if (options.dryRun) process.exit(0);
 
     if (output.includes("<autopilot>DONE</autopilot>")) {
-      if (!existsSync(handoff)) {
-        writeSelfHealedTaskHandoff(handoff, specRel, taskNumber, taskTitle, taskMeta, output);
+      if (isFolderSpec(spec)) {
+        writeSelfHealedTaskHandoff(spec, handoff, specRel, taskNumber, taskTitle, taskMeta, output);
+        appendProgress(`Task ${taskNumber} memory updated`, `- Task: ${taskTitle}\n- Runner appended coordination state to: ${relativePath(memoryPath(spec))}`);
+      } else if (!existsSync(handoff)) {
+        writeSelfHealedTaskHandoff(spec, handoff, specRel, taskNumber, taskTitle, taskMeta, output);
         appendProgress(`Task ${taskNumber} self-healed`, `- Task: ${taskTitle}\n- Runner synthesized the missing task handoff: ${relativePath(handoff)}`);
       }
       markTaskDone(spec, taskNumber);
@@ -750,19 +935,19 @@ for (let loop = 1; loop <= options.maxIterations; loop += 1) {
   const specNumber = specNumberFromPath(spec);
   writeState(specRel, runIteration, "taste", "running");
   appendProgress(`Iteration ${runIteration} started`, `- Phase: taste\n- Spec: ${specRel}`);
-  const output = runFreshAgent(buildTastePrompt(specRel, specNumber));
+  const output = runFreshAgent(buildTastePrompt(spec, specRel, specNumber));
   if (options.dryRun) process.exit(0);
 
   let tasteReport = latestTasteReport(spec);
   const tasteVerdict = autopilotVerdictFromOutput(output);
   if (!tasteReport && tasteVerdict) {
-    const recommendedSkill = recommendedFollowupFromOutput(output);
-    writeSelfHealedTasteReport(tasteReportPath(spec), spec, specRel, tasteVerdict, recommendedSkill, output);
-    tasteReport = latestTasteReport(spec);
-    appendProgress("Taste self-healed", `- Verdict: ${tasteVerdict}\n- Runner synthesized the missing taste report: ${relativePath(tasteReport)}`);
+      const recommendedSkill = recommendedFollowupFromOutput(output);
+      writeSelfHealedTasteReport(tasteReportPath(spec), spec, specRel, tasteVerdict, recommendedSkill, output);
+      tasteReport = latestTasteReport(spec);
+      appendProgress("Taste self-healed", `- Verdict: ${tasteVerdict}\n- Runner synthesized the missing taste report: ${relativePath(tasteReport)}`);
   }
 
-  const reportText = tasteReport && existsSync(tasteReport) ? readText(tasteReport) : "";
+  const reportText = tasteReport ? tasteReportText(tasteReport) : "";
   if (tasteVerdict === "APPROVE" || reportText.includes("Verdict: APPROVE")) {
     const releaseReadiness = tasteReport ? tasteReleaseReadiness(tasteReport) : "";
     if (!tasteReport) {
@@ -857,11 +1042,14 @@ for (let loop = 1; loop <= options.maxIterations; loop += 1) {
     writeState(specRel, followupIteration, `${recommendedSkill}-followup`, "running");
     appendProgress(`Iteration ${followupIteration} started`, `- Phase: ${recommendedSkill}-followup\n- Taste report: ${relativePath(tasteReport)}`);
     followupCount += 1;
-    const followupOutput = runFreshAgent(buildFollowupPrompt(specRel, relativePath(tasteReport), recommendedSkill, followupHandoffRel));
+    const followupOutput = runFreshAgent(buildFollowupPrompt(spec, specRel, relativePath(tasteReport), recommendedSkill, followupHandoffRel));
 
     if (followupOutput.includes("<autopilot>DONE</autopilot>")) {
-      if (!existsSync(followupHandoff)) {
-        writeSelfHealedFollowupHandoff(followupHandoff, specRel, recommendedSkill, followupOutput);
+      if (isFolderSpec(spec)) {
+        writeSelfHealedFollowupHandoff(spec, followupHandoff, specRel, recommendedSkill, followupOutput);
+        appendProgress("Follow-up memory updated", `- Recommended skill: ${recommendedSkill}\n- Runner appended coordination state to: ${relativePath(memoryPath(spec))}`);
+      } else if (!existsSync(followupHandoff)) {
+        writeSelfHealedFollowupHandoff(spec, followupHandoff, specRel, recommendedSkill, followupOutput);
         appendProgress("Follow-up self-healed", `- Recommended skill: ${recommendedSkill}\n- Runner synthesized the missing follow-up handoff: ${relativePath(followupHandoff)}`);
       }
       appendProgress("Follow-up done", `- Recommended skill: ${recommendedSkill}\n- Output: <autopilot>DONE</autopilot>`);

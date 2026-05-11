@@ -116,9 +116,3 @@ Acceptance:
 ## 열린 질문
 
 - {{open_question_or_none}}
-
-## Plate 상태
-
-- Required before cook: Yes
-- Status: Not planned
-- Notes: 구현 접근, 파일/모듈 경계, task breakdown, 검증 계획은 후속 `plate` 단계에서 작성한다.

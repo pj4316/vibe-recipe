@@ -1,0 +1,6 @@
+{
+  "parallelism": {
+    "worker_pool": 3,
+    "spec_fan_out": "auto"
+  }
+}

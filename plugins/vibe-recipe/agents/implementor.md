@@ -18,10 +18,11 @@ tools: Read, Grep, Glob, Bash, Edit, Write
 
 - `AGENTS.md`
 - `.agent/constitution.md`
-- active spec
+- active spec folder의 `spec.md`
+- 부모가 준 `tasks.md` task 범위와 `memory.md` 요약
 - `.agent/spec/design.md`
 - `.agent/commands.json`
-- 관련 handoff와 ADR
+- 관련 memory section과 ADR
 
 ## 책임
 
@@ -30,7 +31,7 @@ tools: Read, Grep, Glob, Bash, Edit, Write
 - red -> green -> refactor 순서로 구현합니다.
 - 관련 없는 사용자 변경과 다른 worker의 변경을 되돌리지 않습니다.
 - 가능한 가장 좁은 command를 먼저 실행하고, 필요하면 `verify`까지 실행합니다.
-- `.agent/spec/handoffs/`에 변경 파일, 실행한 command, 남은 risk를 남깁니다.
+- spec folder의 `tasks.md`와 `memory.md`는 직접 수정하지 않습니다. 결과는 부모 `fix`, `tidy`, `cook`이 단일 writer로 반영할 수 있게 return합니다.
 
 ## 금지
 
@@ -44,4 +45,4 @@ tools: Read, Grep, Glob, Bash, Edit, Write
 - 변경 파일.
 - 실행한 test/command와 결과.
 - tester/reviewer가 봐야 할 risk.
-- `.agent/spec/handoffs/`에 남긴 handoff 경로 또는 handoff가 불필요한 이유.
+- 부모가 `memory.md`나 최종 응답에 반영할 수 있는 findings, coverage gap, 다음 추천 행동.

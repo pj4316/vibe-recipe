@@ -80,7 +80,7 @@ subagent에는 증상, 재현 command, 관련 spec, 실패 로그 경로, write 
 
 ## Handoff 형식
 
-권장 경로는 `.agent/spec/handoffs/NNNN-fix.md`입니다. spec과 연결되지 않은 emergency debug라면 최종 응답에 같은 형식을 남기고, 이후 `recipe`가 필요하면 그렇게 추천합니다.
+권장 위치는 현재 spec folder의 `memory.md`에 append하는 `fix` 섹션입니다. spec과 연결되지 않은 emergency debug라면 최종 응답에 같은 형식을 남기고, 이후 `recipe`가 필요하면 그렇게 추천합니다.
 
 ```markdown
 # Fix Summary: NNNN <slug>
@@ -110,6 +110,23 @@ Status: fixed / blocked / escalated
 - Remaining risk:
 - Not fixed:
 - Next skill:
+```
+
+## Recommendation block
+
+원인 분류가 `spec mismatch`, `human-gated decision`, `environment/tooling`처럼 다음 경로를 선택해야 하는 경우와 fix 완료 후 `taste`로 넘길 때는 최종 응답에 `templates/recommendation-block.md`와 같은 헤더를 포함합니다.
+
+- 코드 결함이 확인됨: 1순위는 최소 `fix` 적용 후 focused check, 차선은 `cook`으로 미완성 task 보강입니다.
+- spec mismatch: 1순위는 `recipe` escalation, 차선은 코드 변경 없이 재현 evidence만 남기는 것입니다.
+- release/version 문제: 1순위는 `wrap` 또는 `serve` gate 복구, 차선은 release 중단입니다.
+- 수정 완료: 1순위는 `taste`, 차선은 추가 focused verification입니다.
+
+필수 헤더:
+
+```markdown
+### 현재 상태
+### 추천 행동
+### 사용자 확인이 필요한 이유
 ```
 
 ## 완료 조건

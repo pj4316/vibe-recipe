@@ -30,7 +30,7 @@ if (dangerousPatterns.some((pattern) => payload.includes(pattern))) {
   deny("dangerous command pattern");
 }
 
-const protectedPatterns = [".agent/constitution.md", ".agent/spec/INDEX.md", ".git/"];
+const protectedPatterns = [".agent/constitution.md", ".git/"];
 if (
   protectedPatterns.some((pattern) => payload.includes(pattern)) &&
   process.env.VIBE_RECIPE_ALLOW_PROTECTED_WRITE !== "1"

@@ -4,6 +4,8 @@
 
 `vibe-recipe`는 에이전트를 위한 spec-driven 코딩 워크플로우 플러그인입니다. 요리 메타포 기반 skill, 전문 subagent, deterministic hook, 프로젝트 템플릿, adapter script를 함께 제공해 프로젝트 초기화부터 spec 작성, 구현, 리뷰, 릴리스까지 일관된 흐름으로 진행할 수 있게 합니다.
 
+현재 플러그인 패키지는 spec을 `.agent/spec/active/NNNN-<slug>/{spec.md,tasks.md,memory.md}` 폴더로 관리합니다. `recipe`는 제품 의도를 `spec.md`에, `plate`는 구현 계획을 `tasks.md`에, `cook` 이후 handoff는 `memory.md`에 모읍니다.
+
 플러그인 자체를 사용하려면 [plugins/vibe-recipe/README.md](plugins/vibe-recipe/README.md)부터 읽는 것이 맞습니다. 저장소 루트는 최종 사용자용 플러그인 패키지가 아니라 마켓플레이스/카탈로그 레이어입니다.
 
 ## 구조
@@ -72,6 +74,7 @@ python3 -m json.tool .claude-plugin/marketplace.json >/dev/null
 python3 -m json.tool plugins/vibe-recipe/hooks/hooks.json >/dev/null
 node --check plugins/vibe-recipe/hooks/*.mjs plugins/vibe-recipe/scripts/*.mjs
 node plugins/vibe-recipe/scripts/build-universal-agents-md.mjs /tmp/vibe-recipe-AGENTS.md
+node plugins/vibe-recipe/scripts/verify-cross-platform.mjs
 ```
 
 이 검증은 marketplace JSON 문법, hook/script shell 문법, universal `AGENTS.md` builder 동작을 확인합니다.
