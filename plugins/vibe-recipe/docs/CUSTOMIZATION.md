@@ -18,6 +18,29 @@ Target projects store native commands in `.agent/commands.json`:
 
 If a stack changes, update the command values and keep the keys stable. Skills and hooks should read the `verify` command instead of guessing stack-specific commands.
 
+Parallel execution settings also live in `.agent/commands.json`:
+
+```json
+{
+  "parallelism": {
+    "worker_pool": 3,
+    "spec_fan_out": "auto"
+  }
+}
+```
+
+`worker_pool` controls task fan-out within one wave. `spec_fan_out` controls whether multiple Approved/In Progress specs can be planned for worktree fan-out; use `auto`, `ask`, or `off`.
+
+## Spec Folder Contract
+
+New specs use `.agent/spec/active/NNNN-<slug>/{spec.md,tasks.md,memory.md}`.
+
+- `spec.md`: product intent, scenarios, acceptance, requirements, non-goals.
+- `tasks.md`: plate plan, task checkboxes, wave/dependency metadata, verification plan.
+- `memory.md`: append-only handoff and shared findings.
+
+Do not regenerate `.agent/spec/INDEX.md` or `.agent/spec/handoffs/INDEX.md`; status views should scan folders on read.
+
 ## Hooks
 
 Hooks are conservative defaults. They block destructive command patterns, protected file writes, direct commits to main, commit messages without Conventional Commit shape, and missing spec footers. `.env.example` is treated as a safe scaffold file; real `.env` files still require an explicit override.

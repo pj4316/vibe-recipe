@@ -29,6 +29,7 @@ description: /vr:autopilot 호출 시 사용합니다. 명시적으로 동의한
 ```bash
 plugins/vibe-recipe/scripts/autopilot-run.mjs --repo . --tool codex --max-iterations 10
 plugins/vibe-recipe/scripts/autopilot-run.mjs --repo . --dry-run --once
+plugins/vibe-recipe/scripts/autopilot-run.mjs --repo . --dry-run --once --all-approved
 plugins/vibe-recipe/scripts/autopilot-run.mjs --repo . --status
 ```
 
@@ -36,9 +37,10 @@ plugins/vibe-recipe/scripts/autopilot-run.mjs --repo . --status
 - 기본 bounded loop budget은 `--max-followups 3`, `--max-same-recommendation-retries 2`, `--max-taste-loops 3`입니다.
 - 각 iteration은 fresh CLI instance를 실행합니다.
 - `--max-iterations`는 task, `taste`, follow-up, `wrap`을 포함한 전체 fresh-agent 실행 횟수 상한입니다.
+- `--all-approved`는 모든 Approved/In Progress active spec을 대상으로 spec fan-out 계획을 만든다. dry-run에서는 spec별 task source, memory path, next task, write scope를 보여주고, 실제 실행은 `cook --all-approved` human gate와 worktree 충돌 검토를 거친다.
 - Codex 기본 호출은 `codex exec --cd <repo> --sandbox workspace-write`입니다.
 - 상태 파일은 `.agent/autopilot/state.json`, append-only log는 `.agent/autopilot/progress.md`입니다.
-- runner는 phase/wave order에서 실행 가능한 첫 unchecked `Task N` 하나만 fresh agent에 맡깁니다. 이전 wave가 끝나지 않았거나 dependency가 남은 task는 건너뛰지 않습니다.
+- 기본 runner는 phase/wave order에서 실행 가능한 첫 unchecked `Task N` 하나만 fresh agent에 맡깁니다. 이전 wave가 끝나지 않았거나 dependency가 남은 task는 건너뛰지 않습니다. `--all-approved`는 단일 task 실행 대신 multi-spec plan을 만들고 cook fan-out으로 라우팅합니다.
 - fresh agent가 `<autopilot>DONE</autopilot>`을 반환하면 runner가 `- [x] Task N`으로 표시하고 task commit을 만듭니다.
 - fresh agent가 성공 신호를 냈는데 task handoff, follow-up handoff, taste report 같은 coordination artifact가 빠졌다면 runner가 progress log에 남기고 최소 artifact를 self-heal 생성합니다.
 - 모든 task가 완료되면 runner가 fresh `taste` iteration을 실행합니다.
@@ -79,12 +81,12 @@ Checkpoint commits: yes / no
 
 ## 상태 모델
 
-- `.agent/spec/active/NNNN-*.md`의 `## 작업 목록` checkbox가 task completion source입니다.
+- `.agent/spec/active/NNNN-<slug>/tasks.md`의 `## 작업 목록` checkbox가 task completion source입니다. legacy 단일 spec 파일은 migration 전 호환 입력으로만 읽습니다.
 - task 실행 가능 여부는 `Phase`, `Wave`, `Dependency`, `Parallel` 필드와 `## 실행 순서`를 기준으로 판단합니다.
 - `.agent/autopilot/state.json`은 현재 run metadata만 저장합니다.
 - `.agent/autopilot/progress.md`는 iteration별 append-only progress log입니다.
-- task별 근거는 `.agent/spec/handoffs/NNNN-task<N>.md`, cook summary, taste report입니다.
-- handoff나 report가 누락되면 runner가 self-heal artifact를 생성하고 그 사실을 progress log에 남깁니다.
+- task별 근거는 spec folder의 `memory.md`, cook summary, taste report입니다.
+- handoff나 report가 누락되면 runner가 `memory.md` 또는 progress log에 self-heal 사실을 남깁니다.
 - fresh agent transcript, 긴 diff, 긴 test log는 progress log에 붙이지 않고 evidence path만 남깁니다.
 
 ## 흐름
@@ -93,7 +95,7 @@ Checkpoint commits: yes / no
 2. Route: 접근 방식이나 vendor 선택이 불명확하면 `forage`로 option과 proposed ADR을 만듭니다.
 3. Plan: `recipe`로 승인 가능한 spec을 만들거나 보강합니다.
 4. Approval gate: spec이 `Approved`가 아니면 여기서 멈추고 사용자 승인을 요청합니다.
-5. Execute: 승인된 spec을 `cook`으로 phase/wave 순서에 맞춰 task 단위 구현합니다.
+5. Execute: 승인된 spec을 `cook`으로 phase/wave 순서에 맞춰 task 단위 구현합니다. `--all-approved`가 지정되면 모든 Approved/In Progress active spec을 스캔해 `cook --all-approved` 계획으로 넘깁니다.
 6. Review: 구현 후 `taste`를 실행하고 verdict를 확인합니다.
 7. Loop: `REQUEST_CHANGES`는 taste report의 loop recommendation을 따라 bounded `cook` 또는 `fix` follow-up을 반복합니다. 기본값은 follow-up 최대 3회, 같은 recommendation 최대 2회, `taste` loop 최대 3회입니다. 같은 finding이 반복되고 blocker가 줄지 않으면 중단합니다. `BLOCK`은 즉시 중단합니다.
 8. Stop: 기본적으로 `taste` report에서 멈춥니다. 사용자가 release-prep opt-in을 한 경우에만 `wrap`까지 진행하며, release set에는 모든 `Ready for Wrap` active spec을 포함 후보로 둡니다.

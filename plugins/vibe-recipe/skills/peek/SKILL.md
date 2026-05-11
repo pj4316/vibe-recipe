@@ -26,8 +26,8 @@ description: /vr:peek 호출 시 사용합니다. active spec, git 상태, pendi
 ## Read-only 점검 source
 
 - 현재 branch, ahead/behind 상태, dirty file, 최근 commit 5개.
-- `.agent/spec/active/`의 active spec과 status, branch, updated date, owner.
-- 최신 handoff와 최신 taste verdict.
+- `.agent/spec/active/`의 active spec 폴더와 `spec.md` status, `tasks.md` plate/task 상태, updated date, owner.
+- spec 폴더의 `memory.md`에 누적된 최신 handoff와 최신 taste verdict.
 - release 준비 상태: project changelog source, version source, tag, active spec별 latest taste verdict, `Ready for Wrap` 후보, verify command.
 - memory/config에 기록된 autopilot mode, budget cap, dry-run 상태.
 
@@ -37,8 +37,8 @@ description: /vr:peek 호출 시 사용합니다. active spec, git 상태, pendi
 | --- | --- |
 | `git status --short --branch` | branch, dirty tree, staged/unstaged/untracked |
 | `git log --oneline -5` | 최근 작업 맥락 |
-| `.agent/spec/active/` | active spec, status, next task |
-| `.agent/spec/handoffs/` | 최신 cook/fix/taste report |
+| `.agent/spec/active/` | active spec 폴더, `spec.md` status, `tasks.md` next task |
+| `.agent/spec/active/*/memory.md` | 최신 cook/fix/taste report |
 | `.agent/commands.json` | focused/test/e2e/verify command 존재 여부 |
 | `.agent/autopilot/state.json` | opt-in run, stop point, budget |
 | project changelog source, version source, tags | release 준비 신호. public manifest가 없으면 `.agent/release-manifest.json`, release notes file이 없으면 bootstrap `CHANGELOG.md`까지 확인 |
@@ -64,7 +64,7 @@ description: /vr:peek 호출 시 사용합니다. active spec, git 상태, pendi
 | --- | --- |
 | 제품 의도나 scope가 불명확함 | `recipe`에서 alignment 질문 |
 | active spec이 없거나 draft 작성이 필요함 | `recipe` |
-| active spec에 `Plate 상태: Planned`가 없음 | `plate` |
+| active spec 폴더에 `tasks.md`가 없거나 `Plate 상태: Planned`가 없음 | `plate` |
 | 기술 선택이 blocking함 | `forage` |
 | approved plated task가 남아 있음 | `cook` |
 | 실패나 regression이 보임 | `fix` |
@@ -112,7 +112,7 @@ Status: ready / needs-plan / needs-plate / needs-work / needs-review / blocked /
 ## 완료 조건
 
 - 현재 branch와 dirty state를 확인했습니다.
-- active spec과 최신 handoff/review 상태가 있으면 요약했습니다.
+- active spec 폴더와 최신 `memory.md` handoff/review 상태가 있으면 요약했습니다.
 - release readiness를 묻는 경우 active spec별 latest taste, `Ready for Wrap`, wrap summary, verify/changelog/tag 신호를 분리했습니다.
 - 가장 안전한 다음 skill과 이유가 있습니다.
 - 읽지 못한 source는 `Missing`으로 표시했습니다.

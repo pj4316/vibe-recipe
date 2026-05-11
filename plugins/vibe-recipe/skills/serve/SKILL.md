@@ -55,7 +55,7 @@ description: /vr:serve 호출 시 사용합니다. release gate를 실행하고 
 2. Gate: `.agent/commands.json`의 `verify`를 실행하고 실패하면 `BLOCK`으로 멈춥니다.
 3. Version check: version source, project changelog source heading, tag name이 모두 `X.Y.Z`로 일치하는지 확인합니다. mirror public manifests set이면 모든 manifest version을 검사합니다.
 4. Tag: local annotated tag `vX.Y.Z`를 생성합니다. tag message에는 changelog 요약과 wrap summary path를 포함합니다.
-5. Lifecycle close: tag가 성공하면 `librarian`에게 release set에 포함된 active spec만 `done/`으로 이동하고 `.agent/spec/INDEX.md`를 재생성하게 합니다. 제외된 active spec은 그대로 둡니다.
+5. Lifecycle close: tag가 성공하면 `librarian`에게 release set에 포함된 active spec folder만 `done/`으로 이동하게 합니다. 제외된 active spec은 그대로 둡니다. `.agent/spec/INDEX.md`는 재생성하지 않습니다.
 6. Bookkeeping commit: lifecycle close 변경만 별도 `chore(spec): close vX.Y.Z release set` commit으로 남깁니다. release tag는 release prep commit을 가리키며, bookkeeping commit은 tag 이후의 workflow 정리입니다.
 7. Optional hook: `.hooks/release.mjs`가 있으면 별도 명시 승인을 받은 경우에만 실행합니다.
 8. Summary: release gate summary를 최종 응답에 남깁니다.
@@ -119,6 +119,22 @@ Status: tagged / blocked
 - Blocked reason:
 - Why this gate exists:
 - How to unblock:
+```
+
+## Recommendation block
+
+release gate 결과, local tag 직전, push/deploy/publish 직전에는 최종 응답에 `templates/recommendation-block.md`와 같은 헤더를 포함합니다.
+
+- `serve` gate 통과: 1순위는 local annotated tag 생성, 차선은 tag 전 보류입니다.
+- push/deploy/publish 직전: 1순위는 사용자가 승인한 정확한 command 실행, 차선은 명령을 실행하지 않고 수동 배포 지침만 남기는 것입니다.
+- blocked: 1순위는 `wrap`, `fix`, `taste` 중 blocker를 직접 해소하는 skill, 차선은 release 중단입니다.
+
+필수 헤더:
+
+```markdown
+### 현재 상태
+### 추천 행동
+### 사용자 확인이 필요한 이유
 ```
 
 ## Hard rule

@@ -94,14 +94,25 @@ kitchen -> recipe -> plate -> cook -> taste -> wrap -> serve
 각 단계는 다음 역할을 맡습니다.
 
 - `kitchen`은 대상 프로젝트를 점검하고, `AGENTS.md`, `.agent/`, command profile, runbook 같은 실행 harness를 준비합니다.
-- `recipe`는 사용자의 요청을 번호가 붙은 spec으로 바꾸고, 제품 의도, user story, acceptance criteria를 정리합니다.
-- `plate`는 repo 구조와 기존 패턴을 읽어 spec을 구현 가능한 task breakdown, write scope, dependency, 검증 계획으로 바꿉니다.
-- `cook`은 승인된 spec과 `plate` 계획을 기준으로 task를 하나씩 구현하고, 각 task가 어떤 acceptance를 cover하는지 기록합니다.
+- `recipe`는 사용자의 요청을 번호가 붙은 spec folder로 바꾸고, `spec.md`에 제품 의도, user story, acceptance criteria를 정리합니다.
+- `plate`는 repo 구조와 기존 패턴을 읽어 `tasks.md`를 구현 가능한 task breakdown, write scope, dependency, 검증 계획으로 보강합니다.
+- `cook`은 승인된 `spec.md`와 `tasks.md` 계획을 기준으로 task를 구현하고, 결과와 공유 사실을 `tasks.md`와 `memory.md`에 기록합니다.
 - `taste`는 regression, coverage, code review, security, red-team 결과를 합성해 `APPROVE`, `REQUEST_CHANGES`, `BLOCK` 중 하나의 verdict를 냅니다.
 - `wrap`은 `APPROVE`된 spec을 release set으로 묶고 version과 changelog 변경을 준비합니다.
 - `serve`는 release gate와 local tag를 처리한 뒤 human-approved push 또는 deploy 직전에 멈춥니다.
 
-자동화는 명시적으로 opt-in한 범위 안에서만 동작합니다. `autopilot`은 한 번에 하나의 unchecked task만 처리하고 기본적으로 `taste`에서 멈추며, `serve`, push, deploy, publish는 자동으로 실행하지 않습니다.
+자동화는 명시적으로 opt-in한 범위 안에서만 동작합니다. `autopilot`은 기본적으로 한 번에 하나의 unchecked task만 처리하고 `taste`에서 멈추며, `serve`, push, deploy, publish는 자동으로 실행하지 않습니다. 여러 Approved spec을 확인할 때는 `--all-approved` dry-run으로 spec fan-out 계획을 먼저 보고, 실제 실행은 `cook`의 human gate와 write scope 충돌 검토를 거칩니다.
+
+Spec은 기본적으로 아래 3개 파일로 유지됩니다.
+
+```text
+.agent/spec/active/NNNN-<slug>/
+  spec.md
+  tasks.md
+  memory.md
+```
+
+사람 확인이 필요한 gate에서는 `### 현재 상태`, `### 추천 행동`, `### 사용자 확인이 필요한 이유` 형식의 recommendation block으로 다음 행동과 근거를 제시합니다.
 
 ## 기본 사용 흐름
 
@@ -191,6 +202,12 @@ node plugins/vibe-recipe/scripts/autopilot-run.mjs --repo . --tool codex --max-i
 
 ```bash
 node plugins/vibe-recipe/scripts/autopilot-run.mjs --repo . --dry-run --once
+```
+
+여러 Approved/In Progress spec의 fan-out 후보를 보려면:
+
+```bash
+node plugins/vibe-recipe/scripts/autopilot-run.mjs --repo . --dry-run --once --all-approved
 ```
 
 `autopilot`은 한 번에 하나의 unchecked task만 처리하고, 기본적으로 `taste`에서 멈추며, `serve`, push, deploy, publish는 자동으로 실행하지 않습니다.

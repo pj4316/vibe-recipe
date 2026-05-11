@@ -12,8 +12,7 @@
       ".env",
       ".env.*",
       ".git/**",
-      ".agent/constitution.md",
-      ".agent/spec/INDEX.md"
+      ".agent/constitution.md"
     ],
     "dangerousPatterns": [
       "rm -rf /",
