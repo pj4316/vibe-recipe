@@ -15,6 +15,7 @@ import { basename, dirname, join, relative, resolve } from "node:path";
 import { spawnSync } from "node:child_process";
 import { createHash } from "node:crypto";
 import { taskPlanFromBody } from "./lib/task-plan.mjs";
+import { allowedTaskCommitPathspecs, outOfScopeRepoPaths, pathspecsFromWriteScope } from "./lib/git-stage-policy.mjs";
 
 const usage = `Usage: autopilot-run.mjs [options]
 
@@ -119,6 +120,14 @@ function run(command, args = [], opts = {}) {
     shell: process.platform === "win32",
     ...opts,
   });
+}
+
+function runRequired(command, args = [], opts = {}) {
+  const result = run(command, args, opts);
+  if (result.status !== 0) {
+    fail(`BLOCKED: ${command} ${args.join(" ")} failed.`, result.status ?? 1);
+  }
+  return result;
 }
 
 function commandExists(command) {
@@ -324,6 +333,59 @@ function ensureCleanTree() {
     console.error(dirty);
     process.exit(2);
   }
+}
+
+function changedButUnstagedLines() {
+  return run("git", ["status", "--porcelain"]).stdout
+    .split(/\r?\n/)
+    .filter(Boolean)
+    .filter((line) => line.startsWith("??") || line[1] !== " ");
+}
+
+function stagedChangedPaths() {
+  return run("git", ["diff", "--cached", "--name-only"]).stdout
+    .split(/\r?\n/)
+    .filter(Boolean);
+}
+
+function coordinationPathspecs(specPath) {
+  const paths = [
+    taskSourcePath(specPath),
+    stateFile,
+    progressFile,
+  ];
+  if (isFolderSpec(specPath)) {
+    paths.push(memoryPath(specPath));
+  }
+  return paths;
+}
+
+function allPlannedWriteScopes(specPath) {
+  return taskPlan(specPath).tasks.flatMap((task) => pathspecsFromWriteScope(task.metadata["write scope"]));
+}
+
+function stageAndCommit(pathspecs, message, refs) {
+  const allowed = [...new Set(pathspecs)];
+  if (!allowed.length) {
+    fail("BLOCKED: no allowed pathspecs were available for autopilot commit.");
+  }
+  runRequired("git", ["add", "-A", "--", ...allowed], { stdio: "inherit" });
+
+  const outOfScopeStaged = outOfScopeRepoPaths(stagedChangedPaths(), allowed);
+  if (outOfScopeStaged.length) {
+    console.error("BLOCKED: autopilot staged files outside the allowed write scope.");
+    console.error(outOfScopeStaged.map((path) => ` ${path}`).join("\n"));
+    fail("BLOCKED: refusing to commit out-of-scope staged changes.");
+  }
+
+  const unstaged = changedButUnstagedLines();
+  if (unstaged.length) {
+    console.error("BLOCKED: autopilot changed files outside the allowed write scope.");
+    console.error(unstaged.join("\n"));
+    fail("BLOCKED: refusing to commit out-of-scope changes.");
+  }
+
+  runRequired("git", ["commit", "-m", message, "-m", `Refs: ${refs}`], { stdio: "inherit" });
 }
 
 function markTaskDone(specPath, taskNumber) {
@@ -796,8 +858,14 @@ for (let loop = 1; loop <= options.maxIterations; loop += 1) {
       markTaskDone(spec, taskNumber);
       appendProgress(`Task ${taskNumber} done`, `- Task: ${taskTitle}\n- Output: <autopilot>DONE</autopilot>`);
       writeState(specRel, runIteration, `Task ${taskNumber}`, "done");
-      run("git", ["add", "-A"], { stdio: "inherit" });
-      run("git", ["commit", "-m", `chore(autopilot): complete Task ${taskNumber}`, "-m", `Refs: ${specRel}`], { stdio: "inherit" });
+      stageAndCommit(
+        allowedTaskCommitPathspecs(repo, taskMeta["write scope"], [
+          ...coordinationPathspecs(spec),
+          ...(isFolderSpec(spec) ? [] : [handoff]),
+        ]),
+        `chore(autopilot): complete Task ${taskNumber}`,
+        specRel,
+      );
       if (options.once) {
         console.log("PAUSED: completed one iteration.");
         process.exit(0);
@@ -933,8 +1001,14 @@ for (let loop = 1; loop <= options.maxIterations; loop += 1) {
       }
       appendProgress("Follow-up done", `- Recommended skill: ${recommendedSkill}\n- Output: <autopilot>DONE</autopilot>`);
       writeState(specRel, followupIteration, `${recommendedSkill}-followup`, "done");
-      run("git", ["add", "-A"], { stdio: "inherit" });
-      run("git", ["commit", "-m", "chore(autopilot): address taste follow-up", "-m", `Refs: ${specRel}`], { stdio: "inherit" });
+      stageAndCommit(
+        allowedTaskCommitPathspecs(repo, allPlannedWriteScopes(spec).join(","), [
+          ...coordinationPathspecs(spec),
+          ...(isFolderSpec(spec) ? [] : [followupHandoff]),
+        ]),
+        "chore(autopilot): address taste follow-up",
+        specRel,
+      );
       continue;
     }
 
