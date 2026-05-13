@@ -65,6 +65,9 @@ parts.push(`You are working with the vibe-recipe workflow.
 - Codex does not currently support repository-scoped plugin enablement like Claude Code project settings. Do not create fake \`.codex/config.toml\` plugin blocks; use \`codex plugin marketplace add https://github.com/pj4316/vibe-recipe.git\` and user config bootstrap instead.
 - Use \`peek\` for read-only status before changing direction.
 - Use \`forage\` before \`recipe\` when library, vendor, API, architecture, or approach choices are unclear.
+- Treat \`recipe\` as the requirements-clarification gate: resolve actor, trigger, success result, non-goals, and failure/abuse cases before writing implementation tasks.
+- Treat \`plate\` as the execution-plan gate: define write scopes, dependencies, wave order, parallel candidates, and verification before \`cook\`.
+- Run engineering plan review after \`plate\` and before \`cook\` when task scope, dependency graph, migration, public API, or parallel execution risk is non-trivial.
 - Use \`cook\` only for approved or in-progress specs that have a \`plate\` plan. It orchestrates task work and preserves recipe scope.
 - Use \`fix\` for failing tests, regressions, production symptoms, or review/release blockers.
 - Use \`tidy\` only for behavior-preserving refactors and prove equivalence with tests, snapshots, commands, or manual checks.
@@ -72,6 +75,8 @@ parts.push(`You are working with the vibe-recipe workflow.
 - Use \`wrap\` to prepare version and changelog after \`taste APPROVE\`.
 - Use \`serve\` to run release gates and create a local annotated tag. Never push, deploy, publish, or approve human-gated actions automatically.
 - Use \`autopilot\` only after explicit opt-in. It never approves specs, \`serve\`, push, deploy, publish, payment, auth, or data-loss decisions.
+- Keep \`cook\` commits task-sized. If a task exceeds 8 changed files, 500 diff lines, 2 top-level modules, or its declared write scope, stop and split or return to \`plate\`.
+- Automatic commits may stage only the task write scope and coordination files such as \`tasks.md\`, \`memory.md\`, and \`.agent/autopilot/\`.
 
 Respect existing project instructions, user changes, and dirty working trees. Read repo facts before asking questions that can be answered locally. If harness files are missing, recommend \`kitchen\` instead of inventing local conventions.
 `);

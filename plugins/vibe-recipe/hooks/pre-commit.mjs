@@ -21,7 +21,7 @@ if (msgFile) {
   const message = readFileSync(msgFile, "utf8");
   const firstLine = message.split(/\r?\n/, 1)[0] || "";
   const conventionalCommit = /^(feat|fix|refactor|docs|chore|test|build|ci|perf|style)(\([^)]+\))?!?: .+/;
-  const specRefs = /^Refs: \.agent\/spec\/(active|done|archived|abandoned)\/[0-9]{4}-[-a-z0-9]+\.md$/m;
+  const specRefs = /^Refs: \.agent\/spec\/(active|done|archived|abandoned)\/[0-9]{4}-[-a-z0-9]+(?:\.md|\/spec\.md)$/m;
 
   if (!conventionalCommit.test(firstLine)) {
     console.error("vibe-recipe: commit message must follow Conventional Commits.");
